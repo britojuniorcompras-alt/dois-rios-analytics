@@ -827,9 +827,11 @@ async function primeiroAcesso(){
     ocupado(false);
   }catch(e){
     ocupado(false);
-    erro(/not authorized|nao autorizado|autorizado/i.test(e.message)
-      ? 'Este e-mail não está liberado. Fale com o administrador.'
-      : (/already/i.test(e.message)?'Esse e-mail já tem conta. Use Entrar, ou Esqueci a senha.':e.message));
+    // o Supabase devolve a recusa do gatilho como erro genérico de banco
+    erro(/not authorized|autorizado|database error|saving new user/i.test(e.message)
+      ? 'Este e-mail não está liberado para acessar. Fale com o administrador.'
+      : (/already|registered/i.test(e.message)?'Esse e-mail já tem conta. Use Entrar, ou Esqueci a senha.'
+      : (/password/i.test(e.message)?'Senha muito curta: use ao menos 6 caracteres.':e.message)));
   }
 }
 async function esqueciSenha(){
