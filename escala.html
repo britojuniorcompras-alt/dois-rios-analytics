@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escala — a bela Sintra</title>
+<style id="estilo-pagina">@page{size:A4 landscape;margin:8mm}</style>
+<style>
+:root{
+  --azul:#1b4965; --azul-claro:#2a6f97; --azul-suave:#e8f0f5;
+  --creme:#faf6ef; --branco:#fff;
+  --terracota:#c1663f; --verde:#2e7d5b; --vermelho:#b33a3a; --amarelo:#c9961e;
+  --texto:#22313a; --fraco:#6b7d87; --borda:#d9e2e8;
+  --sombra:0 1px 3px rgba(27,73,101,.08),0 4px 16px rgba(27,73,101,.06);
+  --folga:#f1f4f6; --folga-tx:#8b979e; --ferias:#fdf6e3; --ferias-tx:#a8820f;
+  --linha:#eef3f6; --domingo:#f5f8fa; --zebra:rgba(0,0,0,.012);
+  --ok-bg:#eaf6f0; --al-bg:#fdf6e3; --ru-bg:#fbedec; --at-tx:#8a6a12;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--creme);color:var(--texto);line-height:1.5;-webkit-font-smoothing:antialiased}
+header{background:var(--azul);color:#fff;padding:14px 20px}
+.hdr{max-width:1500px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.marca{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.marca small{display:block;font-size:10px;font-weight:400;opacity:.75;letter-spacing:.6px;text-transform:uppercase}
+.sino{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;color:#fff;font-family:inherit}
+.sino:hover{background:rgba(255,255,255,.2)}
+nav{background:var(--branco);border-bottom:1px solid var(--borda);position:sticky;top:0;z-index:40}
+.nav-in{max-width:1500px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none}
+.nav-in::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:13px 17px;border:none;background:none;font:600 14px inherit;color:var(--fraco);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--azul);background:var(--azul-suave)}
+.tab.on{color:var(--azul);border-bottom-color:var(--terracota)}
+.tab .bolha{display:inline-block;min-width:17px;padding:0 4px;margin-left:5px;border-radius:9px;background:var(--vermelho);color:#fff;font-size:10px;line-height:17px;text-align:center}
+#menu-temas{background:var(--branco);border-bottom:1px solid var(--borda);display:none}
+#menu-temas.on{display:block}
+.temas-in{max-width:1500px;margin:0 auto;padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.tema-c{border:1px solid var(--borda);border-radius:11px;padding:10px 12px;cursor:pointer;background:var(--branco);
+  min-width:168px;text-align:left;font-family:inherit;transition:.12s}
+.tema-c:hover{border-color:var(--azul-claro);transform:translateY(-1px)}
+.tema-c.sel{border-color:var(--terracota);box-shadow:0 0 0 2px rgba(193,102,63,.22)}
+.tema-c b{display:block;font-size:13px;color:var(--texto)}
+.tema-c span{display:block;font-size:11px;color:var(--fraco);margin-bottom:7px}
+.swatch{display:flex;gap:3px}
+.swatch i{width:20px;height:20px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.08)}
+#barra{background:var(--azul-suave);border-bottom:1px solid var(--borda)}
+.barra-in{max-width:1500px;margin:0 auto;padding:9px 20px;display:flex;gap:20px;flex-wrap:wrap}
+.bi{display:flex;flex-direction:column;line-height:1.2}
+.bi span{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--fraco)}
+.bi b{font-size:15px;color:var(--azul)}
+main{max-width:1500px;margin:0 auto;padding:22px 20px 70px}
+.painel{display:none}.painel.on{display:block}
+h2{font-size:21px;letter-spacing:-.4px;margin-bottom:3px}
+.sub{color:var(--fraco);font-size:13px;margin-bottom:18px;max-width:760px}
+.card{background:var(--branco);border:1px solid var(--borda);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:var(--sombra)}
+.card h3{font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--azul);margin-bottom:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{text-transform:none;letter-spacing:0;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--azul-suave);color:var(--azul-claro)}
+button,select,input{font-family:inherit;font-size:14px}
+.btn{background:var(--azul);color:#fff;border:none;padding:9px 15px;border-radius:8px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--azul-claro)}
+.btn.sec{background:var(--branco);color:var(--azul);border:1px solid var(--borda)}
+.btn.sec:hover{background:var(--azul-suave)}
+.btn.terr{background:var(--terracota)}.btn.terr:hover{background:#d4764d}
+.btn.vd{background:var(--verde)}.btn.vd:hover{background:#389a6f}
+.btn.mini{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.linha{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input[type=text],input[type=number],input[type=time],input[type=date],select{padding:8px 10px;border:1px solid var(--borda);border-radius:7px;background:var(--branco);color:var(--texto);width:100%}
+label{display:block;font-size:11px;font-weight:600;color:var(--fraco);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.grade{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 9px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--fraco);border-bottom:2px solid var(--borda);white-space:nowrap}
+td{padding:6px 9px;border-bottom:1px solid var(--linha)}
+.rolar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.vazio{text-align:center;padding:36px 18px;color:var(--fraco)}
+.vazio p{margin-bottom:12px}
+.ponto{display:inline-block;width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.ok{color:var(--verde)}.alerta{color:var(--amarelo)}.ruim{color:var(--vermelho)}
+.bg-ok{background:var(--ok-bg)}.bg-alerta{background:var(--al-bg)}.bg-ruim{background:var(--ru-bg)}
+.sep td{background:var(--azul-suave);font-weight:700;color:var(--azul);font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:5px 9px}
+.nota{background:var(--azul-suave);border-left:3px solid var(--azul-claro);padding:11px 13px;border-radius:0 8px 8px 0;font-size:13px;color:var(--azul);margin-bottom:14px}
+.nota.at{background:var(--al-bg);border-left-color:var(--amarelo);color:var(--at-tx)}
+.nota.bo{background:#eaf6f0;border-left-color:var(--verde);color:#1e5c42}
+/* grade do mês */
+.cel{padding:2px 1px!important;text-align:center}
+.cel button{width:31px;height:29px;border:1px solid transparent;border-radius:7px;
+  background:var(--azul-suave);color:var(--azul);font:700 11px inherit;cursor:pointer;padding:0;
+  letter-spacing:.3px;transition:transform .08s,box-shadow .12s}
+.cel button:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.14);outline:none}
+.cel button:active{transform:none}
+tbody tr:hover td{background:var(--zebra)}
+.cel button.f{background:var(--folga);color:var(--folga-tx)}
+.cel button.fer{background:var(--ferias);color:var(--ferias-tx)}
+.cel button.falta{background:#fbedec;color:var(--vermelho);border-color:#e8bcbc}
+.cel button.man{box-shadow:inset 0 -3px 0 var(--terracota)}
+.cel button:hover{outline:2px solid var(--azul-claro)}
+.dom{background:var(--domingo)}
+th.dom{color:var(--terracota)}
+.ini{border-left:2px solid var(--borda)!important}
+.sep td{border-radius:0}
+#grade tbody tr:nth-child(odd) td{background-color:var(--zebra)}
+#grade tbody tr.sep td{background:var(--azul-suave)}
+/* semana ativa e dia de hoje: realce por fundo, não por caixa em volta de cada célula */
+td.ativa,th.ativa{background-color:rgba(193,102,63,.08)}
+th.ativa{border-bottom:3px solid var(--terracota)!important;color:var(--terracota)}
+td.hoje-col,th.hoje-col{background-color:rgba(46,125,91,.12)}
+th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
+#grade tbody tr:nth-child(odd) td.ativa{background-color:rgba(193,102,63,.11)}
+#grade tbody tr:nth-child(odd) td.hoje-col{background-color:rgba(46,125,91,.15)}
+/* pincel */
+@keyframes piscar{0%{box-shadow:0 0 0 0 rgba(193,102,63,.55)}100%{box-shadow:0 0 0 14px rgba(193,102,63,0)}}
+.destaque{animation:piscar 1s ease-out 2;border-color:var(--terracota)!important}
+#pincel{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:var(--azul-suave);border-radius:10px;margin-bottom:12px}
+#pincel b{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--azul);margin-right:4px}
+.pb{min-width:40px;height:30px;border:1px solid var(--borda);border-radius:6px;background:var(--branco);font:700 11px inherit;cursor:pointer;padding:0 8px}
+.pb.sel{outline:2px solid var(--azul);outline-offset:1px}
+/* sugestões */
+.sug{border:1px solid var(--borda);border-left-width:4px;border-radius:9px;padding:13px 15px;margin-bottom:10px;background:var(--branco)}
+.sug.c{border-left-color:var(--vermelho)}
+.sug.a{border-left-color:var(--amarelo)}
+.sug.d{border-left-color:var(--azul-claro)}
+.sug .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.sug h4{font-size:14px;margin-bottom:3px}
+.sug p{font-size:12.5px;color:var(--fraco);margin:0}
+.sug .niv{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 7px;border-radius:20px;margin-right:6px;vertical-align:1px}
+.niv.c{background:#fbedec;color:var(--vermelho)}
+.niv.a{background:var(--al-bg);color:var(--at-tx)}
+.niv.d{background:var(--azul-suave);color:var(--azul-claro)}
+/* cartões de pessoa */
+.pes{border:1px solid var(--borda);border-radius:10px;padding:12px;background:var(--branco)}
+.pes h4{font-size:14px;margin-bottom:1px}
+.pes .fn{font-size:10px;color:var(--fraco);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
+.mini7{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:9.5px;text-align:center}
+.mini7 div{padding:4px 1px;border-radius:5px;background:var(--azul-suave);line-height:1.25}
+.mini7 div.f{background:var(--folga);color:var(--fraco)}
+.mini7 b{display:block;font-size:8.5px;opacity:.7;text-transform:uppercase}
+.barrinha{height:7px;background:var(--linha);border-radius:4px;overflow:hidden;margin-top:5px}
+.barrinha>div{height:100%;border-radius:4px}
+.rod{text-align:center;font-size:11px;color:var(--fraco);padding:22px;border-top:1px solid var(--borda);margin-top:26px}
+#cabimp{display:none}
+@media(max-width:640px){
+  main{padding:14px 12px 60px}.card{padding:13px}h2{font-size:18px}
+  .barra-in{gap:13px;padding:8px 12px}.bi b{font-size:13px}
+}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{background:#fff!important;color:#1c1c1c!important;font-size:9px}
+  #menu-temas{display:none!important}
+  .card,.pes,.sug{background:#fff!important}
+  header,nav,#barra,.linha,.btn,.sub,#pincel,#sel-sem,.nao-imp,
+  #esc-avisos,.nota.at{display:none!important}
+  .painel{display:none!important}.painel.on{display:block!important}
+  main{padding:0;max-width:none}h2{display:none}
+  #cabimp{display:block;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #1b4965}
+  #cabimp b{font-size:13px;color:#1b4965}
+  #cabimp span{float:right;font-size:9px;color:#555}
+  .card{box-shadow:none;border:none;padding:0;margin:0 0 8px}
+  .card h3{font-size:10px;margin-bottom:4px}
+  .rolar{overflow:visible!important}
+  table{font-size:8px}thead{display:table-header-group}
+  tr{break-inside:avoid}th,td{padding:1px 2px!important;border:1px solid #c9d4db}
+  th[style*=sticky],td[style*=sticky]{position:static!important}
+  .cel{padding:0!important}
+  .cel button{width:100%;min-height:12px;border:none;border-radius:0;font-size:7px;padding:1px 0;display:block}
+  .cel button.man{border-bottom:2px solid #c1663f!important}
+  td.ativa,th.ativa,td.hoje-col,th.hoje-col{background-color:transparent!important;border-bottom-width:1px!important}
+  #box-cob{display:none!important}
+  body.imp-grade #box-cartoes{display:none!important}
+  body.imp-cartoes #box-grade,body.imp-cartoes #box-leg{display:none!important}
+  body.imp-hoje #hoje-alerta{display:none!important}
+
+  /* A4 em pé: a grade do mês não cabe, então sai só a parte legível */
+  body.imp-pe table{font-size:7px}
+  body.imp-pe .cel button{min-height:10px;font-size:6px}
+  body.imp-pe .grade.g2{grid-template-columns:repeat(2,1fr)!important}
+
+  /* Celular: uma pessoa por bloco, letra grande, leitura no telefone */
+  body.imp-celular #box-grade,body.imp-celular #box-leg,body.imp-celular #box-cob{display:none!important}
+  body.imp-celular{font-size:12px}
+  body.imp-celular .grade.g2{grid-template-columns:1fr!important;gap:9px!important}
+  body.imp-celular .pes{padding:11px;break-inside:avoid;border:1px solid #c9d4db}
+  body.imp-celular .pes h4{font-size:16px}
+  body.imp-celular .pes .fn{font-size:11px}
+  body.imp-celular .mini7{font-size:11px;gap:3px}
+  body.imp-celular .mini7 div{padding:6px 2px}
+  body.imp-celular .mini7 b{font-size:10px}
+  body.imp-celular #cabimp b{font-size:14px}
+  body.imp-celular #cabimp span{float:none;display:block;margin-top:3px}
+  .grade.g2{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+  .pes{break-inside:avoid;padding:6px}
+  #box-leg{break-inside:avoid}#box-leg .g3{grid-template-columns:repeat(5,1fr)!important}
+}
+</style>
+</head>
+<body>
+
+<header><div class="hdr">
+  <div class="marca">Escala · a bela Sintra<small id="sub-hdr">Gestão de escala</small></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="sino" onclick="irPara('sugestoes')" id="sino"></button>
+    <button class="sino" onclick="abrirTemas()" title="Mudar as cores do app">Cores</button>
+  </div>
+</div></header>
+<div id="menu-temas"></div>
+
+<nav><div class="nav-in">
+  <button class="tab on" data-p="hoje">Hoje</button>
+  <button class="tab" data-p="escala">Escala</button>
+  <button class="tab" data-p="sugestoes" id="tab-sug">Sugestões</button>
+  <button class="tab" data-p="equipe">Equipe</button>
+  <button class="tab" data-p="cobertura">Cobertura</button>
+  <button class="tab" data-p="fechamento">Fechamento</button>
+  <button class="tab" data-p="ajustes">Ajustes</button>
+</div></nav>
+<div id="barra"></div>
+
+<main>
+<div id="cabimp"></div>
+
+<!-- HOJE -->
+<section class="painel on" id="p-hoje">
+  <h2 id="t-hoje">Hoje</h2>
+  <p class="sub">Quem está escalado, quem faltou e quem pode cobrir. É daqui que você toca o dia.</p>
+  <div class="linha">
+    <button class="btn sec" onclick="andarDia(-1)">◀ Ontem</button>
+    <input type="date" id="dia-sel" style="width:auto" onchange="setDiaSel(this.value)">
+    <button class="btn sec" onclick="andarDia(1)">Amanhã ▶</button>
+    <button class="btn sec" onclick="setDiaSel(hojeISO())">Voltar para hoje</button>
+    <button class="btn sec" onclick="imprimirDia()">Imprimir este dia</button>
+  </div>
+  <div id="hoje-alerta"></div>
+  <div id="hoje-conteudo"></div>
+</section>
+
+<!-- ESCALA -->
+<section class="painel" id="p-escala">
+  <h2>Escala do mês</h2>
+  <p class="sub">Escolha um estado no pincel e clique nas células para pintar. O gerador respeita tudo que você ajustar à mão.</p>
+  <div class="linha">
+    <button class="btn sec" onclick="andarMes(-1)">◀</button>
+    <b id="rot-mes" style="min-width:150px;text-align:center"></b>
+    <button class="btn sec" onclick="andarMes(1)">▶</button>
+    <button class="btn terr" onclick="gerarMes()">Gerar mês</button>
+    <button class="btn sec" onclick="gerarSemana()">Gerar semana ativa</button>
+    <button class="btn vd" onclick="otimizar()">Otimizar folgas</button>
+    <button class="btn sec" onclick="limparMes()">Limpar</button>
+    <button class="btn vd" onclick="abrirCopia()">Copiar dia/semana…</button>
+    <button class="btn sec" onclick="abrirImp()">Imprimir…</button>
+    <button class="btn sec" onclick="copiarWhats()">WhatsApp</button>
+  </div>
+  <div class="card nao-imp" id="painel-copia" style="display:none">
+    <h3>Copiar escala</h3>
+    <div id="copia-corpo"></div>
+  </div>
+  <div class="card nao-imp" id="painel-imp" style="display:none">
+    <h3>Imprimir</h3>
+    <div class="nota">Escolha as duas opções abaixo e clique em <b>Gerar impressão</b>. A janela de impressão do navegador abre em seguida.</div>
+    <div class="grade g3">
+      <div><label>O que sai no papel</label><select id="imp-modo">
+        <option value="grade">Grade do mês</option>
+        <option value="cartoes">Cartões da semana ativa</option>
+        <option value="ambos">Grade do mês + cartões da semana</option>
+      </select></div>
+      <div><label>De quem</label><select id="imp-quem"></select></div>
+      <div><label>Formato do papel</label><select id="imp-papel">
+        <option value="A4 landscape">A4 deitado — grade do mês inteiro</option>
+        <option value="A4 portrait">A4 em pé — bom para um setor ou pessoa</option>
+        <option value="A3 landscape">A3 deitado — equipe grande, com folga</option>
+        <option value="letter landscape">Carta deitado</option>
+        <option value="celular">Celular — blocos grandes, um por pessoa</option>
+      </select></div>
+    </div>
+    <div class="linha" style="margin:14px 0 0">
+      <button class="btn" id="btn-gerar-imp" onclick="imprimirAgora()">Gerar impressão</button>
+      <button class="btn sec" onclick="document.getElementById('painel-imp').style.display='none'">Cancelar</button>
+      <span style="font-size:12px;color:var(--fraco)">No diálogo do Chrome, mantenha "Gráficos em segundo plano" marcado para as cores saírem.</span>
+    </div>
+  </div>
+  <div id="pincel"></div>
+  <div id="esc-avisos"></div>
+  <div class="card" id="box-leg"><h3>Legenda</h3><div id="legenda"></div></div>
+  <div class="card" id="box-grade"><div class="rolar"><div id="grade"></div></div></div>
+  <div class="card" id="box-cob"><h3>Semana ativa</h3><div id="sel-sem" class="linha"></div>
+    <div class="rolar"><div id="cob-semana"></div></div></div>
+  <div class="card" id="box-cartoes"><h3>Cartões por pessoa <span class="tag">semana ativa</span></h3><div id="cartoes"></div></div>
+</section>
+
+<!-- SUGESTÕES -->
+<section class="painel" id="p-sugestoes">
+  <h2>Sugestões</h2>
+  <p class="sub">O app lê a escala do mês inteiro e aponta o que corrigir. Onde existe uma solução que não precisa de gente nova, ele oferece o botão para aplicar.</p>
+  <div class="linha">
+    <button class="btn vd" onclick="aplicarTodas()">Aplicar todas as correções seguras</button>
+    <button class="btn sec" onclick="renderTudo()">Reanalisar</button>
+  </div>
+  <div id="lista-sug"></div>
+  <div class="card"><h3>Equilíbrio da equipe <span class="tag">quem está pegando o peso</span></h3>
+    <div class="rolar"><div id="equilibrio"></div></div></div>
+</section>
+
+<!-- EQUIPE -->
+<section class="painel" id="p-equipe">
+  <h2>Equipe</h2>
+  <p class="sub">Quanto mais completo o cadastro, melhores as sugestões. Os turnos que cada um pode fazer são o que dá liberdade ao gerador.</p>
+  <div class="linha">
+    <button class="btn" onclick="formColab()">+ Colaborador</button>
+    <button class="btn sec" onclick="colarNomes()">Colar lista de nomes</button>
+    <button class="btn sec" onclick="exportar()">Baixar backup</button>
+    <button class="btn sec" onclick="importar()">Restaurar backup</button>
+  </div>
+  <div id="form-colab"></div>
+  <div class="card"><div id="lista-equipe"></div></div>
+  <div class="card"><h3>Férias e afastamentos</h3>
+    <div class="grade g4" style="margin-bottom:12px">
+      <div><label>Quem</label><select id="af-quem"></select></div>
+      <div><label>Tipo</label><select id="af-tipo"></select></div>
+      <div><label>Início</label><input type="date" id="af-ini"></div>
+      <div><label>Fim</label><input type="date" id="af-fim"></div>
+    </div>
+    <div class="linha"><button class="btn" onclick="salvarAfastamento()">Adicionar</button>
+      <span style="font-size:12px;color:var(--fraco)">Os dias do período ficam bloqueados na escala e o gerador não escala ninguém neles.</span></div>
+    <div id="lista-af"></div></div>
+</section>
+
+<!-- COBERTURA -->
+<section class="painel" id="p-cobertura">
+  <h2>Cobertura</h2>
+  <p class="sub">Quantas pessoas cada turno precisa, por dia da semana. É a régua contra a qual tudo no app é medido.</p>
+  <div id="diag"></div>
+  <div id="blocos-dem"></div>
+</section>
+
+<!-- FECHAMENTO -->
+<section class="painel" id="p-fechamento">
+  <h2>Fechamento do mês</h2>
+  <p class="sub">O resumo por pessoa que o financeiro precisa, o banco de horas e o histórico de alterações.</p>
+  <div class="linha">
+    <button class="btn sec" onclick="andarMes(-1)">◀</button>
+    <b id="rot-fech" style="align-self:center;min-width:150px;text-align:center"></b>
+    <button class="btn sec" onclick="andarMes(1)">▶</button>
+    <button class="btn" onclick="baixarFechamento()">Baixar planilha (.csv)</button>
+    <button class="btn sec" onclick="window.print()">Imprimir</button>
+  </div>
+  <div class="card"><h3>Resumo por pessoa</h3><div class="rolar"><div id="tab-fech"></div></div></div>
+  <div class="card"><h3>Banco de horas <span class="tag">acumulado até o mês aberto</span></h3>
+    <div class="rolar"><div id="tab-banco"></div></div></div>
+  <div class="card nao-imp"><h3>Histórico de alterações</h3><div id="tab-hist"></div></div>
+</section>
+
+<!-- AJUSTES -->
+<section class="painel" id="p-ajustes">
+  <h2>Ajustes</h2>
+  <p class="sub">Parâmetros, turnos e setores.</p>
+  <div class="card"><h3>Parâmetros</h3>
+    <div class="grade g4">
+      <div><label>Jornada (h/semana)</label><input type="number" id="c-jor" step="1" onchange="salvarCfg()"></div>
+      <div><label>Folgas mín. por semana</label><input type="number" id="c-fol" step="1" onchange="salvarCfg()"></div>
+      <div><label>Máx. dias seguidos</label><input type="number" id="c-con" step="1" onchange="salvarCfg()"></div>
+      <div><label>Custo médio da hora (R$)</label><input type="number" id="c-cus" step="0.01" onchange="salvarCfg()"></div>
+      <div><label>Máx. afastados por setor</label><input type="number" id="c-fer" step="1" onchange="salvarCfg()"></div>
+      <div><label>Folga no domingo a cada (semanas)</label><input type="number" id="c-sd" min="1" step="1" onchange="salvarCfg()"></div>
+      <div><label>Idem, para mulheres</label><input type="number" id="c-sdf" min="1" step="1" onchange="salvarCfg()"></div>
+    </div>
+    <p style="margin-top:10px;font-size:12px;color:var(--fraco)">
+      <b>Máx. dias seguidos:</b> a CLT garante um descanso a cada 7 dias, então mais de 6 dias em sequência é risco.<br>
+      <b>Folga no domingo a cada N semanas:</b> restaurantes e bares têm autorização permanente para abrir aos domingos
+      (Anexo IV da Portaria MTP 671/2021) e seguem a regra geral de <b>7 semanas</b> do art. 58, §2º — o comércio em geral
+      é 3. Para mulheres vale o art. 386 da CLT, aplicado pelo TST como folga dominical <b>quinzenal</b>.
+      Se o acordo coletivo de bares e restaurantes de São Paulo exigir intervalo menor, ajuste aqui: o acordo prevalece.</p>
+  </div>
+  <div class="card"><h3>Cores do app <span class="tag">tema</span></h3>
+    <p style="font-size:12px;color:var(--fraco);margin-bottom:11px">As mesmas paletas do botão "Cores" lá em cima. Cada uma traz um conjunto de cores que combinam entre si, inclusive as dos turnos no calendário.</p>
+    <div id="temas-ajustes"></div></div>
+  <div class="card"><h3>Turnos</h3>
+    <div class="linha"><button class="btn mini" onclick="novoTurno()">+ Turno</button></div>
+    <div class="rolar"><div id="lista-turnos"></div></div></div>
+  <div class="card"><h3>Setores e funções</h3>
+    <div class="linha"><button class="btn mini" onclick="novoSetor()">+ Setor</button></div>
+    <div id="lista-setores"></div></div>
+  <div class="card"><h3>Feriados <span class="tag">calculados automaticamente</span></h3>
+    <div class="grade g3" style="margin-bottom:12px">
+      <div><label>Ano</label><select id="fe-ano" onchange="renderFeriados()"></select></div>
+      <div><label>Novo feriado — data</label><input type="date" id="fe-data"></div>
+      <div><label>Nome</label><input type="text" id="fe-nome" placeholder="Ex.: aniversário da casa"></div>
+    </div>
+    <div class="linha"><button class="btn sec mini" onclick="addFeriado()">Adicionar feriado próprio</button>
+      <label style="display:flex;gap:6px;align-items:center;text-transform:none;font-size:13px;font-weight:400;color:var(--texto);margin:0">
+        <input type="checkbox" id="fe-dom" onchange="D.cfg.feriadoComoDomingo=this.checked;salvar();renderTudo()" style="width:auto">
+        Tratar feriado com a necessidade de domingo</label></div>
+    <div id="lista-fer"></div></div>
+  <div class="card"><h3>Conformidade legal <span class="tag">o que o app confere</span></h3>
+    <div id="conformidade"></div></div>
+  <div class="card"><h3>Dados</h3>
+    <div class="linha">
+      <button class="btn sec" onclick="exportar()">Baixar backup (.json)</button>
+      <button class="btn sec" onclick="importar()">Restaurar backup</button>
+      <button class="btn sec" onclick="zerar()">Apagar tudo</button>
+    </div>
+    <p style="font-size:12px;color:var(--fraco)">Os dados ficam só neste navegador. Baixe o backup antes de trocar de aparelho.</p>
+  </div>
+  <div class="card"><h3>Cópias automáticas <span class="tag">rede de segurança</span></h3>
+    <p style="font-size:12px;color:var(--fraco);margin-bottom:11px">O app guarda sozinho uma cópia de como os dados estavam ao abrir cada sessão e uma por dia. Se algo sumir, restaure aqui.</p>
+    <div id="lista-bak"></div></div>
+</section>
+
+<div class="rod">a bela Sintra · ferramenta interna de planejamento de escala<br>
+<span style="font-size:10px">Os cálculos são apoio à decisão, não validação jurídica. Confirme jornada, folgas e domingos com a contabilidade e a assessoria trabalhista antes de formalizar.</span></div>
+</main>
+
+<script>
+/* ============ base ============ */
+const DIAS=['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+const DC=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const CORES=['#1b4965','#c1663f','#2e7d5b','#7b4b94','#c9961e','#3d7ea6','#a8465c','#4a7c59'];
+let CT=['#2a6f97','#7b4b94','#2e7d5b','#c1663f','#a8465c','#4a7c59','#c9961e'];
+
+/* paletas prontas — as cores de cada uma conversam entre si */
+const TEMAS={
+ sintra:{nome:'Sintra',desc:'Azul profundo e terracota',
+  v:{'--azul':'#1b4965','--azul-claro':'#2a6f97','--azul-suave':'#e8f0f5','--creme':'#faf6ef','--branco':'#ffffff',
+     '--terracota':'#c1663f','--verde':'#2e7d5b','--vermelho':'#b33a3a','--amarelo':'#c9961e',
+     '--texto':'#22313a','--fraco':'#6b7d87','--borda':'#d9e2e8',
+     '--folga':'#eef2f5','--folga-tx':'#8b979e','--ferias':'#fdf6e3','--ferias-tx':'#a8820f',
+     '--linha':'#eef3f6','--domingo':'#f4f8fa','--zebra':'rgba(27,73,101,.022)',
+     '--ok-bg':'#eaf6f0','--al-bg':'#fdf6e3','--ru-bg':'#fbedec','--at-tx':'#8a6a12'},
+  t:['#2a6f97','#7b4b94','#2e7d5b','#c1663f','#a8465c','#4a7c59','#c9961e']},
+
+ azulejo:{nome:'Azulejo',desc:'Azul português e ouro',
+  v:{'--azul':'#1c3f94','--azul-claro':'#2d5fc4','--azul-suave':'#e8eefb','--creme':'#fbfaf5','--branco':'#ffffff',
+     '--terracota':'#d98c2b','--verde':'#2f7d5f','--vermelho':'#b3353a','--amarelo':'#d9a62b',
+     '--texto':'#1e2a40','--fraco':'#6b7689','--borda':'#d7dff0',
+     '--folga':'#eef1f8','--folga-tx':'#8a93a8','--ferias':'#fdf4e0','--ferias-tx':'#9c7418',
+     '--linha':'#eaeef8','--domingo':'#f3f6fd','--zebra':'rgba(28,63,148,.022)',
+     '--ok-bg':'#e8f5ef','--al-bg':'#fdf4e0','--ru-bg':'#fbebec','--at-tx':'#8a6413'},
+  t:['#2d5fc4','#6b4fb5','#2f7d5f','#d98c2b','#a8465c','#3a7ca5','#b08a2e']},
+
+ vinho:{nome:'Vinho',desc:'Bordô e dourado',
+  v:{'--azul':'#6d2335','--azul-claro':'#8e3448','--azul-suave':'#f7ebee','--creme':'#fcf8f5','--branco':'#ffffff',
+     '--terracota':'#b5763a','--verde':'#4a7c59','--vermelho':'#a32e2e','--amarelo':'#c09033',
+     '--texto':'#33232a','--fraco':'#857078','--borda':'#e8d9dd',
+     '--folga':'#f4eff0','--folga-tx':'#9c8b90','--ferias':'#fbf2e3','--ferias-tx':'#95701f',
+     '--linha':'#f3ebed','--domingo':'#fbf4f6','--zebra':'rgba(109,35,53,.022)',
+     '--ok-bg':'#edf5ef','--al-bg':'#fbf2e3','--ru-bg':'#fbecec','--at-tx':'#7f6218'},
+  t:['#8e3448','#6b4a7a','#4a7c59','#b5763a','#a35b5b','#5c6b8a','#b08a2e']},
+
+ oliveira:{nome:'Oliveira',desc:'Verde oliva e areia',
+  v:{'--azul':'#44563a','--azul-claro':'#6b8050','--azul-suave':'#eef2e7','--creme':'#faf8f1','--branco':'#ffffff',
+     '--terracota':'#c17a3f','--verde':'#3f7a52','--vermelho':'#a84434','--amarelo':'#c2983a',
+     '--texto':'#2c3326','--fraco':'#78806e','--borda':'#dde2d4',
+     '--folga':'#f0f2ec','--folga-tx':'#8f9686','--ferias':'#fbf5e4','--ferias-tx':'#95771f',
+     '--linha':'#eef1e9','--domingo':'#f5f8f0','--zebra':'rgba(68,86,58,.022)',
+     '--ok-bg':'#eaf4ec','--al-bg':'#fbf5e4','--ru-bg':'#fbeeeb','--at-tx':'#7d661a'},
+  t:['#6b8050','#7a6a95','#3f7a52','#c17a3f','#a05a52','#4f7d8a','#b08a2e']},
+
+ carvao:{nome:'Carvão',desc:'Escuro, para telas e turno da noite',
+  v:{'--azul':'#8fbcd9','--azul-claro':'#a9cde4','--azul-suave':'#22323f','--creme':'#141d26','--branco':'#1b2630',
+     '--terracota':'#e08a5c','--verde':'#5fbf92','--vermelho':'#e4716b','--amarelo':'#e3b45c',
+     '--texto':'#e6edf3','--fraco':'#93a6b5','--borda':'#2d3d4c',
+     '--folga':'#1f2a35','--folga-tx':'#6d8092','--ferias':'#352c1c','--ferias-tx':'#dcb063',
+     '--linha':'#243240','--domingo':'#1f2b36','--zebra':'rgba(255,255,255,.028)',
+     '--ok-bg':'#1c3329','--al-bg':'#332b1a','--ru-bg':'#3a2222','--at-tx':'#e3b45c'},
+  t:['#6fa8d0','#a98ac9','#5fbf92','#e08a5c','#d1768a','#7fa8b8','#dcae5a']},
+
+ papel:{nome:'Papel',desc:'Neutro e de alto contraste',
+  v:{'--azul':'#2b2b2b','--azul-claro':'#4a4a4a','--azul-suave':'#f0f0ec','--creme':'#fdfdfb','--branco':'#ffffff',
+     '--terracota':'#a85a2e','--verde':'#2f6b4a','--vermelho':'#9e3030','--amarelo':'#a8801f',
+     '--texto':'#1c1c1c','--fraco':'#6e6e6e','--borda':'#dcdcd6',
+     '--folga':'#f1f1ee','--folga-tx':'#8c8c86','--ferias':'#f7f0dd','--ferias-tx':'#8a6c1f',
+     '--linha':'#efefea','--domingo':'#f6f6f2','--zebra':'rgba(0,0,0,.02)',
+     '--ok-bg':'#eaf3ed','--al-bg':'#f7f0dd','--ru-bg':'#f8ebeb','--at-tx':'#7a5f16'},
+  t:['#3a5f8a','#6b4f85','#2f6b4a','#a85a2e','#8a3f55','#44708a','#8a6c1f']}
+};
+function aplicarTema(id,recolorir){
+  const t=TEMAS[id]||TEMAS.sintra;
+  Object.entries(t.v).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
+  document.documentElement.style.setProperty('--sombra',
+    id==='carvao'?'0 1px 3px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3)'
+                 :'0 1px 3px rgba(27,73,101,.08),0 4px 16px rgba(27,73,101,.06)');
+  CT=t.t.slice();
+  if(recolorir)D.turnos.forEach((x,i)=>x.cor=CT[i%CT.length]);
+  D.cfg.tema=id;salvar();
+}
+
+const PADRAO={
+  cfg:{jornada:42,folgasMin:2,custoHora:16,maxConsec:6,maxFerias:1,feriadoComoDomingo:true,tema:'sintra',
+       semDom:7, semDomF:2},
+  setores:[
+    {id:'s1',nome:'Salão',cor:'#1b4965',funcoes:['Maître','Chefe de fila','Garçom','Commis','Hostess']},
+    {id:'s2',nome:'Cozinha',cor:'#c1663f',funcoes:['Chef','Sous-chef','Cozinheiro','Chapeiro','Saladeiro','Auxiliar de cozinha']},
+    {id:'s3',nome:'Copa',cor:'#2e7d5b',funcoes:['Copeiro','Auxiliar de copa']},
+    {id:'s4',nome:'Caixa',cor:'#7b4b94',funcoes:['Supervisor de caixa','Operador de caixa','Recepcionista']},
+    {id:'s5',nome:'Manutenção',cor:'#3d7ea6',funcoes:['Técnico de manutenção','Auxiliar','Steward','Limpeza']},
+    {id:'s6',nome:'Almoxarifado',cor:'#a8465c',funcoes:['Almoxarife','Conferente','Auxiliar de almoxarifado']},
+    {id:'s7',nome:'Escritório',cor:'#4a7c59',funcoes:['Gerência','Compras','Administrativo','Financeiro','RH']},
+    {id:'s8',nome:'Bar',cor:'#c9961e',funcoes:['Barman','Barista','Auxiliar de bar']}
+  ],
+  turnos:[
+    {id:'t1',nome:'Almoço',inicio:'10:00',fim:'18:24',intervalo:0,horas:8.4,cor:'#2a6f97',cod:'A'},
+    {id:'t2',nome:'Jantar',inicio:'16:00',fim:'00:24',intervalo:0,horas:8.4,cor:'#7b4b94',cod:'J'},
+    {id:'t3',nome:'Intermediário',inicio:'12:00',fim:'21:24',intervalo:1,horas:8.4,cor:'#2e7d5b',cod:'I'}
+  ],
+  colaboradores:[], demanda:{}, escalaMes:{}, manuais:{}, faltas:{},
+  afastamentos:[], feriados:[], modelos:[], historico:[], ajustesBanco:[]
+};
+const TIPOS_AF={
+  ferias:{nome:'Férias',cod:'FÉ',cor:'#c9961e'},
+  atestado:{nome:'Atestado médico',cod:'AT',cor:'#7b4b94'},
+  licenca:{nome:'Licença',cod:'LI',cor:'#3d7ea6'},
+  inss:{nome:'Afastamento INSS',cod:'IN',cor:'#8b979e'}
+};
+
+let AVISO_DADOS='', TRAVA_SALVAR=false;
+function carregar(){
+  let raw=null;
+  try{raw=localStorage.getItem('abs_escalas_v1');}catch(e){}
+  if(!raw)return JSON.parse(JSON.stringify(PADRAO));
+
+  let o=null;
+  try{ o=Object.assign(JSON.parse(JSON.stringify(PADRAO)),JSON.parse(raw)); }
+  catch(e){
+    /* não conseguiu nem ler: guarda o original e trava a gravação
+       para que nada por cima apague o que está salvo */
+    try{localStorage.setItem('abs_escalas_resgate',raw);}catch(_){}
+    AVISO_DADOS='Não consegui ler os dados salvos neste navegador. NADA foi apagado — uma cópia bruta ficou guardada. Use "Restaurar backup" em Ajustes, ou me procure antes de mexer no app.';
+    TRAVA_SALVAR=true;
+    return JSON.parse(JSON.stringify(PADRAO));
+  }
+
+  /* fotografia do que existia antes desta sessão, para desfazer acidentes */
+  try{
+    localStorage.setItem('abs_bak_sessao',raw);
+    const hoje='abs_bak_'+new Date().toISOString().slice(0,10);
+    if(!localStorage.getItem(hoje))localStorage.setItem(hoje,raw);
+  }catch(e){}
+
+  /* limpa resíduos de afastamento gravados como célula por versões anteriores */
+  try{
+    Object.values(o.escalaMes||{}).forEach(mes=>Object.values(mes||{}).forEach(pes=>{
+      Object.keys(pes||{}).forEach(d=>{if(typeof pes[d]==='string'&&pes[d].startsWith('AF:'))delete pes[d];});
+    }));
+  }catch(e){}
+
+  /* cada migração isolada: uma falha não leva o resto junto */
+  try{o.cfg=Object.assign({},PADRAO.cfg,o.cfg||{});}catch(e){}
+  try{o.faltas=o.faltas||{};o.manuais=o.manuais||{};o.escalaMes=o.escalaMes||{};o.demanda=o.demanda||{};
+    ['afastamentos','feriados','modelos','historico','ajustesBanco'].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[];});
+    if(o.cfg.maxFerias===undefined)o.cfg.maxFerias=1;
+    if(o.cfg.semDom===undefined)o.cfg.semDom=7;      /* Portaria MTP 671/2021, art. 58 §2º */
+    if(o.cfg.semDomF===undefined)o.cfg.semDomF=2;    /* art. 386 da CLT */
+    if(o.cfg.feriadoComoDomingo===undefined)o.cfg.feriadoComoDomingo=true;
+  }catch(e){}
+  (o.turnos||[]).forEach((t,i)=>{try{
+    if(t.intervalo===undefined)t.intervalo=Math.max(0,+(presenca(t)-(+t.horas||0)).toFixed(2));
+    if(!t.cor)t.cor=CT[i%CT.length];
+    if(!t.cod)t.cod=(t.nome||'?').trim().charAt(0).toUpperCase();
+    if(!Array.isArray(t.setores))t.setores=[];   /* vazio = vale para todos */
+    t.horas=calcHoras(t);
+  }catch(e){}});
+  (o.setores||[]).forEach(st=>{try{
+    if(!Array.isArray(st.funcoes))st.funcoes=[];
+    if(!st.funcoes.length){
+      const n=(st.nome||'').toLowerCase().trim();
+      const p=PADRAO.setores.find(x=>x.id===st.id||x.nome===st.nome)
+           ||PADRAO.setores.find(x=>{const pn=x.nome.toLowerCase();return n&&(pn.includes(n)||n.includes(pn));});
+      st.funcoes=p?p.funcoes.slice():[];
+    }
+  }catch(e){}});
+  (o.colaboradores||[]).forEach(c=>{try{
+    const st=(o.setores||[]).find(x=>x.id===c.setorId);
+    if(st&&c.cargo&&!st.funcoes.includes(c.cargo))st.funcoes.push(c.cargo);
+    if(!Array.isArray(c.turnosOk)||!c.turnosOk.length)c.turnosOk=(o.turnos||[]).map(t=>t.id);
+    if(!Array.isArray(c.folgaFixa))c.folgaFixa=[];
+    if(c.sexo===undefined)c.sexo='';
+    if(c.regime!=='fixa')c.regime='rodizio';
+    if(c.contaCob===undefined)c.contaCob=true;
+    if(!c.fixa||typeof c.fixa!=='object')c.fixa={0:'F',1:'F',2:'F',3:'F',4:'F',5:'F',6:'F'};
+  }catch(e){}});
+  return o;
+}
+function salvar(){
+  if(TRAVA_SALVAR)return;   /* leitura falhou: não grava por cima do que está salvo */
+  try{localStorage.setItem('abs_escalas_v1',JSON.stringify(D));}
+  catch(e){alert('Não consegui salvar — armazenamento cheio ou bloqueado.');}
+}
+let D=carregar();
+
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const h1=n=>+(+n).toFixed(1);
+const setorDe=id=>D.setores.find(s=>s.id===id)||{nome:'—',cor:'#888',funcoes:[]};
+const turnoDe=id=>D.turnos.find(t=>t.id===id);
+/* turnos que existem num setor — lista vazia em t.setores significa "todos" */
+function turnosDoSetor(sid){
+  return D.turnos.filter(t=>!t.setores||!t.setores.length||t.setores.includes(sid));
+}
+/* nunca devolve vazio — usada onde o código precisa de ao menos um turno */
+function turnosSeguro(sid){const l=turnosDoSetor(sid);return l.length?l:D.turnos;}
+const turnosDoColab=c=>turnosDoSetor(c.setorId);
+const colabDe=id=>D.colaboradores.find(c=>c.id===id);
+function presenca(t){
+  const[hi,mi]=(t.inicio||'0:0').split(':').map(Number),[hf,mf]=(t.fim||'0:0').split(':').map(Number);
+  let s=(hf*60+mf)-(hi*60+mi); if(s<=0)s+=1440; return s/60;
+}
+function calcHoras(t){return Math.max(0,+(presenca(t)-(+t.intervalo||0)).toFixed(2));}
+
+/* ============ calendário ============ */
+function hojeISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+let diaSel=hojeISO();
+let mesAtivo=diaSel.slice(0,7);
+let semAtiva=null, pincel='CICLO';
+
+function am(){const[a,m]=mesAtivo.split('-').map(Number);return{a,m};}
+function nDiasDe(ym){const[a,m]=ym.split('-').map(Number);return new Date(a,m,0).getDate();}
+function dsemDe(ym,d){const[a,m]=ym.split('-').map(Number);return(new Date(a,m-1,d).getDay()+6)%7;}
+function semanasDe(ym){
+  const n=nDiasDe(ym),out=[];let at=Array(7).fill(null);
+  for(let d=1;d<=n;d++){at[dsemDe(ym,d)]=d;if(dsemDe(ym,d)===6||d===n){out.push(at);at=Array(7).fill(null);}}
+  return out;
+}
+function rotMesDe(ym){const[a,m]=ym.split('-').map(Number);return MESES[m-1]+' '+a;}
+function getEm(ym,c,d){return D.escalaMes?.[ym]?.[c]?.[d]??'F';}
+function mesSeguinte(ym){const[a,m]=ym.split('-').map(Number);const d=new Date(a,m,1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function setEm(ym,c,d,v,man){
+  D.escalaMes[ym]=D.escalaMes[ym]||{};
+  D.escalaMes[ym][c]=D.escalaMes[ym][c]||{};
+  D.escalaMes[ym][c][d]=v;
+  if(man){D.manuais[ym]=D.manuais[ym]||{};D.manuais[ym][c+'-'+d]=true;}
+}
+function mesAnterior(ym){const[a,m]=ym.split('-').map(Number);const d=new Date(a,m-2,1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function nDias(){return nDiasDe(mesAtivo);}
+function dsem(d){return dsemDe(mesAtivo,d);}
+function rotMes(){const{a,m}=am();return MESES[m-1]+' '+a;}
+function iso(d){return mesAtivo+'-'+String(d).padStart(2,'0');}
+function andarMes(p){const{a,m}=am();const d=new Date(a,m-1+p,1);mesAtivo=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');semAtiva=null;renderTudo();}
+function setDiaSel(v){if(!v)return;diaSel=v;if(v.slice(0,7)!==mesAtivo){mesAtivo=v.slice(0,7);semAtiva=null;}renderTudo();}
+function andarDia(p){const d=new Date(diaSel+'T12:00:00');d.setDate(d.getDate()+p);
+  setDiaSel(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));}
+function semanas(){const n=nDias(),out=[];let at=Array(7).fill(null);
+  for(let d=1;d<=n;d++){at[dsem(d)]=d;if(dsem(d)===6||d===n){out.push(at);at=Array(7).fill(null);}}
+  return out;}
+function iSem(){const s=semanas();
+  if(semAtiva!==null&&s[semAtiva])return semAtiva;
+  if(diaSel.slice(0,7)===mesAtivo){const dd=+diaSel.slice(8);const i=s.findIndex(w=>w.includes(dd));if(i>=0)return i;}
+  return 0;}
+
+/* ============ estado da escala ============ */
+function getE(c,d){
+  const a=afastadoNoDia(c,d);
+  if(a)return 'AF:'+a.tipo;
+  return D.escalaMes?.[mesAtivo]?.[c]?.[d]??'F';
+}
+const ehAfast=v=>typeof v==='string'&&v.startsWith('AF:');
+function ehMan(c,d){return !!(D.manuais?.[mesAtivo]||{})[c+'-'+d];}
+function setE(c,d,v,man){
+  D.escalaMes[mesAtivo]=D.escalaMes[mesAtivo]||{};
+  D.escalaMes[mesAtivo][c]=D.escalaMes[mesAtivo][c]||{};
+  D.escalaMes[mesAtivo][c][d]=v;
+  if(man){D.manuais[mesAtivo]=D.manuais[mesAtivo]||{};D.manuais[mesAtivo][c+'-'+d]=true;}
+}
+const faltou=(c,d)=>!!(D.faltas[iso(d)]||[]).includes(c);
+function marcarFalta(c,d,on){
+  const k=iso(d); D.faltas[k]=D.faltas[k]||[];
+  if(on){if(!D.faltas[k].includes(c))D.faltas[k].push(c);}
+  else D.faltas[k]=D.faltas[k].filter(x=>x!==c);
+  logar(`${colabDe(c)?.nome}: ${on?'falta registrada':'falta desfeita'} em ${brData(k)}`);
+  if(!D.faltas[k].length) delete D.faltas[k];
+  salvar();renderTudo();
+}
+const trabalha=(c,d)=>{const v=getE(c,d);return v!=='F'&&v!=='FER'&&!ehAfast(v)&&!faltou(c,d);};
+function horasMes(c){let t=0;for(let d=1;d<=nDias();d++)if(trabalha(c,d))t+=turnoDe(getE(c,d))?.horas||0;return h1(t);}
+function horasSem(c,s){let t=0;s.forEach(d=>{if(d&&trabalha(c,d))t+=turnoDe(getE(c,d))?.horas||0;});return h1(t);}
+function folgasSem(c,s){let n=0;s.forEach(d=>{if(d&&getE(c,d)==='F')n++;});return n;}
+/* o ciclo legal é "folga em domingo ao menos uma vez a cada N semanas";
+   trabalhar N-1 domingos seguidos ainda cumpre, o N-ésimo não */
+const cicloDom=c=>Math.max(1,(c.sexo==='F'?(D.cfg.semDomF||2):(D.cfg.semDom||7)));
+const limDom=c=>cicloDom(c)-1;
+/* ---------- afastamentos por período ---------- */
+function afastamentoEm(cid,isoDia){
+  return (D.afastamentos||[]).find(a=>a.colabId===cid&&isoDia>=a.ini&&isoDia<=a.fim)||null;
+}
+function afastadoNoDia(cid,d){return afastamentoEm(cid,iso(d));}
+function addAfastamento(a){
+  D.afastamentos.push(Object.assign({id:uid()},a));
+  logar(`${colabDe(a.colabId)?.nome}: ${TIPOS_AF[a.tipo].nome} de ${brData(a.ini)} a ${brData(a.fim)}`);
+  salvar();renderTudo();
+}
+function removerAfastamento(id){
+  const a=(D.afastamentos||[]).find(x=>x.id===id);if(!a)return;
+  if(!confirm(`Remover ${TIPOS_AF[a.tipo].nome} de ${colabDe(a.colabId)?.nome}?`))return;
+  D.afastamentos=D.afastamentos.filter(x=>x.id!==id);
+  logar(`Removido: ${TIPOS_AF[a.tipo].nome} de ${colabDe(a.colabId)?.nome}`);
+  salvar();renderTudo();
+}
+const brData=v=>v?String(v).split('-').reverse().join('/'):'';
+function diasEntre(ini,fim){
+  const a=new Date(ini+'T12:00:00'),b=new Date(fim+'T12:00:00');
+  return Math.round((b-a)/86400000)+1;
+}
+
+/* ---------- feriados ---------- */
+function pascoa(ano){
+  const a=ano%19,b=Math.floor(ano/100),c=ano%100,d=Math.floor(b/4),e=b%4,
+        f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
+        i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+        mes=Math.floor((h+l-7*m+114)/31),dia=((h+l-7*m+114)%31)+1;
+  return new Date(ano,mes-1,dia);
+}
+const isoDe=dt=>dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+function somaDias(dt,n){const x=new Date(dt);x.setDate(x.getDate()+n);return x;}
+function feriadosNacionais(ano){
+  const pa=pascoa(ano);
+  return [
+    [ano+'-01-01','Confraternização Universal','nacional'],
+    [isoDe(somaDias(pa,-48)),'Carnaval','facultativo'],
+    [isoDe(somaDias(pa,-47)),'Carnaval','facultativo'],
+    [isoDe(somaDias(pa,-2)),'Sexta-feira Santa','nacional'],
+    [isoDe(somaDias(pa,60)),'Corpus Christi','facultativo'],
+    [ano+'-04-21','Tiradentes','nacional'],
+    [ano+'-05-01','Dia do Trabalho','nacional'],
+    [ano+'-09-07','Independência','nacional'],
+    [ano+'-10-12','Nossa Senhora Aparecida','nacional'],
+    [ano+'-11-02','Finados','nacional'],
+    [ano+'-11-15','Proclamação da República','nacional'],
+    [ano+'-11-20','Consciência Negra','nacional'],
+    [ano+'-12-25','Natal','nacional'],
+    [ano+'-01-25','Aniversário de São Paulo','municipal'],
+    [ano+'-07-09','Revolução Constitucionalista','estadual']
+  ].map(([data,nome,tipo])=>({data,nome,tipo}));
+}
+function feriadosDoAno(ano){
+  const mapa={};
+  feriadosNacionais(ano).forEach(f=>{mapa[f.data]=f;});
+  (D.feriados||[]).filter(f=>String(f.data).startsWith(ano+'-')).forEach(f=>{
+    if(f.removido)delete mapa[f.data]; else mapa[f.data]=f;});
+  return Object.values(mapa);
+}
+function feriadoEm(isoDia){
+  return feriadosDoAno(+String(isoDia).slice(0,4)).find(f=>f.data===isoDia)||null;
+}
+const feriadoNoDia=d=>feriadoEm(iso(d));
+
+/* ---------- histórico ---------- */
+function logar(txt){
+  D.historico=D.historico||[];
+  D.historico.unshift({ts:new Date().toISOString(),txt,mes:mesAtivo});
+  if(D.historico.length>400)D.historico.length=400;
+}
+
+/* ---------- banco de horas ---------- */
+function saldoMes(cid,ym){
+  const guard=mesAtivo; mesAtivo=ym;
+  let saldo=0;
+  const c=colabDe(cid);
+  if(c){
+    semanas().forEach(sem=>{
+      const dias=sem.filter(Boolean);
+      if(!dias.length)return;
+      const afast=dias.filter(d=>afastadoNoDia(cid,d)).length;
+      if(afast===dias.length)return;
+      const prop=(dias.length-afast)/7;
+      saldo += horasSem(cid,sem)-(c.jornada||D.cfg.jornada)*prop;
+    });
+  }
+  mesAtivo=guard;
+  return h1(saldo);
+}
+function mesesComEscala(){return Object.keys(D.escalaMes||{}).sort();}
+function bancoAcumulado(cid,ateYm){
+  let t=0;
+  mesesComEscala().forEach(ym=>{if(ym<=ateYm)t+=saldoMes(cid,ym);});
+  (D.ajustesBanco||[]).forEach(a=>{if(a.colabId===cid&&String(a.data).slice(0,7)<=ateYm)t+=+a.horas||0;});
+  return h1(t);
+}
+function addAjusteBanco(cid,horas,obs){
+  D.ajustesBanco.push({id:uid(),colabId:cid,data:hojeISO(),horas:+horas,obs:obs||''});
+  logar(`Banco de horas: ${colabDe(cid)?.nome} ${horas>0?'+':''}${horas}h — ${obs||'ajuste manual'}`);
+  salvar();renderTudo();
+}
+
+/* ---------- descanso entre jornadas (art. 66 da CLT) ---------- */
+function iniMin(d,t){const[h,m]=(t.inicio||'0:0').split(':').map(Number);return (d-1)*1440+h*60+m;}
+function fimMin(d,t){return iniMin(d,t)+presenca(t)*60;}
+function falhasInterjornada(cid){
+  const out=[], n=nDias();
+  for(let d=1;d<n;d++){
+    if(!trabalha(cid,d)||!trabalha(cid,d+1))continue;
+    const t1=turnoDe(getE(cid,d)), t2=turnoDe(getE(cid,d+1));
+    if(!t1||!t2)continue;
+    const desc=(iniMin(d+1,t2)-fimMin(d,t1))/60;
+    if(desc<11-0.01)out.push({d:d+1,horas:h1(desc),t1,t2});
+  }
+  return out;
+}
+function respeita11h(cid,d,t){
+  const vA=d>1?getE(cid,d-1):null;
+  if(vA&&vA!=='F'&&vA!=='FER'&&!ehAfast(vA)){
+    const tA=turnoDe(vA);
+    if(tA&&(iniMin(d,t)-fimMin(d-1,tA))/60<11-0.01)return false;
+  }
+  const vD=d<nDias()?getE(cid,d+1):null;
+  if(vD&&vD!=='F'&&vD!=='FER'&&!ehAfast(vD)){
+    const tD=turnoDe(vD);
+    if(tD&&(iniMin(d+1,tD)-fimMin(d,t))/60<11-0.01)return false;
+  }
+  return true;
+}
+function corrigirInterjornada(){
+  D.colaboradores.filter(noRodizio).forEach(c=>{
+    let guarda=0;
+    while(falhasInterjornada(c.id).length&&guarda++<15){
+      const f=falhasInterjornada(c.id)[0];
+      if(ehMan(c.id,f.d)&&ehMan(c.id,f.d-1))break;
+      const tl=turnosSeguro(c.setorId).filter(t=>c.turnosOk.includes(t.id));
+      let feito=false;
+      if(!ehMan(c.id,f.d)){
+        const alt=tl.find(t=>t.id!==f.t2.id&&respeita11h(c.id,f.d,t));
+        if(alt){setE(c.id,f.d,alt.id,false);feito=true;}
+      }
+      if(!feito&&!ehMan(c.id,f.d-1)){
+        const alt=tl.find(t=>t.id!==f.t1.id&&(iniMin(f.d,f.t2)-fimMin(f.d-1,t))/60>=11-0.01);
+        if(alt){setE(c.id,f.d-1,alt.id,false);feito=true;}
+      }
+      if(!feito){
+        if(!ehMan(c.id,f.d)){setE(c.id,f.d,'F',false);feito=true;}
+        else break;
+      }
+    }
+  });
+}
+function turnoQueRespeita(cid,d,tAnterior){
+  const c=colabDe(cid);
+  return turnosSeguro(c.setorId).filter(t=>c.turnosOk.includes(t.id))
+    .find(t=>(iniMin(d,t)-fimMin(d-1,tAnterior))/60>=11-0.01);
+}
+
+/* domingos seguidos atravessando meses — com ciclo de 7 semanas,
+   contar só dentro do mês esconderia a maior parte das violações */
+function domingosDoMes(ym){
+  const out=[], n=nDiasDe(ym);
+  for(let d=1;d<=n;d++)if(dsemDe(ym,d)===6)out.push(ym+'-'+String(d).padStart(2,'0'));
+  return out;
+}
+function trabalhouEm(cid,isoDia){
+  if(afastamentoEm(cid,isoDia))return false;
+  if((D.faltas?.[isoDia]||[]).includes(cid))return false;
+  const ym=isoDia.slice(0,7), d=+isoDia.slice(8);
+  const v=D.escalaMes?.[ym]?.[cid]?.[d]??'F';
+  return v!=='F'&&v!=='FER'&&!ehAfast(v);
+}
+function mesesAte(ym){
+  const m=Object.keys(D.escalaMes||{});
+  if(!m.includes(ym))m.push(ym);
+  return m.filter(x=>x<=ym).sort();
+}
+/* maior sequência de domingos trabalhados que aparece dentro do mês ativo,
+   já contando o que vinha dos meses anteriores */
+function domSeg(cid){
+  let run=0,max=0;
+  mesesAte(mesAtivo).forEach(ym=>domingosDoMes(ym).forEach(dia=>{
+    if(trabalhouEm(cid,dia)){run++;if(ym===mesAtivo&&run>max)max=run;}
+    else run=0;
+  }));
+  return max;
+}
+/* sequência que a pessoa traz ao entrar no mês ativo */
+function domSegEntrada(cid){
+  let run=0;
+  mesesAte(mesAtivo).filter(ym=>ym<mesAtivo)
+    .forEach(ym=>domingosDoMes(ym).forEach(dia=>{run=trabalhouEm(cid,dia)?run+1:0;}));
+  return run;
+}
+function maiorSeq(c){let mx=0,at=0;
+  for(let d=1;d<=nDias();d++){if(trabalha(c,d)){at++;mx=Math.max(mx,at);}else at=0;}
+  return mx;}
+function fdsTrab(c){let n=0;for(let d=1;d<=nDias();d++){const w=dsem(d);if((w===5||w===6)&&trabalha(c,d))n++;}return n;}
+function getDem(s,w,t){return D.demanda?.[s]?.[w]?.[t]??0;}
+function setDem(s,w,t,v){
+  D.demanda[s]=D.demanda[s]||{};D.demanda[s][w]=D.demanda[s][w]||{};
+  D.demanda[s][w][t]=Math.max(0,+v||0);salvar();renderTudo();}
+function escalados(s,d,t){return D.colaboradores.filter(c=>c.setorId===s&&c.contaCob!==false&&getE(c.id,d)===t&&!faltou(c.id,d)).length;}
+/* num feriado, a necessidade do dia pode seguir a de domingo */
+function demDoDia(sid,d,tid){
+  if(D.cfg.feriadoComoDomingo&&feriadoNoDia(d)&&feriadoNoDia(d).tipo!=='facultativo')
+    return Math.max(getDem(sid,dsem(d),tid),getDem(sid,6,tid));
+  return getDem(sid,dsem(d),tid);
+}
+const noRodizio=c=>c.regime!=='fixa';
+
+/* ============ gerador ============ */
+/* Duas passagens por setor:
+   1) decide as folgas da semana, nos dias de menor pressão, girando o domingo
+   2) distribui os turnos do dia conforme a necessidade, não o turno habitual */
+function gerar(indices){
+  const sems=semanas();
+  D.setores.forEach(S=>{
+    /* quem tem escala fixa recebe o próprio padrão e sai do rodízio */
+    D.colaboradores.filter(c=>c.setorId===S.id&&!noRodizio(c)).forEach(c=>{
+      for(let d=1;d<=nDias();d++){
+        if(ehMan(c.id,d))continue;
+        setE(c.id,d,c.fixa?.[dsem(d)]||'F',false);
+      }
+    });
+    const time=D.colaboradores.filter(c=>c.setorId===S.id&&noRodizio(c));
+    if(!time.length)return;
+    const nec=DIAS.map((_,w)=>turnosDoSetor(S.id).reduce((a,t)=>a+getDem(S.id,w,t.id),0));
+    const streak={};time.forEach(c=>streak[c.id]=domSegEntrada(c.id));
+
+    sems.forEach((sem,wi)=>{
+      const fazer=indices.includes(wi);
+      const dDom=sem[6], folgouDom={};
+
+      /* --- domingo primeiro: quem está perto de estourar o prazo folga --- */
+      if(dDom){
+        const vagas=Math.max(0,time.length-nec[6]);
+        const obrig=time.filter(c=>streak[c.id]>=limDom(c));
+        const ordem=time.slice().sort((a,b)=>{
+          const ra=streak[a.id]/limDom(a), rb=streak[b.id]/limDom(b);
+          if(rb!==ra)return rb-ra;
+          return fdsTrab(b)-fdsTrab(a);
+        });
+        const alvo=Math.max(vagas,obrig.length);
+        const esc1=new Set(obrig.map(c=>c.id));
+        for(const c of ordem){if(esc1.size>=alvo)break;esc1.add(c.id);}
+        time.forEach(c=>{
+          const f=ehMan(c.id,dDom)?['F','FER'].includes(getE(c.id,dDom))
+                 :(esc1.has(c.id)||c.folgaFixa.includes(6));
+          folgouDom[c.id]=f;
+          if(f)streak[c.id]=0;else streak[c.id]++;
+        });
+      }
+      if(!fazer)return;
+
+      /* --- passagem 1: demais folgas --- */
+      const folgaNo=Array(7).fill(0), folgaDe={};
+      time.forEach((c,idx)=>{
+        folgaDe[c.id]=new Set();
+        if(dDom&&folgouDom[c.id])folgaDe[c.id].add(6);
+        c.folgaFixa.forEach(w=>{if(sem[w])folgaDe[c.id].add(w);});
+        for(let w=0;w<7;w++){const d=sem[w];
+          if(d&&ehMan(c.id,d)&&['F','FER'].includes(getE(c.id,d)))folgaDe[c.id].add(w);}
+        const falta=Math.max(0,D.cfg.folgasMin-folgaDe[c.id].size);
+        if(!falta)return;
+        const cand=[0,1,2,3,4,5,6].filter(w=>sem[w]&&!folgaDe[c.id].has(w)&&!(sem[w]&&ehMan(c.id,sem[w])))
+          .sort((a,b)=>{
+            const fa=(time.length-nec[a]-folgaNo[a]), fb=(time.length-nec[b]-folgaNo[b]);
+            if(fb!==fa)return fb-fa;
+            return((a+idx)%7)-((b+idx)%7);
+          }).slice(0,falta);
+        cand.forEach(w=>{folgaDe[c.id].add(w);folgaNo[w]++;});
+      });
+
+      /* --- passagem 2: turnos conforme a necessidade do dia --- */
+      for(let w=0;w<7;w++){
+        const d=sem[w]; if(!d)continue;
+        const livres=time.filter(c=>!folgaDe[c.id].has(w)&&!ehMan(c.id,d)&&!afastadoNoDia(c.id,d));
+        const jaMan=time.filter(c=>ehMan(c.id,d));
+        const porTurno={}; D.turnos.forEach(t=>porTurno[t.id]=0);
+        jaMan.forEach(c=>{const v=getE(c.id,d);if(porTurno[v]!==undefined)porTurno[v]++;});
+        const pend=new Set(livres.map(c=>c.id));
+        const ordT=turnosDoSetor(S.id).slice().sort((a,b)=>getDem(S.id,w,b.id)-getDem(S.id,w,a.id));
+        ordT.forEach(t=>{
+          let faltam=getDem(S.id,w,t.id)-porTurno[t.id];
+          if(faltam<=0)return;
+          const apt=livres.filter(c=>pend.has(c.id)&&c.turnosOk.includes(t.id)&&respeita11h(c.id,d,t))
+            .sort((a,b)=>{
+              const pa=a.turnoId===t.id?0:1, pb=b.turnoId===t.id?0:1;
+              if(pa!==pb)return pa-pb;
+              return horasSem(a.id,sem)-horasSem(b.id,sem);
+            });
+          for(const c of apt){if(faltam<=0)break;setE(c.id,d,t.id,false);pend.delete(c.id);faltam--;porTurno[t.id]++;}
+        });
+        /* sobras ficam no turno habitual */
+        livres.forEach(c=>{if(pend.has(c.id)){
+          const tl=turnosSeguro(S.id).filter(t=>c.turnosOk.includes(t.id));
+          const viaveis=tl.filter(t=>respeita11h(c.id,d,t));
+          const pool=viaveis.length?viaveis:tl;
+          const hab=pool.some(t=>t.id===c.turnoId)?c.turnoId:(pool[0]||turnosSeguro(S.id)[0]).id;
+          setE(c.id,d,hab,false);pend.delete(c.id);}});
+        /* folgas */
+        time.forEach(c=>{if(folgaDe[c.id].has(w)&&!ehMan(c.id,d)&&!afastadoNoDia(c.id,d))setE(c.id,d,'F',false);});
+      }
+    });
+  });
+  corrigirInterjornada();
+  corrigirSequencias();
+  D.setores.forEach(st=>otimizarSetor(st.id));
+  corrigirInterjornada();
+  corrigirSequencias();
+  logar(`Escala gerada para ${indices.length} semana(s) de ${rotMes()}`);
+  salvar();renderTudo();
+}
+/* custo de um setor: furo pesa muito mais que sobra */
+function custoSetor(sid){
+  let c=0;
+  const tl=turnosDoSetor(sid);
+  for(let d=1;d<=nDias();d++){const w=dsem(d);
+    tl.forEach(t=>{const nec=demDoDia(sid,d,t.id),tem=escalados(sid,d,t.id);
+      c += tem<nec ? (nec-tem)*10 : (tem-nec)*1;});}
+  return c;
+}
+/* quebras de regra num setor, em peso */
+function violSetor(sid){
+  let v=0; const sems=semanas();
+  D.colaboradores.filter(c=>c.setorId===sid&&noRodizio(c)).forEach(c=>{
+    v+=falhasInterjornada(c.id).length*8;
+    if(maiorSeq(c.id)>(D.cfg.maxConsec||6))v+=8;
+    if(domSeg(c.id)>limDom(c))v+=8;
+    const jor=c.jornada||D.cfg.jornada;
+    sems.forEach(sem=>{
+      if(sem.filter(Boolean).length<7)return;
+      if(sem.filter(Boolean).some(d=>afastadoNoDia(c.id,d)))return;
+      if(folgasSem(c.id,sem)<D.cfg.folgasMin)v+=8;
+      if(horasSem(c.id,sem)>jor+0.05)v+=3;
+    });
+  });
+  return v;
+}
+const notaSetor=sid=>custoSetor(sid)+violSetor(sid);
+
+/* nenhuma pessoa deve passar do máximo de dias seguidos */
+function corrigirSequencias(){
+  const mx=D.cfg.maxConsec||6;
+  D.colaboradores.filter(noRodizio).forEach(c=>{
+    let guarda=0;
+    while(maiorSeq(c.id)>mx && guarda++<12){
+      /* acha o dia da sequência cuja folga custa menos ao setor */
+      let at=0, seqDias=[];
+      for(let d=1;d<=nDias();d++){
+        if(trabalha(c.id,d)){at++;seqDias.push(d);if(at>mx)break;}
+        else{at=0;seqDias=[];}
+      }
+      const cand=seqDias.filter(d=>!ehMan(c.id,d));
+      if(!cand.length)break;
+      let melhor=null, melhorNota=Infinity;
+      cand.forEach(d=>{
+        const orig=getE(c.id,d);
+        setE(c.id,d,'F',false);
+        const nota=violSetor(c.setorId)*100+custoSetor(c.setorId);
+        if(nota<melhorNota){melhorNota=nota;melhor=d;}
+        setE(c.id,d,orig,false);
+      });
+      if(melhor===null)break;
+      const sem=semanas().find(w=>w.includes(melhor))||[];
+      /* devolve o dia num dia da mesma semana que esteja em falta */
+      const volta=sem.filter(x=>x&&getE(c.id,x)==='F'&&!ehMan(c.id,x)&&dsem(x)!==6)
+        .map(x=>{
+          const w=dsem(x);
+          const t=turnosDoSetor(c.setorId).filter(t=>c.turnosOk.includes(t.id))
+            .map(t=>({t,def:demDoDia(c.setorId,x,t.id)-escalados(c.setorId,x,t.id)}))
+            .sort((a,b)=>b.def-a.def)[0];
+          return {x,t:t?.t,def:t?.def??-99};
+        }).sort((a,b)=>b.def-a.def)[0];
+      setE(c.id,melhor,'F',false);
+      if(volta&&volta.t&&volta.def>0)setE(c.id,volta.x,volta.t.id,false);
+    }
+  });
+}
+function gerarMes(){
+  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  const n=Object.keys(D.manuais[mesAtivo]||{}).length;
+  if(!confirm('Gerar o rodízio de '+rotMes()+'?'+(n?'\n\n'+n+' célula(s) ajustada(s) à mão serão preservadas.':'')))return;
+  gerar(semanas().map((_,i)=>i));
+}
+function gerarSemana(){
+  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  const i=iSem(),ds=(semanas()[i]||[]).filter(Boolean);
+  if(!confirm('Regerar a semana '+ds[0]+'–'+ds[ds.length-1]+'? Seus ajustes manuais serão preservados.'))return;
+  gerar([i]);
+}
+function limparMes(){
+  if(!confirm('Apagar a escala inteira de '+rotMes()+', inclusive os ajustes manuais?'))return;
+  delete D.escalaMes[mesAtivo];delete D.manuais[mesAtivo];salvar();renderTudo();
+}
+
+/* ============ motor de análise ============ */
+let SUG=[];
+function candidatosCobrir(sid,dia,tid){
+  const sem=semanas().find(w=>w.includes(dia))||[];
+  const t=turnoDe(tid), mx=D.cfg.maxConsec||6;
+  return D.colaboradores.filter(c=>c.setorId===sid&&noRodizio(c))
+    .filter(c=>!afastadoNoDia(c.id,dia))           /* férias, atestado e licença não cobrem turno */
+    .filter(c=>turnosDoSetor(sid).some(t=>t.id===tid))
+    .filter(c=>!trabalha(c.id,dia)&&getE(c.id,dia)!=='FER'&&!faltou(c.id,dia))
+    .filter(c=>c.turnosOk.includes(tid))
+    .filter(c=>!c.folgaFixa.includes(dsem(dia)))
+    .map(c=>{
+      const jor=c.jornada||D.cfg.jornada;
+      const hs=horasSem(c.id,sem), fg=folgasSem(c.id,sem);
+      const sobra=jor-hs;
+      /* simula para saber se cria sequência longa, sem deixar rastro na escala */
+      const salvo=D.escalaMes?.[mesAtivo]?.[c.id]?.[dia];
+      setE(c.id,dia,tid,false);
+      const seq=maiorSeq(c.id);
+      if(salvo===undefined){if(D.escalaMes[mesAtivo]?.[c.id])delete D.escalaMes[mesAtivo][c.id][dia];}
+      else setE(c.id,dia,salvo,false);
+      return {c,sobra,fg,seq,fds:fdsTrab(c.id),
+        extra:Math.max(0,(t?.horas||0)-sobra),
+        folgaOk:fg>D.cfg.folgasMin, seqOk:seq<=mx};
+    })
+    .filter(x=>x.seqOk)
+    .sort((a,b)=>{
+      if(a.folgaOk!==b.folgaOk)return a.folgaOk?-1:1;   /* quem ainda sobra folga primeiro */
+      if(a.extra!==b.extra)return a.extra-b.extra;       /* menos hora extra */
+      return a.fds-b.fds;                                /* quem pegou menos fim de semana */
+    });
+}
+function analisar(){
+  const S=[];
+  if(!D.colaboradores.length){SUG=S;return S;}
+  const sems=semanas(), n=nDias();
+
+  /* 1. furos de cobertura */
+  const furos=[];
+  D.setores.forEach(st=>{
+    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    for(let d=1;d<=n;d++){const w=dsem(d);
+      turnosDoSetor(st.id).forEach(t=>{
+        const nec=demDoDia(st.id,d,t.id); if(!nec)return;
+        const tem=escalados(st.id,d,t.id);
+        if(tem<nec)furos.push({st,d,t,nec,tem});
+      });}
+  });
+  furos.slice(0,40).forEach(f=>{
+    const cand=candidatosCobrir(f.st.id,f.d,f.t.id);
+    S.push({
+      nivel:'c',
+      titulo:`${f.st.nome} · ${f.t.nome} · dia ${f.d} (${DIAS[dsem(f.d)]}) com ${f.tem} de ${f.nec}`,
+      detalhe: cand.length
+        ? (cand[0].extra<=0.05
+            ? `${cand[0].c.nome} está de folga nesse dia e tem ${h1(cand[0].sobra)}h livres na semana — assume sem passar da jornada.`
+            : `Ninguém cobre dentro da jornada. ${cand[0].c.nome} é quem sai mais barato: ${h1(cand[0].extra)}h extras${cand[0].folgaOk?'':' e ficaria no mínimo de folgas'}.`)
+        : `Ninguém do setor pode assumir sem estourar o limite de dias seguidos. Reduza a necessidade desse turno, empreste alguém de outro setor, ou aceite o furo neste dia.`,
+      acao: cand.length?()=>{
+        setE(cand[0].c.id,f.d,f.t.id,true);
+        const sem=sems.find(w=>w.includes(f.d))||[];
+        const folga=sem.find(x=>x&&x!==f.d&&trabalha(cand[0].c.id,x)&&!ehMan(cand[0].c.id,x)
+          && escalados(f.st.id,x,getE(cand[0].c.id,x))>getDem(f.st.id,dsem(x),getE(cand[0].c.id,x)));
+        if(folga)setE(cand[0].c.id,folga,'F',true);
+      }:null,
+      rotulo: cand.length?`Escalar ${cand[0].c.nome.split(' ')[0]}`:null, seguro:true
+    });
+  });
+
+  /* 2. dias seguidos acima do limite — vale para todos, inclusive escala fixa */
+  D.colaboradores.forEach(c=>{
+    const seq=maiorSeq(c.id);
+    if(seq>(D.cfg.maxConsec||6))
+      S.push({nivel:'c',titulo:`${c.nome} trabalha ${seq} dias seguidos`,
+        detalhe:`O limite configurado é ${D.cfg.maxConsec}. Sequências longas são risco trabalhista e de saúde — a CLT garante descanso a cada 7 dias.`,
+        acao:noRodizio(c)?()=>{corrigirSequencias();}:null,
+        rotulo:noRodizio(c)?'Inserir folga':null,seguro:true});
+  });
+
+  /* 3. domingos seguidos */
+  D.colaboradores.filter(noRodizio).forEach(c=>{
+    const ds=domSeg(c.id), lim=limDom(c);
+    if(ds>lim){
+      const dom=[];for(let d=1;d<=n;d++)if(dsem(d)===6&&trabalha(c.id,d))dom.push(d);
+      S.push({nivel:'c',titulo:`${c.nome} trabalha ${ds} domingos seguidos`,
+        detalhe:c.sexo==='F'
+          ?`Mulheres têm direito a folga dominical a cada ${cicloDom(c)} semanas (art. 386 da CLT, conforme a jurisprudência do TST). Isso permite no máximo ${lim} domingo(s) seguido(s) de trabalho.`
+          :`Restaurantes e bares têm autorização permanente para funcionar aos domingos (Anexo IV da Portaria MTP 671/2021), e nesse caso o repouso deve coincidir com o domingo ao menos uma vez a cada ${cicloDom(c)} semanas (art. 58, §2º) — no máximo ${lim} domingos seguidos. O acordo coletivo pode exigir intervalo menor.`,
+        acao:dom.length>lim?()=>{setE(c.id,dom[lim],'F',true);}:null,
+        rotulo:dom.length>lim?`Folgar dia ${dom[lim]}`:null,seguro:true});
+    }
+  });
+
+  /* 3b. descanso entre jornadas — art. 66 da CLT */
+  D.colaboradores.forEach(c=>{
+    const f=falhasInterjornada(c.id);
+    if(!f.length)return;
+    const p=f[0];
+    const alt=turnoQueRespeita(c.id,p.d,p.t1);
+    S.push({nivel:'c',
+      titulo:`${c.nome}: só ${p.horas}h de descanso entre o dia ${p.d-1} e o dia ${p.d}`,
+      detalhe:`O art. 66 da CLT exige 11h consecutivas entre o fim de uma jornada e o início da seguinte. `
+        +`${p.t1.nome} termina ${p.t1.fim} e ${p.t2.nome} começa ${p.t2.inicio}. `
+        +(alt?`Trocar o dia ${p.d} para ${alt.nome} resolve.`:`Nenhum turno que esta pessoa faz começa tarde o bastante — a saída é folga no dia ${p.d} ou outro horário de entrada.`)
+        +(f.length>1?` Há ${f.length} ocorrência(s) no mês.`:''),
+      acao:alt?()=>{f.forEach(x=>{const a=turnoQueRespeita(c.id,x.d,x.t1);if(a)setE(c.id,x.d,a.id,true);});}:null,
+      rotulo:alt?`Trocar para ${alt.nome}`:null,seguro:true});
+  });
+
+  /* 3c. intervalo dentro da jornada — art. 71 da CLT */
+  D.turnos.forEach(t=>{
+    const pres=presenca(t), inter=+t.intervalo||0;
+    if(pres>6&&inter<1-0.01)
+      S.push({nivel:'c',titulo:`Turno ${t.nome}: ${h1(pres)}h de presença com ${h1(inter*60)} min de intervalo`,
+        detalhe:`O art. 71 da CLT exige no mínimo 1 hora de intervalo para jornadas acima de 6 horas. Convenção ou acordo coletivo pode reduzir, mas nunca abaixo de 30 minutos. Ajuste o intervalo deste turno em Ajustes.`,
+        acao:()=>irPara('ajustes'),rotulo:'Ajustar turno',seguro:false});
+  });
+
+  /* 3d. jornada diária acima de 8h — EC 141 */
+  D.turnos.forEach(t=>{
+    if(t.horas>8.01)
+      S.push({nivel:'a',titulo:`Turno ${t.nome} tem ${t.horas}h de trabalho por dia`,
+        detalhe:`A EC 141 fixa a jornada diária em até 8 horas. Durante o período de transição, convenção ou acordo coletivo pode ampliar esse limite para viabilizar as ${D.cfg.jornada}h semanais em 5 dias. Confirme com a assessoria se o acordo do setor permite — sem isso, o teto é 8h por dia.`,
+        seguro:false});
+  });
+
+  /* 3e. gente demais afastada ao mesmo tempo no setor */
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);
+    if(time.length<2)return;
+    let pior=0,diaPior=0;
+    for(let d=1;d<=n;d++){
+      const q=time.filter(c=>afastadoNoDia(c.id,d)).length;
+      if(q>pior){pior=q;diaPior=d;}
+    }
+    if(pior>(D.cfg.maxFerias||1))
+      S.push({nivel:'a',titulo:`${st.nome}: ${pior} pessoas afastadas ao mesmo tempo no dia ${diaPior}`,
+        detalhe:`O limite configurado é ${D.cfg.maxFerias} por setor. Com equipe enxuta, férias sobrepostas são a causa mais comum de furo de cobertura. Escalone os períodos na aba Equipe.`,
+        acao:()=>irPara('equipe'),rotulo:'Ver afastamentos',seguro:false});
+  });
+
+  /* 3e2. setor sem turno próprio */
+  D.setores.forEach(st=>{
+    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    if(!turnosDoSetor(st.id).length)
+      S.push({nivel:'c',titulo:`${st.nome} está sem nenhum turno`,
+        detalhe:`Todos os turnos foram atribuídos a outros setores, então o gerador não tem horário nenhum para escalar este setor. Crie um turno para ele em Ajustes → Setores → "+ Turno deste setor".`,
+        acao:()=>irPara('ajustes'),rotulo:'Criar turno',seguro:false});
+  });
+
+  /* 3f. feriados do mês */
+  {
+    const fers=[];
+    for(let d=1;d<=n;d++){const f=feriadoNoDia(d);if(f&&f.tipo!=='facultativo')fers.push({d,f});}
+    if(fers.length)
+      S.push({nivel:'d',titulo:`${fers.length} feriado(s) neste mês`,
+        detalhe:fers.map(x=>`dia ${x.d} (${DIAS[dsem(x.d)]}) — ${x.f.nome}`).join(' · ')
+          +`. Quem trabalha em feriado tem direito a pagamento em dobro ou folga compensatória, salvo o que o acordo coletivo dispuser. `
+          +(D.cfg.feriadoComoDomingo?'O app está tratando feriado com a necessidade de domingo.':'O app está usando a necessidade do dia da semana — mude em Ajustes se o movimento de feriado for diferente.'),
+        seguro:false});
+  }
+
+  /* 4. sem sexo no cadastro */
+  const semSexo=D.colaboradores.filter(c=>!c.sexo&&noRodizio(c));
+  if(semSexo.length)
+    S.push({nivel:'a',titulo:`${semSexo.length} pessoa(s) sem sexo no cadastro`,
+      detalhe:`A regra de domingos é diferente para mulheres (folga quinzenal, art. 386). Sem esse dado o app aplica a regra menos rígida e pode deixar passar um vencimento. Faltam: ${semSexo.slice(0,8).map(c=>c.nome).join(', ')}${semSexo.length>8?'…':''}.`,
+      acao:()=>irPara('equipe'),rotulo:'Abrir equipe',seguro:false});
+
+  /* 5. horas acima / abaixo */
+  let ocio=0, extra=0;
+  D.colaboradores.filter(noRodizio).forEach(c=>{
+    const jor=c.jornada||D.cfg.jornada;
+    sems.forEach(sem=>{
+      if(sem.filter(Boolean).length<7)return;
+      const ds=sem.filter(Boolean);
+      if(ds.some(d=>afastadoNoDia(c.id,d)))return;   /* semana parcial por afastamento */
+      const hs=horasSem(c.id,sem), fg=folgasSem(c.id,sem);
+      if(fg<D.cfg.folgasMin)
+        S.push({nivel:'c',titulo:`${c.nome} com ${fg} folga(s) na semana ${ds[0]}–${ds[ds.length-1]}`,
+          detalhe:`O mínimo configurado é ${D.cfg.folgasMin} folgas por semana.`,seguro:false});
+      else if(hs>jor+0.05) extra+=hs-jor;
+      else if(hs<jor-0.05&&hs>0) ocio+=jor-hs;
+    });
+  });
+  if(ocio>0.5)
+    S.push({nivel:'a',titulo:`${h1(ocio)}h pagas sem escala no mês`,
+      detalhe:`Gente contratada e não aproveitada — com equipe enxuta, é a primeira folga a recuperar. Quase sempre é a duração do turno que não fecha a jornada: para ${D.cfg.jornada}h em ${7-D.cfg.folgasMin} dias, cada turno precisa de ${h1(D.cfg.jornada/(7-D.cfg.folgasMin))}h úteis.`,
+      acao:()=>irPara('ajustes'),rotulo:'Ajustar turnos',seguro:false});
+  if(extra>0.5)
+    S.push({nivel:'a',titulo:`${h1(extra)}h acima da jornada no mês`,
+      detalhe:`São horas extras a pagar ou compensar em banco de horas. Verifique o que o acordo coletivo permite.`,seguro:false});
+
+  /* 6. sobra num dia e falta em outro, no mesmo setor */
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id&&noRodizio(c));
+    if(time.length<2)return;
+    const saldo=DIAS.map((_,w)=>{
+      let dif=0,cont=0;
+      for(let d=1;d<=n;d++){if(dsem(d)!==w)continue;cont++;
+        turnosDoSetor(st.id).forEach(t=>{dif+=escalados(st.id,d,t.id)-demDoDia(st.id,d,t.id);});}
+      return cont?dif/cont:0;
+    });
+    const alto=saldo.indexOf(Math.max(...saldo)), baixo=saldo.indexOf(Math.min(...saldo));
+    if(saldo[alto]>=1&&saldo[baixo]<=-1){
+      const dom=baixo===6;
+      S.push({nivel:'a',titulo:`${st.nome}: sobra gente ${DIAS[alto].toLowerCase()} e falta ${DIAS[baixo].toLowerCase()}`,
+        detalhe:dom
+          ? `Em média ${h1(saldo[alto])} pessoa(s) a mais ${DIAS[alto].toLowerCase()} e ${h1(-saldo[baixo])} a menos no domingo. Parte do domingo é intocável por causa do revezamento, mas a sobra de ${DIAS[alto].toLowerCase()} é desperdício puro: vale reduzir a necessidade desse dia ou puxar gente para o domingo em hora extra.`
+          : `Em média ${h1(saldo[alto])} pessoa(s) a mais ${DIAS[alto].toLowerCase()} e ${h1(-saldo[baixo])} a menos ${DIAS[baixo].toLowerCase()}. Mover folgas de ${DIAS[baixo].toLowerCase()} para ${DIAS[alto].toLowerCase()} fecha o buraco sem contratar.`,
+        acao:()=>otimizarSetor(st.id),rotulo:'Remanejar folgas',seguro:true});
+    }
+  });
+
+  /* 6b. furo concentrado no domingo = conflito com o revezamento, não má distribuição */
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);
+    if(!time.length)return;
+    let dDom=0,dOut=0;
+    for(let d=1;d<=n;d++){const w=dsem(d);
+      turnosDoSetor(st.id).forEach(t=>{const g=Math.max(0,demDoDia(st.id,d,t.id)-escalados(st.id,d,t.id));
+        if(w===6)dDom+=g;else dOut+=g;});}
+    if(dDom>0&&dDom>=dOut){
+      const nec=turnosDoSetor(st.id).reduce((a,t)=>a+getDem(st.id,6,t.id),0);
+      const mul=time.filter(c=>c.sexo==='F').length;
+      S.push({nivel:'a',titulo:`${st.nome}: o furo de domingo é estrutural, não de distribuição`,
+        detalhe:`Domingo pede ${nec} pessoa(s) e o setor tem ${time.length}. O revezamento obriga folgas dominicais — ${mul} mulher(es) folgam em domingos alternados pelo art. 386 — então sobram menos pessoas do que o turno precisa. Remanejar folga não resolve: ou a necessidade de domingo cai, ou entra hora extra, ou alguém de outro setor cobre. É a conta que o domingo não fecha com este time.`,
+        seguro:false});
+    }
+  });
+
+  /* 7. equilíbrio de fins de semana */
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id&&noRodizio(c));
+    if(time.length<3)return;
+    const v=time.map(c=>({c,n:fdsTrab(c.id)})).sort((a,b)=>b.n-a.n);
+    if(v[0].n-v[v.length-1].n>=3)
+      S.push({nivel:'d',titulo:`${st.nome}: fins de semana mal divididos`,
+        detalhe:`${v[0].c.nome} pega ${v[0].n} dias de fim de semana e ${v[v.length-1].c.nome} pega ${v[v.length-1].n}. Com equipe pequena, desequilíbrio de sábado e domingo é o que mais gera pedido de demissão.`,
+        seguro:false});
+  });
+
+  /* 8. turno que não fecha a jornada */
+  const alvo=D.cfg.jornada/(7-D.cfg.folgasMin);
+  D.turnos.forEach(t=>{
+    if(Math.abs(t.horas-alvo)>0.05)
+      S.push({nivel:'d',titulo:`Turno ${t.nome} tem ${t.horas}h úteis`,
+        detalhe:`Para fechar ${D.cfg.jornada}h em ${7-D.cfg.folgasMin} dias seriam ${h1(alvo)}h. Quem fizer só este turno vai fechar ${h1(t.horas*(7-D.cfg.folgasMin))}h por semana.`,
+        seguro:false});
+  });
+
+  /* 9. setor sem necessidade preenchida */
+  D.setores.forEach(st=>{
+    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    let soma=0;for(let w=0;w<7;w++)turnosDoSetor(st.id).forEach(t=>soma+=getDem(st.id,w,t.id));
+    if(!soma)
+      S.push({nivel:'a',titulo:`${st.nome} está sem necessidade de cobertura`,
+        detalhe:`Sem esse dado o app não sabe quantas pessoas o setor precisa por dia, e nem o gerador nem as sugestões conseguem trabalhar nele.`,
+        acao:()=>irPara('cobertura'),rotulo:'Preencher',seguro:false});
+  });
+
+  /* 10. pessoas presas a um turno só */
+  const presos=D.colaboradores.filter(c=>noRodizio(c)&&c.turnosOk.length===1&&D.turnos.length>1);
+  if(presos.length>=Math.max(3,D.colaboradores.length*0.5))
+    S.push({nivel:'d',titulo:`${presos.length} pessoas fazem um turno só`,
+      detalhe:`Com equipe enxuta, polivalência vale mais que gente nova: quem pode cobrir almoço e jantar dá ao gerador o dobro de combinações para fechar os furos. Marque no cadastro quem já consegue fazer mais de um turno.`,
+      acao:()=>irPara('equipe'),rotulo:'Abrir equipe',seguro:false});
+
+  const ord={c:0,a:1,d:2};
+  S.sort((a,b)=>ord[a.nivel]-ord[b.nivel]);
+  SUG=S;return S;
+}
+/* busca local: troca um dia de trabalho por um dia de folga da mesma semana,
+   e só mantém a troca se a nota do setor melhorar de verdade */
+function otimizarSetor(sid){
+  const time=D.colaboradores.filter(c=>c.setorId===sid&&noRodizio(c));
+  if(time.length<2)return 0;
+  const sems=semanas().filter(w=>w.filter(Boolean).length>=5);
+  let movidas=0;
+
+  for(let rodada=0;rodada<8;rodada++){
+    const vBase=violSetor(sid), cBase=custoSetor(sid);
+    let melhorGanho=0, jogada=null;
+    sems.forEach(sem=>{
+      const dias=sem.filter(Boolean);
+      time.forEach(c=>{
+        dias.forEach(dT=>{
+          if(!trabalha(c.id,dT)||ehMan(c.id,dT))return;
+          dias.forEach(dF=>{
+            if(dF===dT||getE(c.id,dF)!=='F'||ehMan(c.id,dF))return;
+            if(c.folgaFixa.includes(dsem(dF)))return;
+            const wF=dsem(dF);
+            /* no novo dia, assume o turno mais carente que ele sabe fazer */
+            const alvo=turnosDoSetor(sid).filter(t=>c.turnosOk.includes(t.id))
+              .map(t=>({t,def:demDoDia(sid,dF,t.id)-escalados(sid,dF,t.id)}))
+              .sort((a,b)=>b.def-a.def)[0];
+            if(!alvo||!alvo.t)return;
+            const vT=getE(c.id,dT);
+            setE(c.id,dT,'F',false);setE(c.id,dF,alvo.t.id,false);
+            const vDep=violSetor(sid), cDep=custoSetor(sid);
+            setE(c.id,dT,vT,false);setE(c.id,dF,'F',false);
+            /* regra dura: a troca nunca pode criar quebra de regra nova */
+            if(vDep>vBase)return;
+            const ganho=(vBase-vDep)*100+(cBase-cDep);
+            if(ganho>melhorGanho){melhorGanho=ganho;jogada={c,dT,dF,t:alvo.t.id};}
+          });
+        });
+      });
+    });
+    if(!jogada)break;
+    setE(jogada.c.id,jogada.dT,'F',false);
+    setE(jogada.c.id,jogada.dF,jogada.t,false);
+    movidas++;
+  }
+  return movidas;
+}
+function otimizar(){
+  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  const antes=D.setores.reduce((a,s)=>a+custoSetor(s.id),0);
+  let m=0;D.setores.forEach(s=>{m+=otimizarSetor(s.id)||0;});
+  corrigirSequencias();salvar();renderTudo();
+  const depois=D.setores.reduce((a,s)=>a+custoSetor(s.id),0);
+  if(m)logar(`Otimização: ${m} folga(s) remanejada(s) em ${rotMes()}`);
+  alert(m
+    ? `${m} folga(s) remanejada(s).\n\nDesencaixe entre escala e necessidade: ${antes} → ${depois}.\nSeus ajustes manuais não foram tocados.`
+    : 'Nada a remanejar: as folgas já estão nos melhores dias, ou os ajustes manuais travam as trocas possíveis.');
+}
+function aplicarSug(i){const s=SUG[i];if(s&&s.acao){s.acao();salvar();renderTudo();}}
+function aplicarTodas(){
+  const alvo=SUG.filter(s=>s.acao&&s.seguro);
+  if(!alvo.length)return alert('Não há correções automáticas pendentes.');
+  if(!confirm(`Aplicar ${alvo.length} correção(ões)? As células que você ajustou à mão não serão alteradas.`))return;
+  alvo.forEach(s=>{try{s.acao();}catch(e){}});
+  salvar();renderTudo();
+  alert('Correções aplicadas. Reveja a lista — corrigir um ponto pode revelar outro.');
+}
+
+/* ============ temas ============ */
+function abrirTemas(){
+  const el=document.getElementById('menu-temas');
+  el.classList.toggle('on');
+  if(el.classList.contains('on'))renderTemas();
+}
+function renderTemas(){
+  const el=document.getElementById('menu-temas');if(!el)return;
+  const atual=D.cfg.tema||'sintra';
+  el.innerHTML=`<div class="temas-in">
+    ${Object.entries(TEMAS).map(([id,t])=>`
+      <button class="tema-c ${id===atual?'sel':''}" onclick="escolherTema('${id}')">
+        <b>${esc(t.nome)}</b><span>${esc(t.desc)}</span>
+        <div class="swatch">
+          <i style="background:${t.v['--azul']}"></i>
+          <i style="background:${t.v['--terracota']}"></i>
+          <i style="background:${t.t[1]}"></i>
+          <i style="background:${t.t[2]}"></i>
+          <i style="background:${t.v['--creme']}"></i>
+        </div></button>`).join('')}
+    <div style="flex:1;min-width:210px;font-size:12px;color:var(--fraco);padding-top:4px">
+      Ao trocar de tema, as cores dos turnos no calendário acompanham a paleta.
+      Se você já escolheu cores próprias em Ajustes, elas são mantidas — use o botão abaixo para alinhá-las ao tema.
+      <div style="margin-top:9px"><button class="btn sec mini" onclick="aplicarTema(D.cfg.tema||'sintra',true);renderTudo()">Recolorir os turnos com o tema</button></div>
+    </div>
+  </div>`;
+}
+function escolherTema(id){
+  const padrao=!D.turnos.some((t,i)=>t.cor&&t.cor!==CT[i%CT.length]);
+  aplicarTema(id,padrao);   /* só recolore turnos se o usuário não tiver escolhido cores próprias */
+  renderTudo();renderTemas();
+}
+
+/* ============ navegação ============ */
+function irPara(p){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
+  document.querySelectorAll('.painel').forEach(x=>x.classList.toggle('on',x.id==='p-'+p));
+  window.scrollTo(0,0);renderTudo();
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>irPara(b.dataset.p));
+
+/* ============ HOJE ============ */
+function renderHoje(){
+  const el=document.getElementById('hoje-conteudo'), al=document.getElementById('hoje-alerta');
+  document.getElementById('dia-sel').value=diaSel;
+  const d=+diaSel.slice(8), w=dsem(d);
+  const dt=new Date(diaSel+'T12:00:00');
+  document.getElementById('t-hoje').textContent=
+    (diaSel===hojeISO()?'Hoje · ':'')+DIAS[w]+', '+d+' de '+MESES[dt.getMonth()];
+  if(!D.colaboradores.length){el.innerHTML='<div class="card"><div class="vazio"><p>Cadastre a equipe para começar.</p><button class="btn" onclick="irPara(\'equipe\')">Ir para Equipe</button></div></div>';al.innerHTML='';return;}
+
+  let furos=[];
+  D.setores.forEach(st=>{
+    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    turnosDoSetor(st.id).forEach(t=>{const nec=demDoDia(st.id,d,t.id);if(!nec)return;
+      const tem=escalados(st.id,d,t.id);if(tem<nec)furos.push({st,t,nec,tem});});
+  });
+  const faltas=(D.faltas[diaSel]||[]).map(colabDe).filter(Boolean);
+  al.innerHTML = furos.length
+    ? `<div class="nota at"><b>${furos.length} furo(s) de cobertura neste dia.</b> ${furos.map(f=>esc(f.st.nome)+' · '+esc(f.t.nome)+' ('+f.tem+' de '+f.nec+')').join(' · ')}
+       <br><button class="btn mini terr" style="margin-top:8px" onclick="irPara('sugestoes')">Ver quem pode cobrir</button></div>`
+    : `<div class="nota bo"><b>Dia coberto.</b> Todos os turnos com necessidade preenchida têm gente suficiente.</div>`;
+
+  let blocoCobrir='';
+  if(furos.length){
+    blocoCobrir='<div class="card"><h3>Quem pode cobrir hoje</h3>'
+    +furos.map(f=>{
+      const cand=candidatosCobrir(f.st.id,d,f.t.id).slice(0,3);
+      return `<div style="margin-bottom:12px"><b style="font-size:13px">${esc(f.st.nome)} · ${esc(f.t.nome)}</b>
+        <span style="color:var(--vermelho);font-size:12px"> faltam ${f.nec-f.tem}</span>
+        ${cand.length?('<div style="margin-top:6px">'+cand.map(x=>
+          `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--linha)">
+            <span>${esc(x.c.nome)} <span style="font-size:11px;color:var(--fraco)">
+              ${x.extra<=0.05?'dentro da jornada, '+h1(x.sobra)+'h livres':h1(x.extra)+'h extras'}
+              ${x.folgaOk?'':' · ficaria no mínimo de folgas'}</span></span>
+            <button class="btn mini ${x.extra<=0.05?'vd':'sec'}" onclick="cobrir('${x.c.id}',${d},'${f.t.id}')">Escalar</button>
+          </div>`).join('')+'</div>')
+        :'<p style="font-size:12px;color:var(--fraco);margin-top:5px">Ninguém disponível sem estourar o limite de dias seguidos.</p>'}</div>`;
+    }).join('')+'</div>';
+  }
+
+  el.innerHTML=blocoCobrir+D.setores.map(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);
+    if(!time.length)return '';
+    const blocos=turnosDoSetor(st.id).map(t=>{
+      const pes=time.filter(c=>getE(c.id,d)===t.id);
+      if(!pes.length&&!getDem(st.id,w,t.id))return '';
+      const pres=pes.filter(c=>!faltou(c.id,d)), nec=getDem(st.id,w,t.id);
+      const cls=pres.length>=nec?'ok':'ruim';
+      return `<div style="margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:${t.cor};margin-bottom:5px">
+          ${esc(t.nome)} · ${t.inicio}–${t.fim}
+          <span style="float:right" class="${cls}">${pres.length}${nec?'/'+nec:''}</span></div>
+        ${pes.length?pes.map(c=>{
+          const f=faltou(c.id,d);
+          return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--linha)">
+            <span style="${f?'text-decoration:line-through;color:var(--vermelho)':''}">${esc(c.nome)}
+              <span style="font-size:10px;color:var(--fraco)">${esc(c.cargo)||''}</span></span>
+            <button class="btn sec mini" onclick="marcarFalta('${c.id}',${d},${!f})">${f?'Desfazer falta':'Marcar falta'}</button>
+          </div>`;}).join('')
+        :'<div style="font-size:12px;color:var(--vermelho)">ninguém escalado</div>'}
+      </div>`;
+    }).join('');
+    const folg=time.filter(c=>getE(c.id,d)==='F'),fer=time.filter(c=>getE(c.id,d)==='FER');
+    const afast=time.filter(c=>afastadoNoDia(c.id,d));
+    return `<div class="card"><h3><span class="ponto" style="background:${st.cor}"></span>${esc(st.nome)}</h3>
+      ${blocos||'<p style="font-size:12px;color:var(--fraco)">Sem turno escalado neste dia.</p>'}
+      <div style="border-top:1px solid var(--borda);padding-top:9px;margin-top:4px;font-size:12px;color:var(--fraco)">
+        <b>Folga:</b> ${folg.length?folg.map(c=>esc(c.nome)).join(', '):'ninguém'}
+        ${fer.length?'<br><b>Férias:</b> '+fer.map(c=>esc(c.nome)).join(', '):''}
+        ${afast.length?'<br>'+afast.map(c=>{const a=afastadoNoDia(c.id,d);
+          return `<b>${esc(TIPOS_AF[a.tipo].nome)}:</b> ${esc(c.nome)} <span style="font-size:11px">(até ${brData(a.fim)})</span>`;}).join('<br>'):''}
+      </div></div>`;
+  }).join('')
+  + (faltas.length?`<div class="nota at"><b>Faltas registradas:</b> ${faltas.map(c=>esc(c.nome)).join(', ')}. O app já tirou essas pessoas da contagem de cobertura.</div>`:'');
+}
+
+function cobrir(cid,dia,tid){
+  const c=colabDe(cid),t=turnoDe(tid);
+  if(!confirm(`Escalar ${c.nome} no ${t.nome} do dia ${dia}?`))return;
+  setE(cid,dia,tid,true);
+  logar(`Cobertura: ${c.nome} escalado no ${t.nome} do dia ${dia}`);
+  salvar();renderTudo();
+}
+
+/* ============ copiar escala ============
+   Nada de modos: cada linha diz em palavras o que vai acontecer,
+   com os números reais do mês já preenchidos, e tem um botão só. */
+let copiaOrig=null;
+function alvosDoEscopo(v){
+  if(!v||v==='todos')return D.colaboradores.slice();
+  const[t,id]=v.split(':');
+  return t==='setor'?D.colaboradores.filter(c=>c.setorId===id):D.colaboradores.filter(c=>c.id===id);
+}
+function opcoesEscopo(){
+  return '<option value="todos">Todos os setores</option>'
+    +'<optgroup label="Um setor">'+D.setores.filter(s=>D.colaboradores.some(c=>c.setorId===s.id))
+      .map(s=>`<option value="setor:${s.id}">${esc(s.nome)}</option>`).join('')+'</optgroup>'
+    +'<optgroup label="Uma pessoa">'+D.setores.map(s=>D.colaboradores.filter(c=>c.setorId===s.id)
+      .map(c=>`<option value="pessoa:${c.id}">${esc(c.nome)} · ${esc(s.nome)}</option>`).join('')).join('')+'</optgroup>';
+}
+function abrirCopia(){
+  const el=document.getElementById('painel-copia');
+  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  if(el.style.display===''){el.style.display='none';return;}
+  renderCopia();mostrarPainel(el);
+}
+const escopoAtual=()=>alvosDoEscopo(document.getElementById('cp-escopo')?.value||'todos');
+const travarAtual=()=>document.getElementById('cp-travar')?.checked!==false;
+
+function renderCopia(){
+  const el=document.getElementById('copia-corpo');if(!el)return;
+  const n=nDias(), sems=semanas(), wi=iSem(), ds=(sems[wi]||[]).filter(Boolean);
+  const hoje=hojeISO().slice(0,7)===mesAtivo?+hojeISO().slice(8):1;
+  const dia=copiaOrig||hoje;
+  const outrosMeses=Object.keys(D.escalaMes||{})
+    .filter(k=>k!==mesAtivo&&Object.keys(D.escalaMes[k]||{}).length).sort().reverse();
+
+  const linha=(txt,botao,onclick,extra)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+                padding:12px 0;border-bottom:1px solid var(--linha)">
+      <div style="flex:1;min-width:240px">${txt}
+        ${extra?`<div style="margin-top:7px">${extra}</div>`:''}</div>
+      <button class="btn vd" onclick="${onclick}">${botao}</button></div>`;
+
+  el.innerHTML = `
+  <div style="margin-bottom:6px;max-width:320px">
+    <label>Aplicar em</label><select id="cp-escopo">${opcoesEscopo()}</select></div>
+
+  ${linha(`<b>Levar esta escala para ${esc(rotMesDe(mesSeguinte(mesAtivo)))}</b>
+      <div style="font-size:12px;color:var(--fraco)">Copia ${esc(rotMes())} inteiro para o mês seguinte, encaixando por dia da semana, e já abre o mês novo para você conferir.</div>`,
+      'Levar','acaoProximoMes()')}
+
+  ${linha(`<b>Repetir a semana ${ds[0]}–${ds[ds.length-1]} nas outras semanas de ${esc(rotMes())}</b>
+      <div style="font-size:12px;color:var(--fraco)">Monta uma semana boa e espalha pelo mês. Segunda cai em segunda, domingo em domingo.</div>`,
+      'Repetir','acaoSemana()')}
+
+  ${outrosMeses.length
+    ? linha(`<b>Trazer a escala de outro mês para ${esc(rotMes())}</b>
+        <div style="font-size:12px;color:var(--fraco)">Encaixa pelo dia da semana, não pelo número do dia. O que já estiver aqui é substituído.</div>`,
+        'Trazer','acaoMes()',
+        `<select id="cp-mes" style="max-width:260px">${outrosMeses.map(k=>
+          `<option value="${k}">${esc(rotMesDe(k))}${k===mesAnterior(mesAtivo)?' — mês anterior':''}</option>`).join('')}</select>`)
+    : `<div style="padding:12px 0;border-bottom:1px solid var(--linha);font-size:13px;color:var(--fraco)">
+        <b style="color:var(--texto)">Trazer de outro mês</b><br>Nenhum outro mês tem escala salva ainda. Assim que você montar um, ele aparece aqui.</div>`}
+
+  ${linha(`<b>Repetir um dia em outros dias</b>
+      <div style="font-size:12px;color:var(--fraco)">Copia como aquele dia está, inclusive folgas e férias.</div>`,
+      'Repetir','acaoDia()',
+      `<select id="cp-dia" onchange="copiaOrig=+this.value;renderCopia()" style="max-width:190px;display:inline-block;width:auto">
+         ${[...Array(n)].map((_,i)=>`<option value="${i+1}" ${dia===i+1?'selected':''}>Dia ${i+1} · ${DIAS[dsem(i+1)]}</option>`).join('')}
+       </select>
+       <select id="cp-alvo" style="max-width:230px;display:inline-block;width:auto;margin-left:6px">
+         <option value="mesmo">em todas as ${DIAS[dsem(dia)].toLowerCase()}s do mês</option>
+         <option value="uteis">em todos os dias úteis</option>
+         <option value="todos">em todos os dias do mês</option>
+       </select>`)}
+
+  ${linha(`<b>Modelos de semana</b>
+      <div style="font-size:12px;color:var(--fraco)">Salve a semana ativa com um nome e aplique em qualquer mês, mesmo sem ter montado nada antes.</div>`,
+      'Salvar semana','salvarModelo()',
+      (D.modelos||[]).length
+        ? `<select id="cp-modelo" style="max-width:260px;display:inline-block;width:auto">${D.modelos.map(m=>
+            `<option value="${m.id}">${esc(m.nome)}</option>`).join('')}</select>
+           <button class="btn sec mini" style="margin-left:6px" onclick="aplicarModelo()">Aplicar na semana ativa</button>
+           <button class="btn sec mini" onclick="excluirModelo()">Excluir</button>`
+        : '<span style="font-size:12px;color:var(--fraco)">Nenhum modelo salvo ainda.</span>')}
+
+  <label style="display:flex;gap:7px;align-items:center;text-transform:none;font-size:13px;font-weight:400;
+                color:var(--texto);margin:14px 0 0">
+    <input type="checkbox" id="cp-travar" checked style="width:auto">
+    Travar o que for copiado, para o gerador não desfazer</label>
+  <div class="linha" style="margin:12px 0 0">
+    <button class="btn sec" onclick="document.getElementById('painel-copia').style.display='none'">Fechar</button></div>`;
+}
+
+function aplicarCopia(pares,alvos,travar,msg){
+  let n=0,pulados=0;
+  logar(`Cópia ${msg||''} em ${rotMes()} (${alvos.length} pessoa(s))`);
+  alvos.forEach(c=>pares.forEach(([de,para])=>{
+    if(de===para)return;
+    const v=getE(c.id,de);
+    /* afastamento é período, não estado de célula: não se copia nem se sobrescreve */
+    if(ehAfast(v)||afastadoNoDia(c.id,para)){pulados++;return;}
+    setE(c.id,para,v,travar);n++;
+  }));
+  if(pulados)msg=(msg||'')+` · ${pulados} dia(s) de afastamento preservado(s)`;
+  salvar();renderTudo();
+  alert(`${n} dia(s) copiado(s)${msg?' '+msg:''}.`+(travar?'\nFicaram travados — use o pincel "Soltar do manual" para liberar.':''));
+}
+function acaoSemana(){
+  const sems=semanas(), wi=iSem(), so=sems[wi];
+  const ds=so.filter(Boolean), alvos=escopoAtual();
+  if(sems.length<2)return alert('O mês tem só uma semana.');
+  if(!confirm(`Repetir a semana ${ds[0]}–${ds[ds.length-1]} nas outras ${sems.length-1} semana(s), em ${alvos.length} pessoa(s)?`))return;
+  const pares=[];
+  sems.forEach((sd,i)=>{if(i===wi)return;
+    for(let k=0;k<7;k++)if(so[k]&&sd[k])pares.push([so[k],sd[k]]);});
+  aplicarCopia(pares,alvos,travarAtual(),'pela semana');
+}
+function acaoDia(){
+  const de=+document.getElementById('cp-dia').value;
+  const modo=document.getElementById('cp-alvo').value;
+  const alvos=escopoAtual(), n=nDias();
+  const dest=[];
+  for(let d=1;d<=n;d++){
+    if(d===de)continue;
+    const w=dsem(d);
+    if(modo==='todos'||(modo==='uteis'&&w<5)||(modo==='mesmo'&&w===dsem(de)))dest.push(d);
+  }
+  if(!dest.length)return alert('Nenhum dia de destino nessa combinação.');
+  if(!confirm(`Repetir o dia ${de} (${DIAS[dsem(de)]}) em ${dest.length} dia(s), em ${alvos.length} pessoa(s)?`))return;
+  aplicarCopia(dest.map(d=>[de,d]),alvos,travarAtual(),`do dia ${de}`);
+}
+function salvarModelo(){
+  const sem=semanas()[iSem()], ds=sem.filter(Boolean);
+  const nome=prompt(`Nome para o modelo da semana ${ds[0]}–${ds[ds.length-1]}:`,
+    `Semana padrão ${D.setores.find(x=>D.colaboradores.some(c=>c.setorId===x.id))?.nome||''}`.trim());
+  if(!nome)return;
+  const dados={};
+  escopoAtual().forEach(c=>{
+    dados[c.id]={};
+    for(let k=0;k<7;k++)if(sem[k])dados[c.id][k]=getE(c.id,sem[k]);
+  });
+  D.modelos.push({id:uid(),nome:nome.trim(),dados});
+  logar(`Modelo salvo: "${nome.trim()}" (${Object.keys(dados).length} pessoa(s))`);
+  salvar();renderTudo();
+  alert('Modelo salvo. Ele aparece na lista ao lado para aplicar em qualquer semana.');
+}
+function aplicarModelo(){
+  const id=document.getElementById('cp-modelo')?.value;
+  const m=(D.modelos||[]).find(x=>x.id===id);if(!m)return;
+  const sem=semanas()[iSem()], ds=sem.filter(Boolean), travar=travarAtual();
+  const presentes=Object.keys(m.dados).filter(cid=>colabDe(cid));
+  const sumidos=Object.keys(m.dados).length-presentes.length;
+  if(!confirm(`Aplicar "${m.nome}" na semana ${ds[0]}–${ds[ds.length-1]}?`
+    +(sumidos?`\n\n${sumidos} pessoa(s) do modelo não estão mais na equipe e serão ignoradas.`:'')))return;
+  let n=0;
+  presentes.forEach(cid=>{
+    for(let k=0;k<7;k++){
+      const d=sem[k];
+      if(!d||m.dados[cid][k]===undefined||afastadoNoDia(cid,d))continue;
+      const v=m.dados[cid][k];
+      if(ehAfast(v))continue;
+      setE(cid,d,v,travar);n++;
+    }
+  });
+  logar(`Modelo "${m.nome}" aplicado na semana ${ds[0]}–${ds[ds.length-1]} (${n} dias)`);
+  salvar();renderTudo();
+  alert(`${n} dia(s) preenchido(s) pelo modelo "${m.nome}".`);
+}
+function excluirModelo(){
+  const id=document.getElementById('cp-modelo')?.value;
+  const m=(D.modelos||[]).find(x=>x.id===id);if(!m)return;
+  if(!confirm(`Excluir o modelo "${m.nome}"?`))return;
+  D.modelos=D.modelos.filter(x=>x.id!==id);
+  logar(`Modelo excluído: "${m.nome}"`);salvar();renderTudo();
+}
+function acaoProximoMes(){
+  const prox=mesSeguinte(mesAtivo), origem=mesAtivo;
+  const alvos=escopoAtual(), travar=travarAtual();
+  const temAlgo=Object.keys(D.escalaMes[prox]||{}).length;
+  if(!confirm(`Levar a escala de ${rotMes()} para ${rotMesDe(prox)}, em ${alvos.length} pessoa(s)?`
+    +(temAlgo?`\n\n${rotMesDe(prox)} já tem escala montada e será substituída.`:'')))return;
+  const sO=semanasDe(origem), sD=semanasDe(prox);
+  let n=0;
+  sD.forEach((sd,i)=>{
+    const so=sO[i%sO.length];
+    alvos.forEach(c=>{for(let k=0;k<7;k++){
+      if(!sd[k]||!so[k])continue;
+      const v=getEm(origem,c.id,so[k]);
+      if(ehAfast(v))continue;
+      setEm(prox,c.id,sd[k],v,travar);n++;}});
+  });
+  salvar();
+  mesAtivo=prox;semAtiva=null;renderTudo();   /* abre o mês novo para conferência */
+  alert(`${n} dia(s) levado(s) de ${rotMesDe(origem)} para ${rotMesDe(prox)}.\n\nVocê está vendo ${rotMesDe(prox)} agora. Passe na aba Sugestões para conferir domingos e sequências.`);
+}
+function acaoMes(){
+  const ym=document.getElementById('cp-mes').value;
+  const alvos=escopoAtual(), travar=travarAtual();
+  if(!confirm(`Trazer a escala de ${rotMesDe(ym)} para ${rotMes()}, em ${alvos.length} pessoa(s)?\n\nO que já estiver preenchido aqui será substituído.`))return;
+  const sO=semanasDe(ym), sD=semanas();
+  let n=0;
+  sD.forEach((sd,i)=>{
+    const so=sO[i%sO.length];
+    alvos.forEach(c=>{for(let k=0;k<7;k++){
+      if(!sd[k]||!so[k]||afastadoNoDia(c.id,sd[k]))continue;
+      const v=getEm(ym,c.id,so[k]);
+      if(ehAfast(v))continue;
+      setE(c.id,sd[k],v,travar);n++;}});
+  });
+  salvar();renderTudo();
+  alert(`${n} dia(s) trazido(s) de ${rotMesDe(ym)}.`+(travar?'\nFicaram travados — use o pincel "Soltar do manual" para liberar.':''));
+}
+
+function imprimirDia(){
+  paginaPara('A4 portrait');
+  document.body.className='';document.body.classList.add('imp-hoje');
+  window.print();
+  setTimeout(()=>{document.body.className='';paginaPara('A4 landscape');},300);
+}
+
+/* ============ impressão por escopo ============ */
+let FILTRO=null;
+function setoresVis(){
+  if(!FILTRO)return D.setores;
+  if(FILTRO.tipo==='setor')return D.setores.filter(s=>s.id===FILTRO.id);
+  const c=colabDe(FILTRO.id);
+  return D.setores.filter(s=>c&&s.id===c.setorId);
+}
+function timeDe(sid){
+  const t=D.colaboradores.filter(c=>c.setorId===sid);
+  return (FILTRO&&FILTRO.tipo==='pessoa')?t.filter(c=>c.id===FILTRO.id):t;
+}
+function mostrarPainel(el){
+  el.style.display='';
+  try{el.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
+  el.classList.remove('destaque');void el.offsetWidth;el.classList.add('destaque');
+}
+function abrirImp(){
+  const el=document.getElementById('painel-imp');
+  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  const q=document.getElementById('imp-quem');
+  q.innerHTML='<option value="todos">Tudo — todos os setores</option>'
+    +'<optgroup label="Um setor">'+D.setores.filter(s=>D.colaboradores.some(c=>c.setorId===s.id))
+      .map(s=>`<option value="setor:${s.id}">${esc(s.nome)}</option>`).join('')+'</optgroup>'
+    +'<optgroup label="Uma pessoa">'+D.setores.map(s=>D.colaboradores.filter(c=>c.setorId===s.id)
+      .map(c=>`<option value="pessoa:${c.id}">${esc(c.nome)} · ${esc(s.nome)}</option>`).join('')).join('')+'</optgroup>';
+  if(el.style.display===''){el.style.display='none';return;}
+  mostrarPainel(el);
+  setTimeout(()=>{try{document.getElementById('btn-gerar-imp').focus();}catch(e){}},400);
+}
+function paginaPara(papel){
+  const el=document.getElementById('estilo-pagina');
+  if(!el)return;
+  el.textContent = papel==='celular'
+    ? '@page{size:A4 portrait;margin:10mm}'
+    : '@page{size:'+papel+';margin:8mm}';
+}
+function imprimirAgora(){
+  const modo=document.getElementById('imp-modo').value;
+  const quem=document.getElementById('imp-quem').value;
+  const papel=document.getElementById('imp-papel').value;
+  FILTRO = quem==='todos' ? null : {tipo:quem.split(':')[0], id:quem.split(':')[1]};
+  paginaPara(papel);
+  document.body.className='';
+  document.body.classList.add('imp-'+(papel==='celular'?'celular':modo));
+  if(papel==='A4 portrait'||papel==='letter portrait')document.body.classList.add('imp-pe');
+  document.getElementById('painel-imp').style.display='none';
+  renderTudo();
+  setTimeout(()=>{
+    window.print();
+    FILTRO=null;document.body.className='';paginaPara('A4 landscape');renderTudo();
+  },120);
+}
+
+/* ============ ESCALA ============ */
+function rotCel(v){
+  if(ehAfast(v))return TIPOS_AF[v.slice(3)]?.cod||'AF';
+  if(v==='F')return'F';if(v==='FER')return'FÉ';
+  const t=turnoDe(v);return t?(t.cod||t.nome.charAt(0).toUpperCase()):'?';}
+function estCel(v){
+  if(ehAfast(v)){const a=TIPOS_AF[v.slice(3)];return a?`background:${a.cor}26;color:${a.cor};border-color:${a.cor}55`:'';}
+  if(v==='F'||v==='FER')return'';
+  const t=turnoDe(v);return t&&t.cor?`background:${t.cor}22;color:${t.cor};border-color:${t.cor}55`:'';}
+function clicarCel(c,d){
+  const af=afastadoNoDia(c,d);
+  if(af)return alert(`${colabDe(c)?.nome} está em ${TIPOS_AF[af.tipo].nome} de ${brData(af.ini)} a ${brData(af.fim)}.\n\nPara mudar, edite o período na aba Equipe.`);
+  if(pincel==='CICLO'){
+    const o=['F',...D.turnos.map(t=>t.id),'FER'];
+    setE(c,d,o[(o.indexOf(getE(c,d))+1)%o.length],true);
+  }else if(pincel==='LIMPAR'){
+    setE(c,d,getE(c,d),false);
+    if(D.manuais[mesAtivo])delete D.manuais[mesAtivo][c+'-'+d];
+  }else setE(c,d,pincel,true);
+  salvar();renderTudo();
+}
+function renderPincel(){
+  const el=document.getElementById('pincel');if(!el)return;
+  const b=(v,txt,st)=>`<button class="pb ${pincel===v?'sel':''}" style="${st||''}" onclick="pincel='${v}';renderTudo()">${txt}</button>`;
+  el.innerHTML='<b>Pincel</b>'
+    +b('CICLO','Ciclar')
+    +D.turnos.map(t=>b(t.id,esc(t.cod||'?')+' · '+esc(t.nome),`background:${t.cor}22;color:${t.cor};border-color:${t.cor}55`)).join('')
+    +b('F','F · Folga','background:var(--folga);color:var(--folga-tx)')
+    +b('FER','FÉ · Férias','background:var(--ferias);color:var(--ferias-tx)')
+    +b('LIMPAR','Soltar do manual')
+    +'<span style="font-size:11px;color:var(--fraco);margin-left:4px">Escolha um estado e clique nas células. "Soltar do manual" devolve a célula ao gerador.</span>';
+}
+function renderLegenda(){
+  const el=document.getElementById('legenda');if(!el)return;
+  const chip=(bg,bd,tx,cod,t,s)=>`<div style="display:flex;align-items:center;gap:8px">
+    <span style="width:30px;height:26px;border-radius:4px;border:1px solid ${bd};background:${bg};color:${tx};font:700 10px inherit;display:flex;align-items:center;justify-content:center;flex:0 0 auto">${cod}</span>
+    <div style="line-height:1.25"><b style="font-size:12px">${t}</b><br><span style="font-size:10px;color:var(--fraco)">${s}</span></div></div>`;
+  el.innerHTML=`<div class="grade g3" style="margin-bottom:13px">
+    ${D.turnos.map(t=>chip(t.cor+'22',t.cor+'55',t.cor,esc(t.cod||'?'),esc(t.nome),`${t.inicio}–${t.fim} · ${t.horas}h`)).join('')}
+    ${chip('var(--folga)','var(--borda)','var(--folga-tx)','F','Folga','Descanso semanal')}
+    ${chip('var(--ferias)','var(--borda)','var(--ferias-tx)','FÉ','Férias','Período de férias')}
+  </div>
+  <div style="border-top:1px solid var(--borda);padding-top:11px;display:grid;gap:7px;font-size:12px">
+    <div><b>Risco laranja embaixo da célula</b> — ajuste seu. O gerador não encosta.</div>
+    <div><b>Colunas com fundo laranja</b> — a semana ativa, usada na cobertura, nos cartões e no WhatsApp.</div>
+    <div><b>Coluna com fundo verde</b> — o dia de hoje.</div>
+    <div><b>Colunas Horas e Folgas</b> — totais do mês inteiro, não da semana.</div>
+    <div><b>Seq.</b> — maior sequência de dias seguidos sem folga no mês.</div>
+    <div><b>Dom.</b> — domingos trabalhados em sequência. O repouso precisa cair num domingo ao menos uma vez a cada
+      ${D.cfg.semDom||7} semanas (${(D.cfg.semDomF||2)} para mulheres), então o limite exibido é esse número menos um.</div>
+  </div>`;
+}
+function renderGrade(){
+  const el=document.getElementById('grade'), r=document.getElementById('rot-mes');
+  if(r)r.textContent=rotMes();
+  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Cadastre a equipe primeiro.</p></div>';return;}
+  const n=nDias(), sems=semanas(), wi=iSem();
+  const ativos=(sems[wi]||[]).filter(Boolean);
+  const hojeD=hojeISO().slice(0,7)===mesAtivo?+hojeISO().slice(8):-1;
+
+  let h=`<table><thead><tr><th style="min-width:128px;position:sticky;left:0;background:var(--branco);z-index:2">Colaborador</th>`;
+  for(let d=1;d<=n;d++)
+    {const fr=feriadoNoDia(d);
+    h+=`<th class="${dsem(d)===6?'dom':''}${dsem(d)===0?' ini':''}${ativos.includes(d)?' ativa':''}${d===hojeD?' hoje-col':''}"
+      style="text-align:center;padding:4px 2px" ${fr?`title="${esc(fr.nome)}"`:''}>${d}
+      <br><span style="font-weight:400;font-size:9px">${DC[dsem(d)]}</span>
+      ${fr?`<br><span style="font-size:8px;color:var(--terracota)">${fr.tipo==='facultativo'?'opc':'fer'}</span>`:''}</th>`;}
+  h+=`<th style="text-align:center">Horas<br><span style="font-weight:400;font-size:9px">no mês</span></th>
+      <th style="text-align:center">Folgas<br><span style="font-weight:400;font-size:9px">no mês</span></th>
+      <th style="text-align:center">Seq.</th><th style="text-align:center">Dom.</th></tr></thead><tbody>`;
+
+  setoresVis().forEach(st=>{
+    const time=timeDe(st.id);
+    if(!time.length)return;
+    h+=`<tr class="sep"><td colspan="${n+5}">${esc(st.nome)} · ${time.length}</td></tr>`;
+    time.forEach(c=>{
+      let fg=0;for(let d=1;d<=n;d++)if(getE(c.id,d)==='F')fg++;
+      const sq=maiorSeq(c.id), ds=domSeg(c.id), lim=limDom(c), mx=D.cfg.maxConsec||6;
+      h+=`<tr><td style="position:sticky;left:0;background:var(--branco);z-index:1"><b>${esc(c.nome)}</b>
+        ${c.regime==='fixa'?'<span class="tag" style="font-size:9px;margin-left:4px">fixa</span>':''}
+        <br><span style="font-size:10px;color:var(--fraco)">${esc(c.cargo)||'—'}${c.contaCob===false?' · fora da cobertura':''}</span></td>`;
+      for(let d=1;d<=n;d++){
+        const v=getE(c.id,d), fal=faltou(c.id,d), af=ehAfast(v)?TIPOS_AF[v.slice(3)]:null;
+        const cls=fal?'falta':(af?'fer':(v==='F'?'f':(v==='FER'?'fer':'')));
+        const fer=feriadoNoDia(d);
+        const nm=fal?'FALTA':(af?af.nome:(v==='F'?'Folga':(v==='FER'?'Férias':turnoDe(v)?.nome+' '+turnoDe(v)?.inicio+'–'+turnoDe(v)?.fim)))
+          +(fer?' · feriado: '+fer.nome:'');
+        h+=`<td class="cel ${dsem(d)===6?'dom':''}${dsem(d)===0?' ini':''}${ativos.includes(d)?' ativa':''}${d===hojeD?' hoje-col':''}">
+          <button class="${cls}${ehMan(c.id,d)?' man':''}" style="${fal?'':estCel(v)}"
+            title="${esc(c.nome)} · dia ${d} (${DIAS[dsem(d)]}) · ${esc(nm)}${ehMan(c.id,d)?' · ajuste manual':''}"
+            onclick="clicarCel('${c.id}',${d})">${fal?'!':rotCel(v)}</button></td>`;
+      }
+      h+=`<td style="text-align:center"><b>${horasMes(c.id)}h</b></td>
+          <td style="text-align:center">${fg}</td>
+          <td style="text-align:center"><b class="${sq>mx?'ruim':'ok'}">${sq}</b><br><span style="font-size:9px;color:var(--fraco)">máx ${mx}</span></td>
+          <td style="text-align:center" title="Folga dominical exigida a cada ${cicloDom(c)} semanas"><b class="${ds>lim?'ruim':'ok'}">${ds}</b><br><span style="font-size:9px;color:var(--fraco)">máx ${lim}</span></td></tr>`;
+    });
+  });
+  el.innerHTML=h+'</tbody></table><p style="margin-top:8px;font-size:11px;color:var(--fraco)">Passe o mouse sobre qualquer célula para ver o dia e o horário por extenso.</p>';
+
+  const ss=document.getElementById('sel-sem');
+  if(ss)ss.innerHTML=sems.map((w,i)=>{const d=w.filter(Boolean);
+    return `<button class="btn ${i===wi?'':'sec'} mini" onclick="semAtiva=${i};renderTudo()">${d[0]}–${d[d.length-1]}</button>`;}).join('');
+}
+function renderEscAvisos(){
+  const el=document.getElementById('esc-avisos');if(!el)return;
+  const s=analisar(), cr=s.filter(x=>x.nivel==='c').length;
+  el.innerHTML = !D.colaboradores.length ? ''
+    : cr ? `<div class="nota at"><b>${cr} ponto(s) crítico(s) nesta escala.</b> ${esc(s.find(x=>x.nivel==='c').titulo)}${cr>1?` e mais ${cr-1}.`:'.'}
+        <br><button class="btn mini terr" style="margin-top:8px" onclick="irPara('sugestoes')">Ver sugestões</button></div>`
+    : `<div class="nota bo"><b>Escala sem pontos críticos.</b> Cobertura, folgas, sequências e domingos conferidos.</div>`;
+}
+function renderCobSemana(){
+  const el=document.getElementById('cob-semana');if(!el)return;
+  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
+  const sem=semanas()[iSem()]||Array(7).fill(null);
+  let h=`<table><thead><tr><th>Setor / Turno</th>${DC.map((d,i)=>`<th style="text-align:center">${d}${sem[i]?' '+sem[i]:''}</th>`).join('')}</tr></thead><tbody>`;
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    h+=`<tr class="sep"><td colspan="8">${esc(st.nome)}</td></tr>`;
+    turnosDoSetor(st.id).forEach(t=>{
+      h+=`<tr><td>${esc(t.nome)}</td>`;
+      for(let i=0;i<7;i++){
+        const d=sem[i];
+        const tem=d?escalados(st.id,d,t.id):0, nec=d?demDoDia(st.id,d,t.id):getDem(st.id,i,t.id);
+        const cls=!d?'':(tem>=nec?(tem>nec&&nec>0?'bg-alerta':'bg-ok'):'bg-ruim');
+        h+=`<td style="text-align:center" class="${(nec||tem)?cls:''}">${!d?'<span style="color:#ccc">·</span>':((nec||tem)?`<b>${tem}</b><span style="color:var(--fraco)">/${nec}</span>`:'<span style="color:#ccc">—</span>')}</td>`;
+      }
+      h+='</tr>';
+    });
+  });
+  el.innerHTML=h+'</tbody></table><p style="margin-top:9px;font-size:11px;color:var(--fraco)">Verde = coberto · vermelho = furo · amarelo = gente sobrando.</p>';
+}
+function renderCartoes(){
+  const el=document.getElementById('cartoes');if(!el)return;
+  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
+  const sem=semanas()[iSem()]||Array(7).fill(null), ds=sem.filter(Boolean);
+  el.innerHTML=`<div class="nota">Semana <b>${ds[0]}–${ds[ds.length-1]} de ${rotMes()}</b>.</div>`
+  +setoresVis().map(st=>{
+    const time=timeDe(st.id);if(!time.length)return'';
+    return `<div style="margin-bottom:16px"><h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--azul);margin-bottom:9px"><span class="ponto" style="background:${st.cor}"></span> ${esc(st.nome)}</h3>
+    <div class="grade g2">${time.map(c=>{
+      const hs=horasSem(c.id,sem), jor=c.jornada||D.cfg.jornada, pc=Math.min(100,hs/jor*100);
+      return `<div class="pes"><h4>${esc(c.nome)}</h4><div class="fn">${esc(c.cargo)||'—'} · ${hs}h de ${jor}h</div>
+      <div class="mini7">${DC.map((dd,i)=>{
+        const d=sem[i];if(!d)return `<div class="f"><b>${dd}</b>—</div>`;
+        const v=getE(c.id,d),t=turnoDe(v);
+        const tx=ehAfast(v)?esc(TIPOS_AF[v.slice(3)]?.cod||'AF')
+          :(v==='F'?'Folga':(v==='FER'?'Férias':esc(t?.inicio||'')+'<br>'+esc(t?.fim||'')));
+        return `<div class="${(v==='F'||v==='FER')?'f':''}"><b>${dd} ${d}</b>${tx}</div>`;}).join('')}</div>
+      <div class="barrinha"><div style="width:${pc}%;background:${hs>jor?'var(--vermelho)':(hs<jor-0.05?'var(--amarelo)':'var(--verde)')}"></div></div></div>`;
+    }).join('')}</div></div>`;}).join('');
+}
+function copiarWhats(){
+  const sem=semanas()[iSem()]||[], ds=sem.filter(Boolean);
+  let t=`*ESCALA ${ds[0]}–${ds[ds.length-1]} DE ${rotMes().toUpperCase()} — a bela Sintra*\n\n`;
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    t+=`*${st.nome.toUpperCase()}*\n`;
+    time.forEach(c=>{
+      t+=`• ${c.nome}\n  `+DC.map((dd,i)=>{const d=sem[i];if(!d)return null;
+        const v=getE(c.id,d);
+        if(ehAfast(v))return `${dd} ${d}: ${TIPOS_AF[v.slice(3)]?.nome||'afastado'}`;
+        if(v==='F')return `${dd} ${d}: folga`;
+        if(v==='FER')return `${dd} ${d}: férias`;
+        const t=turnoDe(v);
+        return t?`${dd} ${d}: ${t.inicio}-${t.fim}`:`${dd} ${d}: —`;
+      }).filter(Boolean).join(' | ')+'\n';
+    });
+    t+='\n';
+  });
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(t).then(()=>alert('Escala copiada — é só colar no WhatsApp.'),()=>prompt('Copie o texto:',t));
+    else prompt('Copie o texto:',t);
+  }catch(e){prompt('Copie o texto:',t);}
+}
+
+/* ============ SUGESTÕES ============ */
+function renderSug(){
+  const el=document.getElementById('lista-sug');if(!el)return;
+  const S=analisar();
+  const nome={c:'Crítico',a:'Atenção',d:'Dica'};
+  el.innerHTML = !D.colaboradores.length
+    ? '<div class="card"><div class="vazio"><p>Cadastre a equipe e a cobertura para o app analisar.</p></div></div>'
+    : (!S.length
+      ? '<div class="nota bo"><b>Nada a corrigir.</b> Cobertura, jornada, folgas, sequências e domingos estão dentro das regras configuradas.</div>'
+      : S.map((s,i)=>`<div class="sug ${s.nivel}"><div class="top">
+          <div><h4><span class="niv ${s.nivel}">${nome[s.nivel]}</span>${esc(s.titulo)}</h4><p>${esc(s.detalhe)}</p></div>
+          ${s.acao?`<button class="btn mini ${s.nivel==='c'?'terr':'sec'}" onclick="aplicarSug(${i})">${esc(s.rotulo||'Aplicar')}</button>`:''}
+        </div></div>`).join(''));
+
+  const eq=document.getElementById('equilibrio');
+  if(!D.colaboradores.length){eq.innerHTML='';return;}
+  const n=nDias();
+  let h=`<table><thead><tr><th>Colaborador</th><th style="text-align:center">Horas no mês</th><th style="text-align:center">Dias de fim de semana</th><th style="text-align:center">Domingos trabalhados</th><th style="text-align:center">Maior sequência</th></tr></thead><tbody>`;
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    const med=time.reduce((a,c)=>a+fdsTrab(c.id),0)/time.length;
+    h+=`<tr class="sep"><td colspan="5">${esc(st.nome)} · média de ${h1(med)} dias de fim de semana por pessoa</td></tr>`;
+    time.slice().sort((a,b)=>fdsTrab(b.id)-fdsTrab(a.id)).forEach(c=>{
+      let dom=0;for(let d=1;d<=n;d++)if(dsem(d)===6&&trabalha(c.id,d))dom++;
+      const f=fdsTrab(c.id), mx=D.cfg.maxConsec||6, sq=maiorSeq(c.id);
+      h+=`<tr><td><b>${esc(c.nome)}</b></td><td style="text-align:center">${horasMes(c.id)}h</td>
+        <td style="text-align:center"><b class="${f>med+1.5?'alerta':(f<med-1.5?'ok':'')}">${f}</b></td>
+        <td style="text-align:center">${dom}</td>
+        <td style="text-align:center"><b class="${sq>mx?'ruim':''}">${sq}</b></td></tr>`;
+    });
+  });
+  eq.innerHTML=h+'</tbody></table><p style="margin-top:9px;font-size:11px;color:var(--fraco)">Amarelo = pega mais fim de semana que a média do setor · verde = pega menos. Equipe pequena só se mantém se o peso do sábado e do domingo girar.</p>';
+}
+
+/* ============ EQUIPE ============ */
+function opFun(sid,at){
+  const s=setorDe(sid), fs=(s.funcoes||[]).slice();
+  if(at&&!fs.includes(at))fs.unshift(at);
+  return (fs.length?'':'<option value="">—</option>')+fs.map(f=>`<option ${f===at?'selected':''}>${esc(f)}</option>`).join('')+'<option value="__n">+ Nova função…</option>';
+}
+function trocouSetor(){
+  const sid=document.getElementById('f-setor').value;
+  document.getElementById('f-cargo').innerHTML=opFun(sid,'');
+  const tl=turnosDoSetor(sid);
+  document.getElementById('f-turno').innerHTML=tl.map(t=>`<option value="${t.id}">${esc(t.nome)} · ${t.inicio}–${t.fim}</option>`).join('');
+  document.getElementById('box-tok').innerHTML=tl.map(t=>
+    `<label style="display:flex;gap:5px;align-items:center;text-transform:none;font-size:13px;font-weight:400;color:var(--texto);margin:0">
+      <input type="checkbox" class="f-tok" value="${t.id}" checked style="width:auto"> ${esc(t.nome)} <span style="font-size:11px;color:var(--fraco)">${t.inicio}–${t.fim}</span></label>`).join('');
+}
+function novaFun(sel){
+  const sid=document.getElementById('f-setor').value;
+  if(sel.value!=='__n')return;
+  const n=(prompt('Nome da nova função neste setor:')||'').trim();
+  if(n){const s=setorDe(sid);s.funcoes=s.funcoes||[];if(!s.funcoes.includes(n))s.funcoes.push(n);salvar();}
+  sel.innerHTML=opFun(sid,n);
+}
+function formColab(id){
+  const c=id?colabDe(id):{id:'',nome:'',setorId:D.setores[0]?.id,cargo:'',turnoId:D.turnos[0]?.id,
+    jornada:D.cfg.jornada,sexo:'',turnosOk:D.turnos.map(t=>t.id),folgaFixa:[],
+    regime:'rodizio',contaCob:true,fixa:{0:D.turnos[0]?.id,1:D.turnos[0]?.id,2:D.turnos[0]?.id,3:D.turnos[0]?.id,4:D.turnos[0]?.id,5:'F',6:'F'}};
+  document.getElementById('form-colab').innerHTML=`<div class="card">
+    <h3>${id?'Editar':'Novo'} colaborador</h3>
+    <div class="grade g3">
+      <div><label>Nome</label><input type="text" id="f-nome" value="${esc(c.nome)}" placeholder="Nome"></div>
+      <div><label>Setor</label><select id="f-setor" onchange="trocouSetor()">${D.setores.map(s=>`<option value="${s.id}" ${s.id===c.setorId?'selected':''}>${esc(s.nome)}</option>`).join('')}</select></div>
+      <div><label>Função</label><select id="f-cargo" onchange="novaFun(this)">${opFun(c.setorId,c.cargo)}</select></div>
+      <div><label>Turno habitual</label><select id="f-turno">${turnosDoSetor(c.setorId).map(t=>`<option value="${t.id}" ${t.id===c.turnoId?'selected':''}>${esc(t.nome)} · ${t.inicio}–${t.fim}</option>`).join('')}</select></div>
+      <div><label>Jornada (h/semana)</label><input type="number" id="f-jor" value="${c.jornada||D.cfg.jornada}"></div>
+      <div><label>Sexo <span style="text-transform:none;font-weight:400">(regra de domingos)</span></label><select id="f-sexo">
+        <option value="" ${!c.sexo?'selected':''}>Não informado</option>
+        <option value="F" ${c.sexo==='F'?'selected':''}>Feminino — domingos alternados</option>
+        <option value="M" ${c.sexo==='M'?'selected':''}>Masculino — até 2 seguidos</option></select></div>
+    </div>
+    <div style="margin-top:14px;padding:12px;background:var(--azul-suave);border-radius:9px">
+      <label>Regime de escala</label>
+      <select id="f-regime" onchange="toggleRegime()" style="max-width:420px">
+        <option value="rodizio" ${c.regime!=='fixa'?'selected':''}>Rodízio — entra no gerador e gira folgas com a equipe</option>
+        <option value="fixa" ${c.regime==='fixa'?'selected':''}>Fixa — mesmos dias toda semana, fora do rodízio</option>
+      </select>
+      <label style="display:flex;gap:6px;align-items:center;text-transform:none;font-size:13px;font-weight:400;color:var(--texto);margin:10px 0 0">
+        <input type="checkbox" id="f-conta" ${c.contaCob!==false?'checked':''} style="width:auto">
+        Conta na cobertura do setor</label>
+      <p style="font-size:11px;color:var(--fraco);margin-top:5px">Desmarque para quem não substitui ninguém no turno — gerência e administrativo. Assim a necessidade do setor passa a valer só para quem de fato opera.</p>
+      <div id="bloco-fixa" style="margin-top:12px;${c.regime==='fixa'?'':'display:none'}">
+        <label>Semana fixa</label>
+        <div class="grade g4">${DC.map((d,i)=>`<div><label style="font-size:10px">${d}</label>
+          <select class="f-fx" data-w="${i}">
+            <option value="F" ${(c.fixa?.[i]||'F')==='F'?'selected':''}>Folga</option>
+            <option value="FER" ${c.fixa?.[i]==='FER'?'selected':''}>Férias</option>
+            ${D.turnos.map(t=>`<option value="${t.id}" ${c.fixa?.[i]===t.id?'selected':''}>${esc(t.nome)}</option>`).join('')}
+          </select></div>`).join('')}</div>
+        <p style="font-size:11px;color:var(--fraco);margin-top:6px">O gerador escreve este padrão no mês inteiro e nunca o altera. Para mudar um dia específico, edite a célula direto na grade.</p>
+      </div>
+    </div>
+    <div style="margin-top:14px"><label>Turnos que esta pessoa pode fazer</label>
+      <div id="box-tok" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">${turnosDoSetor(c.setorId).map(t=>
+        `<label style="display:flex;gap:5px;align-items:center;text-transform:none;font-size:13px;font-weight:400;color:var(--texto);margin:0">
+          <input type="checkbox" class="f-tok" value="${t.id}" ${c.turnosOk.includes(t.id)?'checked':''} style="width:auto"> ${esc(t.nome)} <span style="font-size:11px;color:var(--fraco)">${t.inicio}–${t.fim}</span></label>`).join('')}</div>
+      <p style="font-size:11px;color:var(--fraco);margin-top:5px">Quanto mais turnos marcados, mais liberdade o gerador tem para fechar furos sem contratar.</p></div>
+    <div style="margin-top:14px"><label>Folga fixa (opcional)</label>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">${DC.map((d,i)=>
+        `<label style="display:flex;gap:5px;align-items:center;text-transform:none;font-size:13px;font-weight:400;color:var(--texto);margin:0">
+          <input type="checkbox" class="f-ff" value="${i}" ${c.folgaFixa.includes(i)?'checked':''} style="width:auto"> ${d}</label>`).join('')}</div>
+      <p style="font-size:11px;color:var(--fraco);margin-top:5px">Dias em que a pessoa nunca trabalha. O gerador respeita — use só quando for mesmo fixo, porque cada folga fixa tira flexibilidade.</p></div>
+    <div class="linha" style="margin:16px 0 0">
+      <button class="btn" onclick="salvarColab('${id||''}')">Salvar</button>
+      <button class="btn sec" onclick="document.getElementById('form-colab').innerHTML=''">Cancelar</button>
+    </div></div>`;
+  document.getElementById('f-nome').focus();
+}
+function toggleRegime(){
+  const r=document.getElementById('f-regime').value;
+  document.getElementById('bloco-fixa').style.display=r==='fixa'?'':'none';
+}
+function salvarColab(id){
+  const nome=document.getElementById('f-nome').value.trim();
+  if(!nome)return alert('Informe o nome.');
+  let cargo=document.getElementById('f-cargo').value.trim(); if(cargo==='__n')cargo='';
+  const tok=[...document.querySelectorAll('.f-tok:checked')].map(x=>x.value);
+  const ff=[...document.querySelectorAll('.f-ff:checked')].map(x=>+x.value);
+  const fx={};document.querySelectorAll('.f-fx').forEach(el=>fx[+el.dataset.w]=el.value);
+  const dd={nome,setorId:document.getElementById('f-setor').value,cargo,
+    regime:document.getElementById('f-regime').value,
+    contaCob:document.getElementById('f-conta').checked,
+    fixa:Object.keys(fx).length?fx:{0:'F',1:'F',2:'F',3:'F',4:'F',5:'F',6:'F'},
+    turnoId:document.getElementById('f-turno').value,
+    jornada:+document.getElementById('f-jor').value||D.cfg.jornada,
+    sexo:document.getElementById('f-sexo').value,
+    turnosOk:tok.length?tok:turnosDoSetor(document.getElementById('f-setor').value).map(t=>t.id), folgaFixa:ff};
+  if(id)Object.assign(colabDe(id),dd); else D.colaboradores.push(Object.assign({id:uid()},dd));
+  salvar();document.getElementById('form-colab').innerHTML='';renderTudo();
+}
+function removerColab(id){
+  if(!confirm('Remover este colaborador?'))return;
+  D.colaboradores=D.colaboradores.filter(c=>c.id!==id);
+  Object.values(D.escalaMes||{}).forEach(m=>delete m[id]);
+  Object.values(D.manuais||{}).forEach(m=>Object.keys(m).forEach(k=>{if(k.startsWith(id+'-'))delete m[k];}));
+  Object.keys(D.faltas||{}).forEach(k=>{D.faltas[k]=D.faltas[k].filter(x=>x!==id);if(!D.faltas[k].length)delete D.faltas[k];});
+  D.afastamentos=(D.afastamentos||[]).filter(a=>a.colabId!==id);
+  D.ajustesBanco=(D.ajustesBanco||[]).filter(a=>a.colabId!==id);
+  (D.modelos||[]).forEach(m=>{if(m.dados)delete m.dados[id];});
+  salvar();renderTudo();
+}
+function colarNomes(){
+  const t=prompt('Cole os nomes, um por linha (vão para o primeiro setor; depois é só ajustar):');
+  if(!t)return;
+  t.split('\n').map(s=>s.trim()).filter(Boolean).forEach(nome=>
+    D.colaboradores.push({id:uid(),nome,setorId:D.setores[0].id,cargo:'',turnoId:D.turnos[0].id,
+      jornada:D.cfg.jornada,sexo:'',turnosOk:D.turnos.map(t=>t.id),folgaFixa:[],
+      regime:'rodizio',contaCob:true,fixa:{0:'F',1:'F',2:'F',3:'F',4:'F',5:'F',6:'F'}}));
+  salvar();renderTudo();
+}
+function renderEquipe(){
+  const el=document.getElementById('lista-equipe');
+  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Nenhum colaborador cadastrado.</p><button class="btn" onclick="formColab()">Adicionar o primeiro</button></div>';return;}
+  let h='<div class="rolar"><table><thead><tr><th>Nome</th><th>Turno habitual</th><th>Pode fazer</th><th>Jornada</th><th>Folga fixa</th><th></th></tr></thead><tbody>';
+  D.setores.forEach(s=>{
+    const time=D.colaboradores.filter(c=>c.setorId===s.id);if(!time.length)return;
+    h+=`<tr class="sep"><td colspan="6"><span class="ponto" style="background:${s.cor}"></span> ${esc(s.nome)} · ${time.length}</td></tr>`;
+    const vistos=new Set();
+    (s.funcoes||[]).concat(time.map(c=>c.cargo||'')).forEach(f=>{
+      if(vistos.has(f))return;vistos.add(f);
+      const gr=time.filter(c=>(c.cargo||'')===f);if(!gr.length)return;
+      h+=`<tr><td colspan="6" style="padding:5px 9px 3px 21px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--fraco);border:none">${esc(f)||'Sem função'} · ${gr.length}</td></tr>`;
+      gr.forEach(c=>{
+        h+=`<tr><td style="padding-left:21px"><b>${esc(c.nome)}</b>
+            ${c.regime==='fixa'?' <span class="tag" style="font-size:9px">fixa</span>':''}
+            ${c.contaCob===false?' <span class="tag" style="font-size:9px;background:#f1f4f6;color:#6b7d87">fora da cobertura</span>':''}
+            ${(c.sexo||c.regime==='fixa')?'':' <span class="alerta" title="sem sexo no cadastro">▲</span>'}</td>
+          <td>${esc(turnoDe(c.turnoId)?.nome||'—')}</td>
+          <td>${c.turnosOk.length===D.turnos.length?'<span style="color:var(--verde)">todos</span>':c.turnosOk.map(id=>esc(turnoDe(id)?.cod||'?')).join(' ')}</td>
+          <td>${c.jornada}h</td>
+          <td>${c.folgaFixa.length?c.folgaFixa.map(i=>DC[i]).join(', '):'—'}</td>
+          <td style="text-align:right;white-space:nowrap">
+            <button class="btn sec mini" onclick="formColab('${c.id}')">Editar</button>
+            <button class="btn sec mini" onclick="removerColab('${c.id}')">Excluir</button></td></tr>`;
+      });
+    });
+  });
+  el.innerHTML=h+`</tbody></table></div><p style="margin-top:11px;font-size:13px;color:var(--fraco)"><b>${D.colaboradores.length}</b> colaboradores. A coluna "Pode fazer" é a sua margem de manobra: quem faz todos os turnos aparece em verde.</p>`;
+}
+
+function renderAfast(){
+  const q=document.getElementById('af-quem'),t=document.getElementById('af-tipo');
+  if(!q)return;
+  const sel=q.value;
+  q.innerHTML=D.setores.map(s=>D.colaboradores.filter(c=>c.setorId===s.id)
+    .map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.nome)} · ${esc(s.nome)}</option>`).join('')).join('');
+  if(!t.innerHTML)t.innerHTML=Object.entries(TIPOS_AF).map(([k,v])=>`<option value="${k}">${esc(v.nome)}</option>`).join('');
+  const el=document.getElementById('lista-af');
+  const lista=(D.afastamentos||[]).slice().sort((a,b)=>a.ini<b.ini?1:-1);
+  el.innerHTML=lista.length
+    ? `<div class="rolar"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Período</th><th style="text-align:center">Dias</th><th></th></tr></thead><tbody>`
+      +lista.map(a=>{const c=colabDe(a.colabId),ti=TIPOS_AF[a.tipo]||{nome:a.tipo,cor:'#888'};
+        return `<tr><td><b>${esc(c?.nome||'(removido)')}</b></td>
+          <td><span class="ponto" style="background:${ti.cor}"></span> ${esc(ti.nome)}</td>
+          <td>${brData(a.ini)} a ${brData(a.fim)}</td>
+          <td style="text-align:center">${diasEntre(a.ini,a.fim)}</td>
+          <td style="text-align:right"><button class="btn sec mini" onclick="removerAfastamento('${a.id}')">Remover</button></td></tr>`;}).join('')
+      +`</tbody></table></div>`
+    : '<p style="font-size:13px;color:var(--fraco)">Nenhum afastamento registrado.</p>';
+}
+function salvarAfastamento(){
+  const cid=document.getElementById('af-quem').value;
+  const tipo=document.getElementById('af-tipo').value;
+  const ini=document.getElementById('af-ini').value, fim=document.getElementById('af-fim').value;
+  if(!cid)return alert('Escolha o colaborador.');
+  if(!ini||!fim)return alert('Informe início e fim.');
+  if(fim<ini)return alert('O fim não pode ser antes do início.');
+  const c=colabDe(cid);
+  const conflito=(D.afastamentos||[]).some(a=>a.colabId===cid&&!(fim<a.ini||ini>a.fim));
+  if(conflito&&!confirm('Esta pessoa já tem afastamento que cruza esse período. Adicionar mesmo assim?'))return;
+  addAfastamento({colabId:cid,tipo,ini,fim});
+  document.getElementById('af-ini').value='';document.getElementById('af-fim').value='';
+}
+
+/* ============ COBERTURA ============ */
+function renderDem(){
+  document.getElementById('blocos-dem').innerHTML=D.setores.map(s=>{
+    const n=D.colaboradores.filter(c=>c.setorId===s.id).length;
+    let h=`<div class="card"><h3><span class="ponto" style="background:${s.cor}"></span>${esc(s.nome)} <span class="tag">${n} na equipe</span></h3>
+      <div class="rolar"><table><thead><tr><th>Turno</th>${DC.map(d=>`<th style="text-align:center">${d}</th>`).join('')}<th style="text-align:center">h/sem</th></tr></thead><tbody>`;
+    let tot=0;
+    turnosDoSetor(s.id).forEach(t=>{
+      let lh=0;
+      h+=`<tr><td><b>${esc(t.nome)}</b><br><span style="font-size:11px;color:var(--fraco)">${t.inicio}–${t.fim} · ${t.horas}h</span></td>`;
+      DIAS.forEach((_,i)=>{const v=getDem(s.id,i,t.id);lh+=v*t.horas;
+        h+=`<td style="padding:3px"><input type="number" min="0" value="${v}" id="dem-${s.id}-${i}-${t.id}" style="text-align:center;padding:6px 2px;min-width:50px" onchange="setDem('${s.id}',${i},'${t.id}',this.value)"></td>`;});
+      tot+=lh;h+=`<td style="text-align:center;font-weight:700">${h1(lh)}h</td></tr>`;
+    });
+    const cap=D.colaboradores.filter(c=>c.setorId===s.id).reduce((a,c)=>a+Math.min(c.jornada||D.cfg.jornada,D.cfg.jornada),0);
+    const dif=tot-cap;
+    h+=`</tbody></table></div><p style="margin-top:9px;font-size:13px">Necessidade <b>${h1(tot)}h/semana</b> · capacidade da equipe <b>${h1(cap)}h</b> ·
+      <b class="${dif<=0.5?'ok':(dif<D.cfg.jornada?'alerta':'ruim')}">${dif<=0.5?'cabe na equipe atual':'faltam '+h1(dif)+'h ('+h1(dif/D.cfg.jornada)+' pessoa)'}</b></p></div>`;
+    return h;
+  }).join('');
+}
+function renderDiag(){
+  const el=document.getElementById('diag');if(!el)return;
+  if(!D.colaboradores.length){el.innerHTML='';return;}
+  let nec=0,cap=0,pico=0;
+  D.setores.forEach(s=>{
+    for(let w=0;w<7;w++)turnosDoSetor(s.id).forEach(t=>nec+=getDem(s.id,w,t.id)*t.horas);
+  });
+  cap=D.colaboradores.reduce((a,c)=>a+Math.min(c.jornada||D.cfg.jornada,D.cfg.jornada),0);
+  for(let w=0;w<7;w++){let p=0;D.setores.forEach(s=>turnosDoSetor(s.id).forEach(t=>p+=getDem(s.id,w,t.id)));pico=Math.max(pico,p);}
+  const disp=D.colaboradores.length*(7-D.cfg.folgasMin)/7;
+  const dif=nec-cap;
+  el.innerHTML=`<div class="card"><h3>Diagnóstico <span class="tag">equipe atual, sem contratar</span></h3>
+    <div class="grade g4" style="margin-bottom:14px">
+      <div><div style="font-size:10px;text-transform:uppercase;color:var(--fraco)">Necessidade</div><div style="font-size:24px;font-weight:700">${h1(nec)}h</div></div>
+      <div><div style="font-size:10px;text-transform:uppercase;color:var(--fraco)">Capacidade</div><div style="font-size:24px;font-weight:700">${h1(cap)}h</div></div>
+      <div><div style="font-size:10px;text-transform:uppercase;color:var(--fraco)">Pico num dia</div><div style="font-size:24px;font-weight:700">${pico}</div></div>
+      <div><div style="font-size:10px;text-transform:uppercase;color:var(--fraco)">Disponíveis/dia</div><div class="${disp>=pico?'ok':'ruim'}" style="font-size:24px;font-weight:700">${h1(disp)}</div></div>
+    </div>
+    ${dif<=0.5
+      ? `<div class="nota bo"><b>A equipe dá conta da necessidade lançada.</b> O que resta é alocação: use "Otimizar folgas" na Escala para empurrar as folgas para os dias fracos.</div>`
+      : `<div class="nota at"><b>A necessidade lançada passa ${h1(dif)}h da capacidade da equipe</b> — cerca de ${h1(dif/D.cfg.jornada)} pessoa(s). Como não há contratação prevista, as saídas são: reduzir a necessidade nos turnos de menor retorno, escalonar entradas para cobrir o pico com menos gente ao mesmo tempo, ampliar a polivalência para que cada pessoa cubra mais turnos, ou tratar a diferença como hora extra e banco de horas dentro do que o acordo coletivo permitir.</div>`}
+    <table><tbody>
+      <tr><td style="width:30%"><b>Escalonar entradas</b></td><td>Entradas defasadas (11h, 12h, 13h) cobrem o pico com menos gente que dois blocos fixos.</td></tr>
+      <tr><td><b>Polivalência</b></td><td>Cada pessoa que passa a cobrir dois turnos vale quase meia contratação em flexibilidade.</td></tr>
+      <tr><td><b>Folgas nos dias fracos</b></td><td>Segunda e terça concentram folga; sexta a domingo concentram gente.</td></tr>
+      <tr><td><b>Banco de horas</b></td><td>Compensar pico com baixa temporada, dentro do acordo coletivo do setor.</td></tr>
+    </tbody></table></div>`;
+}
+
+/* ============ FECHAMENTO ============ */
+function dadosFech(c){
+  const n=nDias();
+  let trab=0,hs=0,folg=0,dom=0,fer=0,fal=0,afa=0;
+  for(let d=1;d<=n;d++){
+    const v=getE(c.id,d);
+    if(faltou(c.id,d)){fal++;continue;}
+    if(ehAfast(v)){afa++;continue;}
+    if(v==='F'||v==='FER'){folg++;continue;}
+    trab++;hs+=turnoDe(v)?.horas||0;
+    if(dsem(d)===6)dom++;
+    const f=feriadoNoDia(d);
+    if(f&&f.tipo!=='facultativo')fer++;
+  }
+  const prev=semanas().reduce((a,sem)=>{
+    const dias=sem.filter(Boolean);if(!dias.length)return a;
+    const af=dias.filter(d=>afastadoNoDia(c.id,d)).length;
+    if(af===dias.length)return a;
+    return a+(c.jornada||D.cfg.jornada)*((dias.length-af)/7);
+  },0);
+  return {trab,hs:h1(hs),folg,dom,fer,fal,afa,prev:h1(prev),
+    dif:h1(hs-prev), banco:bancoAcumulado(c.id,mesAtivo)};
+}
+function renderFech(){
+  const r=document.getElementById('rot-fech');if(r)r.textContent=rotMes();
+  const el=document.getElementById('tab-fech');if(!el)return;
+  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Sem equipe cadastrada.</p></div>';
+    document.getElementById('tab-banco').innerHTML='';document.getElementById('tab-hist').innerHTML='';return;}
+  let h=`<table><thead><tr><th>Colaborador</th>
+    <th style="text-align:center">Dias<br>trabalhados</th><th style="text-align:center">Horas<br>previstas</th>
+    <th style="text-align:center">Horas<br>escaladas</th><th style="text-align:center">Diferença</th>
+    <th style="text-align:center">Folgas</th><th style="text-align:center">Domingos</th>
+    <th style="text-align:center">Feriados</th><th style="text-align:center">Faltas</th>
+    <th style="text-align:center">Afastado</th></tr></thead><tbody>`;
+  let T={trab:0,prev:0,hs:0,dif:0,fal:0,afa:0};
+  D.setores.forEach(st=>{
+    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    h+=`<tr class="sep"><td colspan="10"><span class="ponto" style="background:${st.cor}"></span> ${esc(st.nome)}</td></tr>`;
+    time.forEach(c=>{
+      const x=dadosFech(c);
+      T.trab+=x.trab;T.prev+=x.prev;T.hs+=x.hs;T.dif+=x.dif;T.fal+=x.fal;T.afa+=x.afa;
+      h+=`<tr><td><b>${esc(c.nome)}</b><br><span style="font-size:10px;color:var(--fraco)">${esc(c.cargo)||'—'}</span></td>
+        <td style="text-align:center">${x.trab}</td><td style="text-align:center">${x.prev}h</td>
+        <td style="text-align:center"><b>${x.hs}h</b></td>
+        <td style="text-align:center"><b class="${x.dif>0.05?'alerta':(x.dif<-0.05?'ruim':'ok')}">${x.dif>0?'+':''}${x.dif}h</b></td>
+        <td style="text-align:center">${x.folg}</td><td style="text-align:center">${x.dom}</td>
+        <td style="text-align:center">${x.fer||'—'}</td>
+        <td style="text-align:center">${x.fal?'<b class="ruim">'+x.fal+'</b>':'—'}</td>
+        <td style="text-align:center">${x.afa||'—'}</td></tr>`;
+    });
+  });
+  h+=`</tbody><tfoot><tr style="border-top:2px solid var(--borda)"><td><b>Total</b></td>
+    <td style="text-align:center"><b>${T.trab}</b></td><td style="text-align:center"><b>${h1(T.prev)}h</b></td>
+    <td style="text-align:center"><b>${h1(T.hs)}h</b></td>
+    <td style="text-align:center"><b class="${T.dif>0.05?'alerta':'ok'}">${T.dif>0?'+':''}${h1(T.dif)}h</b></td>
+    <td colspan="3"></td><td style="text-align:center"><b>${T.fal||'—'}</b></td>
+    <td style="text-align:center"><b>${T.afa||'—'}</b></td></tr></tfoot></table>
+    <p style="margin-top:10px;font-size:12px;color:var(--fraco)">Horas previstas descontam semanas de afastamento.
+    Diferença positiva é hora a mais que a jornada contratada; negativa é hora paga e não escalada.
+    ${D.cfg.custoHora?`Ao custo de R$ ${D.cfg.custoHora.toFixed(2)}/h, a diferença total representa <b>R$ ${(Math.abs(T.dif)*D.cfg.custoHora).toLocaleString('pt-BR',{maximumFractionDigits:0})}</b>.`:''}</p>`;
+  el.innerHTML=h;
+
+  /* banco de horas */
+  const bk=document.getElementById('tab-banco');
+  let b=`<table><thead><tr><th>Colaborador</th><th style="text-align:center">Saldo do mês</th>
+    <th style="text-align:center">Acumulado</th><th>Ajustes manuais</th><th></th></tr></thead><tbody>`;
+  D.colaboradores.forEach(c=>{
+    const sm=saldoMes(c.id,mesAtivo), ac=bancoAcumulado(c.id,mesAtivo);
+    const aj=(D.ajustesBanco||[]).filter(a=>a.colabId===c.id);
+    b+=`<tr><td><b>${esc(c.nome)}</b></td>
+      <td style="text-align:center"><b class="${sm>0.05?'alerta':(sm<-0.05?'ruim':'ok')}">${sm>0?'+':''}${sm}h</b></td>
+      <td style="text-align:center"><b class="${ac>0.05?'alerta':(ac<-0.05?'ruim':'ok')}">${ac>0?'+':''}${ac}h</b></td>
+      <td style="font-size:11px;color:var(--fraco)">${aj.length?aj.slice(-3).map(a=>`${brData(a.data)}: ${a.horas>0?'+':''}${a.horas}h${a.obs?' ('+esc(a.obs)+')':''}`).join('<br>'):'—'}</td>
+      <td style="text-align:right"><button class="btn sec mini nao-imp" onclick="pedirAjusteBanco('${c.id}')">Lançar</button></td></tr>`;
+  });
+  bk.innerHTML=b+`</tbody></table><p style="margin-top:10px;font-size:12px;color:var(--fraco)">
+    O saldo sai da escala: horas escaladas menos a jornada contratada, semana a semana.
+    Use "Lançar" para compensações acertadas fora do app. Banco de horas depende do que o acordo coletivo permite.</p>`;
+
+  /* histórico */
+  const hi=document.getElementById('tab-hist');
+  const lista=(D.historico||[]).slice(0,60);
+  hi.innerHTML=lista.length
+    ? `<div class="rolar"><table><tbody>${lista.map(x=>{
+        const dt=new Date(x.ts);
+        return `<tr><td style="white-space:nowrap;color:var(--fraco);font-size:11px">${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</td>
+          <td>${esc(x.txt)}</td></tr>`;}).join('')}</tbody></table></div>
+       <p style="margin-top:9px;font-size:12px;color:var(--fraco)">Últimos ${lista.length} registros. O app guarda os 400 mais recentes.</p>`
+    : '<p style="font-size:13px;color:var(--fraco)">Nenhuma alteração registrada ainda.</p>';
+}
+function pedirAjusteBanco(cid){
+  const h=prompt(`Lançar no banco de horas de ${colabDe(cid)?.nome}.\n\nHoras (use sinal negativo para abater):`);
+  if(h===null||h==='')return;
+  const n=parseFloat(String(h).replace(',','.'));
+  if(isNaN(n))return alert('Valor inválido.');
+  addAjusteBanco(cid,n,prompt('Observação (opcional):')||'');
+}
+function baixarFechamento(){
+  const linhas=[['Setor','Colaborador','Função','Dias trabalhados','Horas previstas','Horas escaladas',
+    'Diferença','Folgas','Domingos','Feriados','Faltas','Dias afastado','Banco acumulado']];
+  D.setores.forEach(st=>D.colaboradores.filter(c=>c.setorId===st.id).forEach(c=>{
+    const x=dadosFech(c);
+    linhas.push([st.nome,c.nome,c.cargo||'',x.trab,x.prev,x.hs,x.dif,x.folg,x.dom,x.fer,x.fal,x.afa,x.banco]);
+  }));
+  const csv='\ufeff'+linhas.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`fechamento-${mesAtivo}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+
+/* ============ AJUSTES ============ */
+function salvarCfg(){
+  D.cfg.jornada=+document.getElementById('c-jor').value||42;
+  D.cfg.folgasMin=+document.getElementById('c-fol').value||2;
+  D.cfg.maxConsec=+document.getElementById('c-con').value||6;
+  D.cfg.custoHora=+document.getElementById('c-cus').value||0;
+  D.cfg.maxFerias=+document.getElementById('c-fer').value||1;
+  D.cfg.semDom=Math.max(1,+document.getElementById('c-sd').value||7);
+  D.cfg.semDomF=Math.max(1,+document.getElementById('c-sdf').value||2);
+  salvar();renderTudo();
+}
+let tSetor=null;
+function editarSetoresTurno(id){tSetor=(tSetor===id?null:id);renderTudo();}
+function setorTurnoTodos(id,todos){
+  const t=turnoDe(id);
+  if(todos)t.setores=[];
+  else t.setores=D.setores.map(s=>s.id);
+  salvar();renderTudo();
+}
+function aplicarSetoresTurno(id){
+  const t=turnoDe(id);
+  const m=[...document.querySelectorAll('.ts-'+id+':checked')].map(x=>x.value);
+  t.setores = (m.length===D.setores.length||m.length===0) ? [] : m;
+  /* quem está em setor que perdeu este turno não pode mais fazê-lo */
+  D.colaboradores.forEach(c=>{
+    const perm=turnosDoSetor(c.setorId).map(x=>x.id);
+    c.turnosOk=(c.turnosOk||[]).filter(x=>perm.includes(x));
+    if(!c.turnosOk.length)c.turnosOk=perm.slice();
+    if(!perm.includes(c.turnoId))c.turnoId=perm[0];
+  });
+  logar(`Turno "${t.nome}": setores atualizados`);
+  salvar();renderTudo();
+}
+function editTurno(id,k,v){const t=turnoDe(id);t[k]=(k==='intervalo'||k==='horas')?(+v||0):v;t.horas=calcHoras(t);salvar();renderTudo();}
+function novoTurno(sid){
+  const t={id:uid(),nome:'Novo turno',inicio:'10:00',fim:'18:24',intervalo:0,
+    cor:CT[D.turnos.length%CT.length],cod:'N'+(D.turnos.length+1),setores:sid?[sid]:[]};
+  t.horas=calcHoras(t);D.turnos.push(t);
+  D.colaboradores.forEach(c=>{if(turnosDoSetor(c.setorId).some(x=>x.id===t.id))c.turnosOk.push(t.id);});
+  logar(`Turno criado${sid?' para '+setorDe(sid).nome:''}`);
+  tSetor=t.id;salvar();renderTudo();
+}
+function delTurno(id){
+  if(D.turnos.length<2)return alert('Mantenha ao menos um turno.');
+  if(!confirm('Excluir este turno?'))return;
+  D.turnos=D.turnos.filter(t=>t.id!==id);
+  D.colaboradores.forEach(c=>{c.turnosOk=c.turnosOk.filter(x=>x!==id);
+    if(!c.turnosOk.length)c.turnosOk=D.turnos.map(t=>t.id);
+    if(c.turnoId===id)c.turnoId=D.turnos[0].id;});
+  salvar();renderTudo();
+}
+function editSetor(id,v){setorDe(id).nome=v;salvar();renderTudo();}
+function novoSetor(){D.setores.push({id:uid(),nome:'Novo setor',cor:CORES[D.setores.length%CORES.length],funcoes:[]});salvar();renderTudo();}
+function delSetor(id){
+  if(D.colaboradores.some(c=>c.setorId===id))return alert('Há colaboradores neste setor. Mova-os antes.');
+  if(!confirm('Excluir este setor?'))return;
+  D.setores=D.setores.filter(s=>s.id!==id);
+  D.turnos.forEach(t=>{if(Array.isArray(t.setores))t.setores=t.setores.filter(x=>x!==id);});
+  delete D.demanda[id];
+  salvar();renderTudo();
+}
+function moverSetor(i,p){const j=i+p;if(j<0||j>=D.setores.length)return;
+  [D.setores[i],D.setores[j]]=[D.setores[j],D.setores[i]];salvar();renderTudo();}
+function addFun(id){const n=(prompt('Nova função para este setor:')||'').trim();if(!n)return;
+  const s=setorDe(id);s.funcoes=s.funcoes||[];if(!s.funcoes.includes(n))s.funcoes.push(n);salvar();renderTudo();}
+function delFun(id,i){const s=setorDe(id),nm=s.funcoes[i];
+  const u=D.colaboradores.filter(c=>c.setorId===id&&c.cargo===nm).length;
+  if(u)return alert(u+' colaborador(es) usam esta função. Troque antes de remover.');
+  if(!confirm('Remover a função "'+nm+'"?'))return;
+  s.funcoes.splice(i,1);salvar();renderTudo();}
+function renderFeriados(){
+  const sel=document.getElementById('fe-ano');if(!sel)return;
+  const anoAtual=+mesAtivo.slice(0,4);
+  if(!sel.innerHTML)sel.innerHTML=[anoAtual-1,anoAtual,anoAtual+1,anoAtual+2]
+    .map(a=>`<option ${a===anoAtual?'selected':''}>${a}</option>`).join('');
+  const dm=document.getElementById('fe-dom');if(dm)dm.checked=D.cfg.feriadoComoDomingo!==false;
+  const ano=+sel.value||anoAtual;
+  const lista=feriadosDoAno(ano).sort((a,b)=>a.data<b.data?-1:1);
+  document.getElementById('lista-fer').innerHTML=
+    `<div class="rolar"><table><thead><tr><th>Data</th><th>Feriado</th><th>Tipo</th><th></th></tr></thead><tbody>`
+    +lista.map(f=>{
+      const proprio=(D.feriados||[]).some(x=>x.data===f.data&&!x.removido&&x.tipo==='proprio');
+      return `<tr><td>${brData(f.data)} · ${DC[(new Date(f.data+'T12:00:00').getDay()+6)%7]}</td>
+        <td><b>${esc(f.nome)}</b></td><td style="font-size:11px;color:var(--fraco)">${esc(f.tipo)}</td>
+        <td style="text-align:right">${proprio?`<button class="btn sec mini" onclick="delFeriado('${f.data}')">Remover</button>`:''}</td></tr>`;
+    }).join('')+`</tbody></table></div>
+    <p style="margin-top:9px;font-size:12px;color:var(--fraco)">Nacionais, estaduais e municipais de São Paulo já vêm calculados, inclusive os que dependem da Páscoa. Os facultativos aparecem marcados e não alteram a necessidade de cobertura.</p>`;
+}
+function addFeriado(){
+  const data=document.getElementById('fe-data').value, nome=document.getElementById('fe-nome').value.trim();
+  if(!data||!nome)return alert('Informe data e nome.');
+  D.feriados.push({data,nome,tipo:'proprio'});
+  logar(`Feriado adicionado: ${nome} em ${brData(data)}`);
+  document.getElementById('fe-data').value='';document.getElementById('fe-nome').value='';
+  salvar();renderTudo();
+}
+function delFeriado(data){
+  if(!confirm('Remover este feriado?'))return;
+  D.feriados=D.feriados.filter(f=>!(f.data===data&&f.tipo==='proprio'));
+  salvar();renderTudo();
+}
+function renderConformidade(){
+  const el=document.getElementById('conformidade');if(!el)return;
+  const n=nDias();
+  const conta=f=>D.colaboradores.filter(f).length;
+  const inter=D.colaboradores.filter(c=>falhasInterjornada(c.id).length).length;
+  const seqR=conta(c=>maiorSeq(c.id)>(D.cfg.maxConsec||6));
+  const domR=conta(c=>noRodizio(c)&&domSeg(c.id)>limDom(c));
+  const folR=conta(c=>semanas().some(sem=>sem.filter(Boolean).length===7
+    &&!sem.filter(Boolean).some(d=>afastadoNoDia(c.id,d))&&folgasSem(c.id,sem)<D.cfg.folgasMin));
+  const intraR=D.turnos.filter(t=>presenca(t)>6&&(+t.intervalo||0)<1-0.01).length;
+  const diaR=D.turnos.filter(t=>t.horas>8.01).length;
+  const semanaR=conta(c=>semanas().some(sem=>sem.filter(Boolean).length===7&&horasSem(c.id,sem)>(c.jornada||D.cfg.jornada)+0.05));
+  const linha=(reg,base,ruim,obs)=>`<tr>
+    <td><b>${reg}</b><br><span style="font-size:11px;color:var(--fraco)">${base}</span></td>
+    <td style="text-align:center;white-space:nowrap">${ruim?`<b class="ruim">${ruim}</b>`:'<b class="ok">ok</b>'}</td>
+    <td style="font-size:12px;color:var(--fraco)">${obs}</td></tr>`;
+  el.innerHTML=`<div class="rolar"><table>
+    <thead><tr><th>Regra</th><th style="text-align:center">Mês aberto</th><th>Observação</th></tr></thead><tbody>
+    ${linha('Jornada semanal de '+D.cfg.jornada+'h','EC 141, de 16/10/2026',semanaR,'42h a partir de 16/12/2026; 40h a partir de 16/12/2027.')}
+    ${linha('Jornada diária de até 8h','EC 141',diaR,'Durante a transição, convenção ou acordo coletivo pode ampliar para viabilizar as 42h em 5 dias.')}
+    ${linha('Duas folgas por semana','EC 141',folR,'Uma delas preferencialmente aos domingos.')}
+    ${linha('Descanso de 11h entre jornadas','CLT, art. 66',inter,'O caso clássico em restaurante é fechar no jantar e abrir no almoço do dia seguinte.')}
+    ${linha('Intervalo de 1h dentro da jornada','CLT, art. 71',intraR,'Acima de 6h de trabalho. Convenção coletiva pode reduzir, nunca abaixo de 30 minutos.')}
+    ${linha('No máximo '+(D.cfg.maxConsec||6)+' dias seguidos','CLT, art. 67',seqR,'O repouso semanal deve vir a cada 7 dias.')}
+    ${linha('Revezamento de domingos','Portaria MTP 671/2021, art. 58 · CLT, art. 386',domR,
+      `Restaurantes e bares têm autorização permanente (Anexo IV): folga dominical a cada ${D.cfg.semDom||7} semanas. Mulheres: a cada ${D.cfg.semDomF||2} semanas, pelo art. 386. O acordo coletivo pode exigir intervalo menor.`)}
+    </tbody></table></div>
+    <div class="nota at" style="margin:13px 0 0">O app confere o que dá para conferir a partir da escala. <b>Ele não substitui a assessoria trabalhista.</b>
+    Três coisas dependem do acordo coletivo de bares e restaurantes de São Paulo e precisam ser confirmadas com a contabilidade:
+    jornada diária acima de 8h, redução do intervalo para menos de 1h, e banco de horas.</div>`;
+}
+function renderAjustes(){
+  renderConformidade();renderFeriados();
+  const ta=document.getElementById('temas-ajustes');
+  if(ta){const atual=D.cfg.tema||'sintra';
+    ta.innerHTML='<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      +Object.entries(TEMAS).map(([id,t])=>`
+        <button class="tema-c ${id===atual?'sel':''}" onclick="escolherTema('${id}')">
+          <b>${esc(t.nome)}</b><span>${esc(t.desc)}</span>
+          <div class="swatch"><i style="background:${t.v['--azul']}"></i><i style="background:${t.v['--terracota']}"></i>
+          <i style="background:${t.t[1]}"></i><i style="background:${t.t[2]}"></i><i style="background:${t.v['--creme']}"></i></div>
+        </button>`).join('')+'</div>';}
+  document.getElementById('c-jor').value=D.cfg.jornada;
+  document.getElementById('c-fol').value=D.cfg.folgasMin;
+  document.getElementById('c-con').value=D.cfg.maxConsec;
+  document.getElementById('c-cus').value=D.cfg.custoHora;
+  document.getElementById('c-fer').value=D.cfg.maxFerias||1;
+  document.getElementById('c-sd').value=D.cfg.semDom||7;
+  document.getElementById('c-sdf').value=D.cfg.semDomF||2;
+  const alvo=D.cfg.jornada/(7-D.cfg.folgasMin);
+  document.getElementById('lista-turnos').innerHTML=
+    `<table><thead><tr><th>Cor · sigla · nome</th><th>Setores</th><th>Início</th><th>Fim</th><th style="text-align:center">Presença</th><th style="text-align:center">Intervalo</th><th style="text-align:center">Horas úteis</th><th></th></tr></thead><tbody>`
+    +D.turnos.map(t=>{const hu=calcHoras(t),sm=hu*(7-D.cfg.folgasMin),ok=Math.abs(sm-D.cfg.jornada)<0.05;
+    return `<tr><td><div style="display:flex;gap:6px;align-items:center">
+      <input type="color" value="${t.cor||'#2a6f97'}" onchange="editTurno('${t.id}','cor',this.value)" style="width:34px;padding:2px;flex:0 0 auto" title="Cor">
+      <input type="text" value="${esc(t.cod||'')}" maxlength="2" onchange="editTurno('${t.id}','cod',this.value.toUpperCase())" style="width:46px;text-align:center" title="Sigla">
+      <input type="text" value="${esc(t.nome)}" onchange="editTurno('${t.id}','nome',this.value)"></div></td>
+      <td style="min-width:190px">
+        ${(!t.setores||!t.setores.length)
+          ? '<span style="font-size:11px;color:var(--verde);font-weight:600">todos os setores</span>'
+          : t.setores.map(id=>`<span style="display:inline-block;padding:2px 7px;margin:1px;border-radius:20px;font-size:10px;font-weight:600;background:${setorDe(id).cor}22;color:${setorDe(id).cor}">${esc(setorDe(id).nome)}</span>`).join('')}
+        <br><button class="btn sec mini" style="margin-top:4px" onclick="editarSetoresTurno('${t.id}')">Escolher setores</button>
+        ${tSetor===t.id?`<div style="margin-top:7px;padding:8px;border:1px solid var(--borda);border-radius:8px;background:var(--azul-suave)">
+          <label style="display:flex;gap:5px;align-items:center;text-transform:none;font-size:12px;font-weight:600;color:var(--texto);margin:0 0 5px">
+            <input type="checkbox" class="ts-all" ${(!t.setores||!t.setores.length)?'checked':''} onchange="setorTurnoTodos('${t.id}',this.checked)" style="width:auto"> Todos os setores</label>
+          ${D.setores.map(st=>`<label style="display:flex;gap:5px;align-items:center;text-transform:none;font-size:12px;font-weight:400;color:var(--texto);margin:0">
+            <input type="checkbox" class="ts-${t.id}" value="${st.id}" ${(t.setores||[]).includes(st.id)?'checked':''} onchange="aplicarSetoresTurno('${t.id}')" style="width:auto"> ${esc(st.nome)}</label>`).join('')}
+          <button class="btn mini" style="margin-top:7px" onclick="tSetor=null;renderTudo()">Pronto</button>
+        </div>`:''}
+      </td>
+      <td><input type="time" value="${t.inicio}" onchange="editTurno('${t.id}','inicio',this.value)"></td>
+      <td><input type="time" value="${t.fim}" onchange="editTurno('${t.id}','fim',this.value)"></td>
+      <td style="text-align:center;color:var(--fraco)">${presenca(t).toFixed(2)}h</td>
+      <td><input type="number" step="0.25" min="0" value="${t.intervalo||0}" style="text-align:center" onchange="editTurno('${t.id}','intervalo',this.value)"></td>
+      <td style="text-align:center"><b class="${ok?'ok':'alerta'}">${hu}h</b><br><span style="font-size:10px;color:var(--fraco)">${h1(sm)}h/sem</span></td>
+      <td><button class="btn sec mini" onclick="delTurno('${t.id}')">×</button></td></tr>`;}).join('')
+    +`</tbody></table><p style="margin-top:9px;font-size:12px;color:var(--fraco)">Horas úteis = presença − intervalo. Para fechar ${D.cfg.jornada}h em ${7-D.cfg.folgasMin} dias, cada turno precisa de <b>${h1(alvo)}h úteis</b>.</p>`;
+
+  document.getElementById('lista-setores').innerHTML=D.setores.map((s,i)=>`
+    <div style="border:1px solid var(--borda);border-radius:10px;padding:11px;margin-bottom:9px">
+      <div style="display:flex;gap:7px;align-items:center;margin-bottom:9px;flex-wrap:wrap">
+        <span class="ponto" style="background:${s.cor};width:14px;height:14px"></span>
+        <input type="text" value="${esc(s.nome)}" onchange="editSetor('${s.id}',this.value)" style="max-width:230px">
+        <button class="btn sec mini" onclick="moverSetor(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="btn sec mini" onclick="moverSetor(${i},1)" ${i===D.setores.length-1?'disabled':''}>↓</button>
+        <button class="btn sec mini" onclick="novoTurno('${s.id}')">+ Turno deste setor</button>
+        <button class="btn sec mini" onclick="delSetor('${s.id}')">Excluir</button></div>
+      <div style="font-size:11px;color:var(--fraco);margin-bottom:7px">Turnos: ${turnosDoSetor(s.id).map(t=>esc(t.nome)).join(', ')||'—'}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--fraco);margin-right:4px">Funções:</span>
+        ${(s.funcoes||[]).map((f,j)=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--azul-suave);color:var(--azul)">${esc(f)}
+          <button onclick="delFun('${s.id}',${j})" style="border:none;background:none;cursor:pointer;color:var(--fraco);font-weight:700;padding:0">×</button></span>`).join('')
+        ||'<span style="font-size:12px;color:var(--fraco)">nenhuma</span>'}
+        <button class="btn sec mini" onclick="addFun('${s.id}')">+ Função</button></div></div>`).join('');
+}
+
+/* ============ cópias automáticas ============ */
+function listarBaks(){
+  const out=[];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k||(!k.startsWith('abs_bak_')&&k!=='abs_escalas_resgate'))continue;
+      const v=localStorage.getItem(k)||'';
+      let info='';
+      try{const o=JSON.parse(v);
+        info=(o.colaboradores||[]).length+' colaborador(es) · '
+          +Object.keys(o.escalaMes||{}).length+' mês(es) de escala';
+      }catch(e){info='conteúdo não legível';}
+      out.push({k,bytes:v.length,info,
+        rot:k==='abs_escalas_resgate'?'Cópia de resgate'
+          :k==='abs_bak_sessao'?'Antes desta sessão'
+          :'Dia '+k.replace('abs_bak_','')});
+    }
+  }catch(e){}
+  return out.sort((a,b)=>a.k<b.k?1:-1);
+}
+function renderBaks(){
+  const el=document.getElementById('lista-bak');if(!el)return;
+  const b=listarBaks();
+  el.innerHTML=b.length
+    ? `<div class="rolar"><table><thead><tr><th>Cópia</th><th>Conteúdo</th><th>Tamanho</th><th></th></tr></thead><tbody>`
+      +b.map(x=>`<tr><td><b>${esc(x.rot)}</b></td><td>${esc(x.info)}</td><td>${(x.bytes/1024).toFixed(1)} KB</td>
+        <td style="text-align:right;white-space:nowrap">
+          <button class="btn sec mini" onclick="baixarBak('${x.k}')">Baixar</button>
+          <button class="btn mini terr" onclick="restaurarBak('${x.k}')">Restaurar</button></td></tr>`).join('')
+      +`</tbody></table></div>`
+    : '<p style="font-size:13px;color:var(--fraco)">Nenhuma cópia ainda. A primeira é criada na próxima vez que você abrir o app.</p>';
+}
+function baixarBak(k){
+  const v=localStorage.getItem(k);if(!v)return alert('Cópia vazia.');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([v],{type:'application/json'}));
+  a.download=k+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+function restaurarBak(k){
+  const v=localStorage.getItem(k);if(!v)return alert('Cópia vazia.');
+  if(!confirm('Restaurar esta cópia? O estado atual será substituído.\n\nAntes de trocar, o app guarda o atual como cópia de segurança.'))return;
+  try{localStorage.setItem('abs_bak_antes_restauro',localStorage.getItem('abs_escalas_v1')||'');}catch(e){}
+  try{localStorage.setItem('abs_escalas_v1',v);TRAVA_SALVAR=false;D=carregar();renderTudo();alert('Cópia restaurada.');}
+  catch(e){alert('Não consegui restaurar.');}
+}
+
+/* ============ backup ============ */
+function exportar(){
+  const b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='escala-bela-sintra-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importar(){
+  const i=document.createElement('input');i.type='file';i.accept='.json';
+  i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=v=>{try{localStorage.setItem('abs_escalas_v1',v.target.result);D=carregar();salvar();renderTudo();alert('Backup restaurado.');}
+      catch(x){alert('Arquivo inválido.');}};r.readAsText(f);};
+  i.click();
+}
+function zerar(){if(!confirm('Apagar TODOS os dados? Não dá para desfazer.'))return;
+  localStorage.removeItem('abs_escalas_v1');D=JSON.parse(JSON.stringify(PADRAO));salvar();renderTudo();}
+
+/* ============ topo ============ */
+function renderBarra(){
+  const el=document.getElementById('barra');
+  if(AVISO_DADOS){
+    el.innerHTML=`<div class="barra-in" style="background:#fbedec"><div style="color:var(--vermelho);font-size:13px;padding:4px 0">
+      <b>Atenção:</b> ${esc(AVISO_DADOS)}</div></div>`;
+    return;
+  }
+  if(!D.colaboradores.length){el.innerHTML='';return;}
+  const sem=semanas()[iSem()]||Array(7).fill(null);
+  let nec=0;D.setores.forEach(s=>{for(let w=0;w<7;w++)D.turnos.forEach(t=>nec+=getDem(s.id,w,t.id)*t.horas);});
+  const cap=D.colaboradores.reduce((a,c)=>a+Math.min(c.jornada||D.cfg.jornada,D.cfg.jornada),0);
+  let escH=0,furos=0,ocio=0;
+  D.colaboradores.forEach(c=>{const h=horasSem(c.id,sem);escH+=h;
+    const j=c.jornada||D.cfg.jornada;if(h<j&&h>0)ocio+=j-h;});
+  D.setores.forEach(s=>turnosDoSetor(s.id).forEach(t=>{for(let i=0;i<7;i++){const d=sem[i];if(!d)continue;
+    if(escalados(s.id,d,t.id)<demDoDia(s.id,d,t.id))furos++;}}));
+  const crit=SUG.filter(x=>x.nivel==='c').length;
+  el.innerHTML=`<div class="barra-in">
+    <div class="bi"><span>Equipe</span><b>${D.colaboradores.length}</b></div>
+    <div class="bi"><span>Necessidade</span><b>${h1(nec)}h</b></div>
+    <div class="bi"><span>Capacidade</span><b>${h1(cap)}h</b></div>
+    <div class="bi"><span>Escalado (semana)</span><b>${h1(escH)}h</b></div>
+    <div class="bi"><span>Pagas sem escala</span><b class="${ocio<.5?'ok':'alerta'}">${h1(ocio)}h</b></div>
+    <div class="bi"><span>Furos na semana</span><b class="${furos?'ruim':'ok'}">${furos||'nenhum'}</b></div>
+    <div class="bi"><span>Pontos críticos</span><b class="${crit?'ruim':'ok'}">${crit||'nenhum'}</b></div>
+  </div>`;
+}
+function renderCab(){
+  const el=document.getElementById('cabimp');if(!el)return;
+  const ab=document.querySelector('.tab.on'), nm=ab?ab.textContent.replace(/\d+$/,'').trim():'';
+  const sem=semanas()[iSem()]||[], ds=sem.filter(Boolean);
+  const alvo=!FILTRO?'todos os setores'
+    :(FILTRO.tipo==='setor'?setorDe(FILTRO.id).nome:(colabDe(FILTRO.id)?.nome||''));
+  el.innerHTML=`<b>a bela Sintra · Escala ${esc(alvo)} — ${esc(rotMes())}${ds.length?' · semana '+ds[0]+'–'+ds[ds.length-1]:''}</b>
+    <span>Jornada ${D.cfg.jornada}h · ${D.colaboradores.length} colaboradores · emitido em ${new Date().toLocaleDateString('pt-BR')}</span>`;
+}
+
+/* ============ render geral ============ */
+function renderTudo(){
+  let fid=null,si=null,sf=null;
+  try{const a=document.activeElement;if(a&&a.id){fid=a.id;si=a.selectionStart;sf=a.selectionEnd;}}catch(e){}
+
+  analisar();
+  const crit=SUG.filter(x=>x.nivel==='c').length, tot=SUG.length;
+  document.getElementById('sino').innerHTML=tot?`${crit?'⚠ '+crit+' crítico(s)':'✓ sem críticos'} · ${tot} aviso(s)`:'✓ tudo certo';
+  const ts=document.getElementById('tab-sug');
+  ts.innerHTML='Sugestões'+(crit?`<span class="bolha">${crit}</span>`:'');
+  document.getElementById('sub-hdr').textContent=rotMes()+' · jornada '+D.cfg.jornada+'h';
+
+  renderBarra();renderCab();renderPincel();renderLegenda();
+  renderHoje();renderGrade();renderEscAvisos();renderCobSemana();renderCartoes();
+  renderSug();renderEquipe();renderAfast();renderDem();renderDiag();renderFech();renderAjustes();renderBaks();
+  if(document.getElementById('painel-copia')?.style.display==='')renderCopia();
+
+  if(fid){try{const e=document.getElementById(fid);if(e&&e.focus){e.focus();if(si!==null&&e.setSelectionRange)e.setSelectionRange(si,sf);}}catch(e){}}
+}
+aplicarTema(D.cfg.tema||'sintra',false);
+renderTudo();
+</script>
+</body>
+</html>
