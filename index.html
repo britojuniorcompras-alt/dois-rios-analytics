@@ -518,6 +518,7 @@ footer{text-align:center;padding:26px;color:var(--tx3);font-size:12px;border-top
     <div id="escala-aviso"></div>
     <div style="border:1px solid var(--bd,#2a3a48);border-radius:12px;overflow:hidden;background:#fff">
       <iframe id="escala-frame" src="escala.html" title="Escala da bela Sintra"
+        onload="escalaOk()" onerror="escalaFalhou()"
         style="width:100%;height:calc(100vh - 230px);min-height:560px;border:0;display:block"></iframe>
     </div>
     <p class="vd" style="margin-top:10px">
@@ -799,7 +800,16 @@ function sinal(txt,ruim){
 }
 function setUnit(id){
   if(!ME.units.includes(id))return;
-  STORE.active=id;D=STORE.units[id];bindP();renderAll();
+  STORE.active=id;D=STORE.units[id];
+  atualizaNavEscala();
+  if(CUR==='escala'&&id!=='belasintra')go(ME.views[0]);
+  else{bindP();renderAll();}
+}
+function atualizaNavEscala(){
+  const btn=document.getElementById('n-escala');
+  if(!btn)return;
+  const isBS=STORE.active==='belasintra';
+  btn.style.display=isBS?'':'none';
 }
 function unitInfo(id){return UNITS.find(u=>u.id===id)}
 const BRL=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -883,6 +893,7 @@ function start(){
   renderUnitBar();
   const m=document.getElementById('mesRef');m.innerHTML=MESES.map((x,i)=>`<option value="${i}">${x}</option>`).join('');
   if(ME.role==='exec')document.querySelectorAll('#v-custo,#v-fat').forEach(e=>e.classList.add('ro'));
+  atualizaNavEscala();
   bindP();go(ME.views[0]);
 }
 function renderUnitBar(){
@@ -892,6 +903,19 @@ function renderUnitBar(){
   if(ME.units.length<2){el.innerHTML=`<span class="pill" style="border-color:${unitInfo(ME.units[0]).cor}"><b>${unitInfo(ME.units[0]).nome}</b> · ${unitInfo(ME.units[0]).cidade}</span>`;return}
   el.innerHTML=`<div class="sw">`+ME.units.map(id=>{const u=unitInfo(id),bk=STORE.units[id].blank;
     return `<button class="${id===STORE.active?'on':''}" onclick="setUnit('${id}')">${u.nome}${bk?' <span style="opacity:.55">○</span>':''}</button>`}).join('')+`</div>`;
+}
+let escalaCarregou=false;
+function escalaOk(){
+  escalaCarregou=true;
+  const f=document.getElementById('escala-frame');
+  try{ if(!f.contentDocument||!f.contentDocument.getElementById('grade'))escalaFalhou(); }catch(e){}
+}
+function escalaFalhou(){
+  const el=document.getElementById('escala-aviso');
+  if(el)el.innerHTML=`<div class="alert w"><span class="ico">⚠</span><div><b>O arquivo escala.html não foi encontrado</b>
+    A aba Escala carrega um segundo arquivo, que precisa estar <b>na mesma pasta</b> deste app e com o nome exato
+    <b>escala.html</b> — sem "(1)", sem número no fim. Se você baixou os dois, confira o nome na pasta Downloads.
+    No site publicado, suba os dois arquivos na raiz do repositório.</div></div>`;
 }
 function avisoEscala(){
   const el=document.getElementById('escala-aviso');
@@ -909,7 +933,11 @@ function go(v){CUR=v;
   document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('on'));
   document.getElementById('n-'+v).classList.add('on');
   window.scrollTo(0,0);
-  if(v==='escala'){avisoEscala();return;}   /* o iframe se vira sozinho */
+  if(v==='escala'){
+    avisoEscala();
+    setTimeout(()=>{ if(!escalaCarregou)escalaFalhou(); },2500);
+    return;
+  }
   renderAll();
 }
 function bindP(){const p=D.p;
