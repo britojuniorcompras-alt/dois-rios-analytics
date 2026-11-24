@@ -61,9 +61,7 @@ nav button{padding:9px 14px;border-radius:9px 9px 0 0;color:var(--tx3);font-size
 nav button:hover{color:var(--tx)}
 nav button.on{color:var(--ac);border-bottom-color:var(--ac);background:var(--card)}
 main{padding:22px;max-width:1360px;margin:0 auto}
-main.escala-ativa{padding:0;max-width:100%}
 .view{display:none}.view.on{display:block;animation:fi .2s ease}
-#v-escala{padding:0!important}
 @keyframes fi{from{opacity:0;transform:translateY(5px)}}
 h2.vt{font-size:21px;font-weight:680;letter-spacing:-.015em;margin-bottom:4px}
 p.vd{color:var(--tx2);font-size:13.5px;margin-bottom:20px;max-width:760px}
@@ -82,7 +80,7 @@ p.vd{color:var(--tx2);font-size:13.5px;margin-bottom:20px;max-width:760px}
 .bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:9px}
 .bar i{display:block;height:100%;border-radius:4px;background:var(--ac)}
 .alert{display:flex;gap:11px;padding:13px 15px;border-radius:11px;border:1px solid;margin-bottom:10px;font-size:13.5px;line-height:1.45}
-.alert b{display:block;margin-bottom:2px;font-size:13.5px}
+.alert>div>b:first-child{display:block;margin-bottom:2px;font-size:13.5px}
 .alert.i{background:#13232e;border-color:#245066;color:#bcdcec}
 .alert.w{background:#2a2314;border-color:#5a4a1e;color:#ecd9a8}
 .alert.d{background:#2b1816;border-color:#5e2a24;color:#efc0b8}
@@ -133,6 +131,115 @@ td input,td select{padding:5px 7px;font-size:13px;border-radius:6px}
 .sm{font-size:12.5px;color:var(--tx3)}
 .ro{pointer-events:none;opacity:.6}
 .hidden{display:none!important}
+#printHead{display:none}
+.soimprime{display:none}
+
+/* ===== CONSELHEIRO ===== */
+.doc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;margin-bottom:16px}
+.dochead{display:flex;gap:18px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px}
+.dochead .pmarca{margin-bottom:0;height:40px}
+h3.dh{font-size:16px;font-weight:680;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.alav{border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:11px;background:var(--bg2)}
+.alavtop{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.alavn{display:inline-flex;width:21px;height:21px;border-radius:50%;background:var(--ac);color:#15211c;
+  font-weight:720;font-size:12px;align-items:center;justify-content:center;margin-right:9px}
+.alavtop .sm{display:block;margin:3px 0 0 30px;color:var(--tx3)}
+.alavv{font-size:19px;font-weight:720;color:var(--gr);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.alavv span{display:block;font-size:11px;color:var(--tx3);font-weight:500}
+.alavp{font-size:13.5px;line-height:1.5;color:var(--tx2);margin:11px 0 9px}
+.alavl{margin:0;padding-left:19px}
+.alavl li{font-size:13px;line-height:1.55;color:var(--tx2);margin-bottom:4px}
+.passos{margin:0;padding-left:21px}
+.passos li{font-size:13.5px;line-height:1.6;margin-bottom:7px}
+@media print{
+  @page{margin:14mm 12mm}
+  body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11pt}
+  header,nav,footer,.naoimprime,#barraExp{display:none!important}
+  main{padding:0;max-width:none}
+  .view{display:none!important}
+  .view.on{display:block!important}
+
+  /* cabeçalho do documento impresso */
+  #printHead{display:flex!important;gap:14px;align-items:center;border-bottom:1.5px solid #333;
+    padding-bottom:10px;margin-bottom:16px}
+  #printHead img{height:34px;width:auto;filter:invert(1) brightness(.25)}
+  #printHead b{display:block;font-size:15pt}
+  #printHead span{display:block;font-size:8.5pt;color:#555;margin-top:2px}
+  .pavisio{width:100%;margin-top:8px;padding:6px 9px;border:1px solid #b3261e;color:#b3261e;
+    border-radius:5px;font-size:9pt}
+
+  /* some com o que é controle, mantém o que é informação */
+  button,.btn,.sw,.exopts,.presets,details>summary,input[type=range],input[type=file]{display:none!important}
+  .sw button.on{display:inline-block!important;border:0;background:none;color:#111;font-weight:700;padding:0}
+  .exo.on{display:block!important;border:1px solid #333;background:#f0f0f0;color:#111}
+  input,select,textarea{display:none!important}
+  .soimprime{display:inline!important;color:#111;font-size:10pt}
+  details{display:block}details>*{display:block}
+
+  /* cartões e tabelas no papel */
+  /* nunca usar break-inside:avoid em bloco maior que uma página: o Chrome
+     descarta o bloco inteiro em vez de quebrá-lo */
+  .card,.doc{background:#fff;border-color:#ccc}
+  .kpi,.sc,.alav,.simtopo{background:#fff;border-color:#ccc;break-inside:avoid}
+  .doc{border:0;padding:0}
+  h2.vt,h3,h3.dh,b,.stv,.kpi .v,.rv{color:#111}
+  p.vd,.cd,.sm,.hint,.std,.stl,.d,.alavp,.alavl li,.dp{color:#444}
+  h3,h3.dh,h2.vt{break-after:avoid}
+  table{break-inside:auto;font-size:9.5pt}
+  tr{break-inside:avoid}
+  th{color:#555;border-color:#ccc}
+  td{border-color:#e2e2e2;color:#111}
+  .alert,.alert.s,.alert.w,.alert.d,.alert.i{break-inside:avoid;border:1px solid #bbb;
+    background:#f7f7f7!important;color:#111!important}
+  .alert b,.alert div,.alert span{color:#111!important}
+  .alert.s{border-left:3px solid #16703f}.alert.d{border-left:3px solid #a5201a}
+  .alert.w{border-left:3px solid #9a7b1f}.alert.i{border-left:3px solid #4a6b8a}
+  .pos,.alavv{color:#16703f!important}
+  .neg{color:#a5201a!important}
+  .tag,.chip{border:1px solid #bbb;color:#333;background:#fff}
+  .bar{background:#eee}.bar i{background:#888!important}
+  .dcell{border-color:#ccc}.dcell.off{opacity:.5}
+  .grid{display:block}
+  .grid>*{margin-bottom:10px}
+  .g4,.g3,.g2{display:grid!important}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .simtopo{display:grid!important;grid-template-columns:1fr auto 1fr 1fr}
+  .tbl-wrap{overflow:visible}
+  .tbl-wrap>table{min-width:0}
+}
+
+/* ===== SIMULADOR ===== */
+.simtopo{display:grid;grid-template-columns:1fr auto 1fr 1fr;gap:12px;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.stbloco{text-align:center}
+.stl{font-size:11.5px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stv{font-size:24px;font-weight:720;margin:6px 0 3px;font-variant-numeric:tabular-nums}
+.std{font-size:11.5px;color:var(--tx3)}
+.stseta{font-size:20px;color:var(--tx3)}
+.stdif{border-left:1px solid var(--line);padding-left:12px}
+.stdif.ok .stv{color:var(--gr)} .stdif.ruim .stv{color:var(--rd)}
+.passo{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.passo>span{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--ac);color:#15211c;
+  font-weight:720;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.passo h3{margin-bottom:2px}
+.passo .cd{margin-bottom:0}
+.legenda{display:flex;gap:16px;margin-top:10px;font-size:11.5px;color:var(--tx3);flex-wrap:wrap}
+.legenda i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.lg-ab{background:var(--line2);border:1px solid var(--line2)}
+.lg-en{background:#14232e;border:1px solid var(--bl)}
+.lg-fe{background:transparent;border:1px dashed var(--tx3)}
+.btn.g.on{border-color:var(--ac);color:var(--ac)}
+.fino summary{cursor:pointer;font-size:13.5px;color:var(--tx2);padding:8px 0;user-select:none}
+.fino summary:hover{color:var(--ac)}
+.fino[open] summary{color:var(--ac);border-bottom:1px solid var(--line)}
+@media(max-width:720px){
+  .simtopo{grid-template-columns:1fr 1fr;gap:14px}
+  .stseta{display:none}
+  .stdif{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);padding:12px 0 0}
+}
+
 /* ===== MARCAS ===== */
 .lmarcas{display:flex;align-items:center;justify-content:center;gap:34px;margin-bottom:28px;flex-wrap:wrap}
 .lmarcas img{height:44px;width:auto;opacity:.82;transition:.25s}
@@ -141,10 +248,7 @@ td input,td select{padding:5px 7px;font-size:13px;border-radius:6px}
 .exmarca{display:block;margin:0 auto 22px;height:62px;width:auto;opacity:.9}
 .pmarca{height:46px;width:auto;margin-bottom:14px;opacity:.9}
 @media(max-width:640px){.lmarcas{gap:20px}.lmarcas img{height:32px}#hlogo{height:21px}.exmarca{height:48px}}
-@media print{
-  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  header,nav,.row,footer{display:none!important}
-}
+
 
 /* ===== TELA EXECUTIVA ===== */
 body.simple nav{justify-content:center}
@@ -220,15 +324,18 @@ footer{text-align:center;padding:26px;color:var(--tx3);font-size:12px;border-top
   <img id="hlogo" alt="">
   <div id="unitbar"></div>
   <span class="chip" id="modeChip">modo demonstração</span>
+  <span class="chip warn hidden" id="expChip">explorando · não salvo</span>
   <span class="chip warn" id="seasonChip"></span>
   <div class="hright">
     <span id="estado" class="sm" style="min-width:90px;text-align:right"></span>
     <span id="whoami"></span>
+    <button class="btn g sm" onclick="baixarPDF()" title="Salvar a aba atual em PDF">PDF</button>
     <button class="btn g sm" onclick="logout()">Sair</button>
   </div>
 </header>
 
 <nav id="nav"></nav>
+<div id="printHead"></div>
 
 <main>
   <!-- ---------- VISÃO GERAL ---------- -->
@@ -321,65 +428,87 @@ footer{text-align:center;padding:26px;color:var(--tx3);font-size:12px;border-top
 
   <!-- ---------- SIMULADOR ---------- -->
   <div class="view" id="v-sim">
-    <h2 class="vt">Simulador de cenários</h2>
-    <p class="vd">Monte o cenário, mexa nas premissas e compare. O número que decide quase tudo é a <b>transferência de demanda</b>: quanto do cliente de segunda a quinta reaparece no fim de semana em vez de simplesmente desaparecer.</p>
-    <div class="grid g2">
-      <div class="card">
-        <h3>Premissas</h3>
-        <p class="cd">Valem para todos os cenários comparados.</p>
-        <div class="sld">
-          <label>Transferência de demanda <b><span id="lTrans"></span>%</b></label>
-          <input type="range" id="sTrans" min="0" max="100" step="5" oninput="setP('transfer',this.value)">
-          <p class="hint">0% = todo cliente de dia de semana é receita perdida. 100% = todos remarcam para o fim de semana. Em restaurante de destino turístico esse número é mais alto que em restaurante de bairro, mas raramente passa de 40%.</p>
-        </div>
-        <div class="sld">
-          <label>Teto de capacidade do fim de semana <b>+<span id="lCap"></span>%</b></label>
-          <input type="range" id="sCap" min="0" max="60" step="5" oninput="setP('cap',this.value)">
-          <p class="hint">Quanto o sábado ainda consegue crescer antes de esgotar mesa, cozinha e salão. É o que limita a transferência na prática.</p>
-        </div>
-        <div class="sld">
-          <label>Ganho de CMV ao concentrar a operação <b>−<span id="lCmv"></span> p.p.</b></label>
-          <input type="range" id="sCmv" min="0" max="4" step="0.25" oninput="setP('cmvGain',this.value)">
-          <p class="hint">Menos dias de produção costuma significar menos quebra de perecível e compra mais concentrada. Ganho real, mas modesto.</p>
-        </div>
-        <div class="sld">
-          <label>Custo de reabertura / ociosidade <b>R$ <span id="lReab"></span>/mês</b></label>
-          <input type="range" id="sReab" min="0" max="20000" step="500" oninput="setP('reab',this.value)">
-          <p class="hint">Perda de relevância em buscador e guia, manutenção parada, retrabalho de mise en place, rotatividade de equipe, custo de recontratar na alta temporada.</p>
-        </div>
-        <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:4px">
-          <h3 style="margin-bottom:10px">Operação enxuta</h3>
+    <h2 class="vt">Simulador</h2>
+    <p class="vd" id="simIntro"></p>
+
+    <div id="barraExp" class="hidden"></div>
+
+    <div class="card">
+      <div class="passo"><span>1</span><div>
+        <h3>Escolha os dias que quer abrir</h3>
+        <p class="cd">Clique em cada dia para alternar entre aberto, operação enxuta e fechado.</p>
+      </div></div>
+      <div class="dow" id="simDays"></div>
+      <p class="hint" style="margin:10px 0 0">O valor em cada dia é o faturamento médio daquele dia da semana no período.</p>
+      <div class="legenda">
+        <span><i class="lg-ab"></i>aberto normal</span>
+        <span><i class="lg-en"></i>enxuta: cardápio e brigada reduzidos</span>
+        <span><i class="lg-fe"></i>fechado</span>
+      </div>
+      <div class="row" style="margin-top:14px" id="presets"></div>
+    </div>
+
+    <div id="veredito"></div>
+
+    <details class="fino">
+      <summary>Ajuste fino — premissas e mês de referência</summary>
+      <div class="row" style="margin:16px 0 4px;align-items:center">
+        <span class="sm">Mês de referência das outras abas:</span>
+        <select id="mesRef" onchange="setP('mes',this.value)" style="max-width:170px"></select>
+        <span id="atalhosMes" class="row"></span>
+      </div>
+      <p class="hint">O resultado acima é do período inteiro. Este mês só muda as abas que falam de um mês.</p>
+      <div class="grid g2" style="margin-top:16px">
+        <div>
           <div class="sld">
-            <label>Queda de receita no dia enxuto <b>−<span id="lEnxR"></span>%</b></label>
-            <input type="range" id="sEnxR" min="0" max="60" step="5" oninput="setP('enxRec',this.value)">
-            <p class="hint">Cardápio e salão reduzidos afastam parte do público. Essa parte não migra para o fim de semana — ela some.</p>
+            <label>Transferência de demanda <b><span id="lTrans"></span>%</b></label>
+            <input type="range" id="sTrans" min="0" max="100" step="5" oninput="setP('transfer',this.value)">
+            <p class="hint">Dos clientes dos dias fechados, quantos remarcam para outro dia em vez de simplesmente não vir.</p>
           </div>
           <div class="sld">
             <label>Do custo evitável, quanto o dia enxuto corta <b><span id="lEnxC"></span>%</b></label>
             <input type="range" id="sEnxC" min="0" max="100" step="5" oninput="setP('enxCusto',this.value)">
-            <p class="hint">Meia brigada, um salão só, menos lavanderia e energia. Nunca chega a 100%: a casa segue aberta.</p>
+            <p class="hint">Meia brigada, um salão só. Nunca chega a 100%: a casa segue aberta.</p>
+          </div>
+          <div class="sld">
+            <label>Queda de receita no dia enxuto <b>−<span id="lEnxR"></span>%</b></label>
+            <input type="range" id="sEnxR" min="0" max="60" step="5" oninput="setP('enxRec',this.value)">
+            <p class="hint">Cardápio e salão reduzidos afastam parte do público. Essa parte some, não migra.</p>
+          </div>
+        </div>
+        <div>
+          <div class="sld">
+            <label>Teto de capacidade dos dias abertos <b>+<span id="lCap"></span>%</b></label>
+            <input type="range" id="sCap" min="0" max="60" step="5" oninput="setP('cap',this.value)">
+            <p class="hint">Quanto os dias abertos ainda conseguem crescer antes de esgotar mesa, cozinha e salão.</p>
+          </div>
+          <div class="sld">
+            <label>Custo de reabertura e ociosidade <b>R$ <span id="lReab"></span>/mês</b></label>
+            <input type="range" id="sReab" min="0" max="20000" step="500" oninput="setP('reab',this.value)">
+            <p class="hint">Perda de relevância em buscador e guia, rotatividade de equipe, custo de recontratar na alta.</p>
+          </div>
+          <div class="sld">
+            <label>Ganho de CMV ao concentrar <b>−<span id="lCmv"></span> p.p.</b></label>
+            <input type="range" id="sCmv" min="0" max="4" step="0.25" oninput="setP('cmvGain',this.value)">
+            <p class="hint">Menos dias de produção, menos quebra de perecível. Ganho real, mas modesto.</p>
+          </div>
+          <div style="margin-top:4px">
+            <label class="sm" style="display:block;margin-bottom:6px">Feriados abertos por mês</label>
+            <input type="number" id="holi" min="0" max="8" step="0.25" style="max-width:120px" oninput="setP('holidays',this.value)">
           </div>
         </div>
       </div>
-      <div class="card">
-        <h3>Regime de funcionamento do cenário em estudo</h3>
-        <p class="cd">Clique nos dias para abrir ou fechar.</p>
-        <div class="dow" id="simDays"></div>
-        <div style="margin-top:16px">
-          <label class="sm" style="display:block;margin-bottom:6px">Feriados e datas especiais abertos por mês (média)</label>
-          <input type="number" id="holi" min="0" max="8" step="0.5" style="max-width:120px" oninput="setP('holidays',this.value)">
-          <p class="hint">Feriado prolongado concentra movimento. Esse número muda o resultado do cenário fechado mais do que parece.</p>
-        </div>
-        <div style="margin-top:18px">
-          <h3 style="margin-bottom:6px">Mês de referência</h3>
-          <select id="mesRef" onchange="setP('mes',this.value)"></select>
-          <p class="hint">O resultado do fechamento é completamente diferente em julho e em março. Rode os dois antes de levar parecer ao proprietário.</p>
-        </div>
-      </div>
+    </details>
+  </div>
+
+  <!-- ---------- CONSELHEIRO ---------- -->
+  <div class="view" id="v-conselho">
+    <div id="conselhoDoc"></div>
+    <div class="row naoimprime" style="margin-top:4px">
+      <button class="btn" onclick="baixarPDF()">Baixar PDF</button>
+      <button class="btn g" onclick="copiarConselho()">Copiar texto</button>
+      <span class="sm">O botão abre a impressão do navegador — escolha "Salvar como PDF".</span>
     </div>
-    <h3 style="margin:22px 0 12px;font-size:16px">Comparativo de cenários</h3>
-    <div class="grid g4" id="scens"></div>
-    <div class="card" id="simRead"></div>
   </div>
 
   <!-- ---------- PONTO DE EQUILÍBRIO POR DIA ---------- -->
@@ -513,16 +642,6 @@ footer{text-align:center;padding:26px;color:var(--tx3);font-size:12px;border-top
   </div>
 
   <!-- ---------- DADOS ---------- -->
-  <div class="view" id="v-escala" style="padding:0;margin:0">
-    <div id="escala-aviso"></div>
-    <iframe id="escala-frame" src="escala.html" title="Escala da bela Sintra"
-      onload="escalaOk()" onerror="escalaFalhou()"
-      style="width:100%;height:calc(100vh - 56px);min-height:600px;border:0;display:block"></iframe>
-    <p class="vd" style="margin:6px 16px">
-      <a href="escala.html" target="_blank" rel="noopener">Abrir a escala em uma aba separada</a>
-      — melhor para imprimir ou para trabalhar no mês inteiro com a tela cheia.</p>
-  </div>
-
   <div class="view" id="v-dados">
     <h2 class="vt">Dados e acessos</h2>
     <p class="vd">Tudo que é lançado fica salvo neste navegador. Para compartilhar entre os três acessos, exporte e importe o arquivo — ou migramos para banco de dados quando a estrutura estiver validada.</p>
@@ -591,12 +710,12 @@ const perg=()=>PERGUNTAS[STORE.active]||null;
 const CID=()=>{const c=unitInfo(STORE.active);return c?' Em '+c.cidade.split(' · ')[0]+', confirmar com o sindicato local.':''};
 /* O que cada papel enxerga. O papel vem do banco, não do navegador. */
 const VISTAS={
-  exec:['geral','parecer'],
-  fin: ['geral','fat','custo','dias','sim','cal','mo','escala','trib','parecer','consol','dados'],
-  admin:['geral','fat','custo','dias','sim','cal','mo','escala','trib','parecer','consol','dados']
+  exec:['geral','conselho','parecer'],
+  fin: ['geral','conselho','fat','custo','dias','sim','cal','mo','trib','parecer','consol','dados'],
+  admin:['geral','conselho','fat','custo','dias','sim','cal','mo','trib','parecer','consol','dados']
 };
 const CARGO={exec:'Proprietário',fin:'Gerente Financeiro',admin:'Compras e Análise'};
-const VIEWS={geral:'Visão geral',resposta:'A resposta',fat:'Faturamento',custo:'Custos',dias:'Cada dia',sim:'Simulador',cal:'Calendário',mo:'Mão de obra',escala:'Escala',trib:'Tributário',parecer:'Parecer',consol:'Consolidado',dados:'Dados'};
+const VIEWS={geral:'Visão geral',resposta:'A resposta',conselho:'Conselheiro',fat:'Faturamento',custo:'Custos',dias:'Cada dia',sim:'Simulador',cal:'Calendário',mo:'Mão de obra',trib:'Tributário',parecer:'Parecer',consol:'Consolidado',dados:'Dados'};
 const DOW=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
@@ -737,7 +856,9 @@ let STORE=null,D=null,ME=null,CUR='geral',selUser=null;
 
 /* Carga inicial: a semente só existe no arquivo local do administrador.
    Na versão publicada ela não vem junto — os dados moram no banco. */
-const SEMENTE = (typeof SEED!=='undefined') ? SEED : {};   // versao publicada: vazio, dados vem do banco
+/* Não há dados embutidos no app: eles moram no banco. Se um dia for preciso
+   recarregar uma casa do zero, use Dados > Importar arquivo com o backup. */
+const SEMENTE = (typeof SEED!=='undefined') ? SEED : {};
 
 async function carregarDados(){
   STORE={v:3,active:ME.units[0],units:{}};
@@ -797,16 +918,7 @@ function sinal(txt,ruim){
 }
 function setUnit(id){
   if(!ME.units.includes(id))return;
-  STORE.active=id;D=STORE.units[id];
-  atualizaNavEscala();
-  if(CUR==='escala'&&id!=='belasintra')go(ME.views[0]);
-  else{bindP();renderAll();}
-}
-function atualizaNavEscala(){
-  const btn=document.getElementById('n-escala');
-  if(!btn)return;
-  const isBS=STORE.active==='belasintra';
-  btn.style.display=isBS?'':'none';
+  STORE.active=id;D=STORE.units[id];bindP();renderAll();
 }
 function unitInfo(id){return UNITS.find(u=>u.id===id)}
 const BRL=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -890,7 +1002,6 @@ function start(){
   renderUnitBar();
   const m=document.getElementById('mesRef');m.innerHTML=MESES.map((x,i)=>`<option value="${i}">${x}</option>`).join('');
   if(ME.role==='exec')document.querySelectorAll('#v-custo,#v-fat').forEach(e=>e.classList.add('ro'));
-  atualizaNavEscala();
   bindP();go(ME.views[0]);
 }
 function renderUnitBar(){
@@ -901,44 +1012,12 @@ function renderUnitBar(){
   el.innerHTML=`<div class="sw">`+ME.units.map(id=>{const u=unitInfo(id),bk=STORE.units[id].blank;
     return `<button class="${id===STORE.active?'on':''}" onclick="setUnit('${id}')">${u.nome}${bk?' <span style="opacity:.55">○</span>':''}</button>`}).join('')+`</div>`;
 }
-let escalaCarregou=false;
-function escalaOk(){
-  escalaCarregou=true;
-  const f=document.getElementById('escala-frame');
-  try{ if(!f.contentDocument||!f.contentDocument.getElementById('grade'))escalaFalhou(); }catch(e){}
-}
-function escalaFalhou(){
-  const el=document.getElementById('escala-aviso');
-  if(el)el.innerHTML=`<div class="alert w"><span class="ico">⚠</span><div><b>O arquivo escala.html não foi encontrado</b>
-    A aba Escala carrega um segundo arquivo, que precisa estar <b>na mesma pasta</b> deste app e com o nome exato
-    <b>escala.html</b> — sem "(1)", sem número no fim. Se você baixou os dois, confira o nome na pasta Downloads.
-    No site publicado, suba os dois arquivos na raiz do repositório.</div></div>`;
-}
-function avisoEscala(){
-  const el=document.getElementById('escala-aviso');
-  if(!el)return;
-  let u=null;
-  try{ u=(typeof STORE!=='undefined'&&STORE)?unitInfo(STORE.active):null; }catch(e){}
-  if(!u){el.innerHTML='';return;}
-  el.innerHTML=(u.id==='belasintra')?'' :
-    `<div class="alert w"><span class="ico">⚠</span><div><b>Casa ativa: ${u.nome}</b>
-      A escala é da bela Sintra. O conteúdo abaixo não muda de casa — as outras ainda não têm escala no app.</div></div>`;
-}
 function go(v){CUR=v;
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('on'));
   document.getElementById('n-'+v).classList.add('on');
-  window.scrollTo(0,0);
-  const mainEl=document.querySelector('main');
-  if(v==='escala'){
-    if(mainEl)mainEl.classList.add('escala-ativa');
-    avisoEscala();
-    setTimeout(()=>{ if(!escalaCarregou)escalaFalhou(); },2500);
-    return;
-  }
-  if(mainEl)mainEl.classList.remove('escala-ativa');
-  renderAll();
+  window.scrollTo(0,0);renderAll();
 }
 function bindP(){const p=D.p;
   document.getElementById('sTrans').value=p.transfer;document.getElementById('sCap').value=p.cap;
@@ -949,7 +1028,60 @@ function bindP(){const p=D.p;
   document.getElementById('aliqRef').value=p.aliqRef;document.getElementById('credito').value=p.credito;
   document.getElementById('pctBeb').value=p.pctBebida;
 }
-function setP(k,v){D.p[k]=(k==='regime')?v:parseFloat(v);save();renderAll()}
+/* Premissas são exploração: mudam só na tela de quem está mexendo.
+   Sem isso, cada toque num controle gravaria no banco e mudaria o número
+   que as outras pessoas estão vendo. Só gravam quando alguém manda salvar. */
+const PREMISSAS=['transfer','cap','cmvGain','reab','holidays','enxRec','enxCusto','simDays','mes','cal'];
+function setP(k,v){
+  D.p[k]=(k==='regime')?v:parseFloat(v);
+  if(PREMISSAS.includes(k)){marcarExploracao()}else{save()}
+  renderAll();
+}
+/* Clicar no dia alterna aberto → enxuta → fechado. simDays é premissa:
+   mexer explora, não grava — só o botão Salvar grava. */
+function togDay(d){
+  const s=D.p.simDays.slice();
+  s[d]=(s[d]+2)%3;
+  D.p.simDays=s;
+  marcarExploracao(); renderAll();
+}
+/* Atalhos do simulador */
+function aplicarRegime(est){
+  D.p.simDays=est.slice();
+  marcarExploracao(); renderAll();
+}
+function marcarExploracao(){
+  if(!D._pSalvo)D._pSalvo=JSON.parse(JSON.stringify(D.p));  // guarda o estado do banco
+  D._explorando=true;
+}
+function premissasMudaram(){
+  if(!D._pSalvo)return false;
+  return PREMISSAS.some(k=>JSON.stringify(D.p[k])!==JSON.stringify(D._pSalvo[k]));
+}
+function salvarPremissas(){
+  D._pSalvo=JSON.parse(JSON.stringify(D.p));D._explorando=false;
+  gravar(STORE.active);renderAll();
+}
+function descartarPremissas(){
+  if(!D._pSalvo)return;
+  PREMISSAS.forEach(k=>{D.p[k]=JSON.parse(JSON.stringify(D._pSalvo[k]))});
+  D._explorando=false;bindP();renderAll();
+}
+function barraExploracao(){
+  const sujo=premissasMudaram(), podeSalvar=ME.papeis[STORE.active]!=='exec';
+  const chip=document.getElementById('expChip');
+  if(chip)chip.classList.toggle('hidden',!sujo);
+  const el=document.getElementById('barraExp');if(!el)return;
+  el.classList.toggle('hidden',!sujo);
+  if(!sujo)return;
+  el.innerHTML=`<div class="alert w" style="margin-bottom:16px"><span class="ico">◆</span>
+    <div style="flex:1"><b>Você está explorando</b>
+    As mudanças valem só na sua tela e não afetam o que as outras pessoas veem. Nada foi gravado.</div>
+    <div class="row" style="flex-shrink:0;align-self:center">
+      <button class="btn g sm" onclick="descartarPremissas()">Voltar ao salvo</button>
+      ${podeSalvar?`<button class="btn sm" onclick="salvarPremissas()">Salvar para todos</button>`:''}
+    </div></div>`;
+}
 
 /* ===================== MOTOR ===================== */
 // dias de cada dia-da-semana num mês de 30,42 dias
@@ -958,8 +1090,14 @@ function baseDia(d,mes){ // receita média daquele dia da semana, ajustada pela 
   const s=D.season[mes===undefined?D.p.mes:mes]||1;
   return (D.dowBase[d]||0)*s;
 }
+/* O regime "como é hoje" não é "sete dias abertos": é o que o histórico mostra.
+   O Dois Rios fecha quarta, o Chiado fecha segunda. Tratar os dois como semana
+   inteira subestimava a receita, porque a receita de feriado só conta quando há
+   dia fechado no regime. */
+function regimeAtual(){return [0,1,2,3,4,5,6].map(d=>(D.dowBase[d]||0)>0?2:0)}
+function estRegime(k){return k==='cheia'?regimeAtual():REG[k].est}
 const REG={            // regimes do calendário sazonal
- cheia:   {nome:'Semana inteira', curto:'Cheia',    est:[2,2,2,2,2,2,2]},
+ cheia:   {nome:'Como a casa abre hoje', curto:'Hoje', est:[2,2,2,2,2,2,2]},
  enxuta:  {nome:'Enxuta seg a qui',curto:'Enxuta',  est:[2,1,1,1,1,2,2]},
  reduzida:{nome:'Só sex a dom',   curto:'Reduzida', est:[2,0,0,0,0,2,2]},
  fechada: {nome:'Casa fechada',   curto:'Fechada',  est:[0,0,0,0,0,0,0]}
@@ -1105,7 +1243,7 @@ function diasSugeridos(mes){
 
 function cenarios(){
   // o regime de hoje: dias sem faturamento histórico já entram como fechados
-  const atual=[0,1,2,3,4,5,6].map(d=>baseDia(d,D.p.mes)>0?2:0);
+  const atual=regimeAtual();
   const estudo=D.p.simDays.slice();
   const sug=diasSugeridos(D.p.mes);
   const fracos=[0,1,2,3,4,5,6].map(d=>atual[d]===0?0:(d>=1&&d<=4?1:2)); // enxuta de seg a qui
@@ -1123,12 +1261,94 @@ function cenarios(){
   return cs;
 }
 
+/* --- busca da melhor estratégia --- */
+/* Testa todas as combinações de aberto/enxuta/fechado nos 7 dias (3^7), descartando
+   as que abrem um dia sem histórico. Com isso o app deixa de só reagir ao que a
+   pessoa monta e passa a dizer qual seria a melhor escolha. */
+let _combos=null;
+function combosTodos(){
+  if(_combos)return _combos;
+  const out=[];
+  for(let n=0;n<2187;n++){const e=[];let x=n;
+    for(let d=0;d<7;d++){e.push(x%3);x=Math.floor(x/3)}
+    out.push(e)}
+  return _combos=out;
+}
+function regimesViaveis(){
+  const pode=[0,1,2,3,4,5,6].map(d=>baseDia(d,0)>0||baseDia(d,6)>0);
+  const visto={},out=[];
+  combosTodos().forEach(e=>{
+    const f=e.map((v,d)=>pode[d]?v:0);
+    if(!f.some(v=>v>0))return;
+    const k=f.join(''); if(visto[k])return; visto[k]=1; out.push(f);
+  });
+  return out;
+}
+function ranking(mes){
+  return regimesViaveis().map(e=>({est:e,r:simular(e,{mes})}))
+    .sort((a,b)=>b.r.resultado-a.r.resultado);
+}
+/* Soma a simulação nos meses com faturamento lançado. O simulador passou a
+   responder pelo período inteiro: era confuso o resultado mudar conforme o mês
+   escolhido, enquanto Conselheiro e relatórios falam dos 10 meses. */
+function totalPeriodo(est,opts){
+  const ms=mesesComDado();
+  if(!ms.length)return null;
+  const t={receita:0,resultado:0,mc:0,transf:0,perdaTeto:0,reab:0,nM:ms.length,ms};
+  ms.forEach(m=>{
+    const r=simular(est,Object.assign({mes:m},opts||{}));
+    t.receita+=r.receita; t.resultado+=r.resultado; t.mc+=r.mc;
+    t.transf+=r.transf||0; t.perdaTeto+=r.perdaTeto||0; t.reab+=r.reab||0;
+  });
+  t.margem=t.receita?t.resultado/t.receita*100:0;
+  return t;
+}
+/* Em quantos % de transferência o veredito do período inverte de sinal */
+function viradaPeriodo(est){
+  const base=regimeAtual();
+  let sinal=null;
+  for(let x=0;x<=100;x+=5){
+    const d=totalPeriodo(est,{transfer:x}).resultado-totalPeriodo(base,{transfer:x}).resultado;
+    const s=d>0?1:(d<0?-1:0);
+    if(sinal===null)sinal=s;
+    else if(s!==sinal)return x;
+  }
+  return null;
+}
+function rankingAno(meses){
+  const ms=meses&&meses.length?meses:[0,1,2,3,4,5,6,7,8,9,10,11];
+  return regimesViaveis().map(e=>{
+    let t=0;ms.forEach(m=>{t+=simular(e,{mes:m}).resultado});
+    return{est:e,total:t}}).sort((a,b)=>b.total-a.total);
+}
+/* A conclusão se sustenta se a premissa de transferência mudar? */
+function robustez(est,mes){
+  const base=cenarios()[0].est;
+  let sinal=null,vira=null;
+  for(let t=0;t<=100;t+=5){
+    const d=simular(est,{mes,transfer:t}).resultado-simular(base,{mes,transfer:t}).resultado;
+    const s=d>0?1:(d<0?-1:0);
+    if(sinal===null)sinal=s;
+    else if(s!==sinal&&vira===null)vira=t;
+  }
+  return{sinal,vira};
+}
+function descreveRegime(est){
+  const nomes={2:[],1:[],0:[]};
+  [1,2,3,4,5,6,0].forEach(d=>nomes[est[d]].push(DOW[d]));
+  const p=[];
+  if(nomes[2].length)p.push('aberto '+nomes[2].join(', '));
+  if(nomes[1].length)p.push('enxuta '+nomes[1].join(', '));
+  if(nomes[0].length)p.push('fechado '+nomes[0].join(', '));
+  return p.join(' · ');
+}
+
 /* --- calendário sazonal: resultado do ano inteiro --- */
 function anual(cal){
   const meses=MESES.map((nome,m)=>{
     const reg=cal[m]||'cheia';
     // casa fechada no mês não reabre nem em feriado
-    const r=simular(REG[reg].est,reg==='fechada'?{mes:m,holidays:0}:{mes:m});
+    const r=simular(estRegime(reg),reg==='fechada'?{mes:m,holidays:0}:{mes:m});
     return{m,nome,reg,r};
   });
   return{meses,total:meses.reduce((a,x)=>a+x.r.resultado,0),
@@ -1138,7 +1358,7 @@ function melhorCalendario(){
   return MESES.map((_,m)=>{
     let best='cheia',bv=-Infinity;
     Object.keys(REG).forEach(k=>{
-      const v=simular(REG[k].est,k==='fechada'?{mes:m,holidays:0}:{mes:m}).resultado;
+      const v=simular(estRegime(k),k==='fechada'?{mes:m,holidays:0}:{mes:m}).resultado;
       if(v>bv){bv=v;best=k}
     });
     return best;
@@ -1161,7 +1381,8 @@ function renderAll(){
   if(CUR==='geral')rGeral();if(CUR==='fat')rFat();if(CUR==='custo')rCusto();
   if(CUR==='sim')rSim();if(CUR==='mo')rMo();if(CUR==='trib')rTrib();
   if(CUR==='parecer')rParecer();if(CUR==='dados')rDados();if(CUR==='consol')rConsol();
-  if(CUR==='dias')rDias();if(CUR==='cal')rCal();
+  if(CUR==='dias')rDias();if(CUR==='cal')rCal();if(CUR==='conselho')rConselho();
+  barraExploracao();
   renderUnitBar();
 }
 
@@ -1292,17 +1513,147 @@ const FAIXAS=[
   alto:'Acima da faixa.',
   baixo:'Abaixo da faixa. A casa se sustenta, mas sobra pouco para reinvestir ou absorver um ano ruim.'}
 ];
-function retrato(){
-  const r=cenarios()[0].r, rec=r.receita||1;
-  const folha=D.custos.filter(c=>/folha|pessoal/i.test(c.n+c.g)).reduce((a,c)=>a+c.v,0);
-  const ocup=D.custos.filter(c=>/aluguel|ocupa|iptu|condom/i.test(c.n+c.g)).reduce((a,c)=>a+c.v,0);
-  const val={cmv:cmvPct(),folha:folha/rec*100,ocup:ocup/rec*100,mc:r.mcPct*100,res:r.margem*100};
+const contaFolha=()=>D.custos.filter(c=>/folha|pessoal/i.test(c.n+c.g)).reduce((a,c)=>a+c.v,0);
+const contaOcup =()=>D.custos.filter(c=>/aluguel|ocupa|iptu|condom/i.test(c.n+c.g)).reduce((a,c)=>a+c.v,0);
+function montaRetrato(val){
   return FAIXAS.map(f=>{
     const v=val[f.k], dentro=v>=f.min&&v<=f.max, acima=v>f.max;
     return{...f,v,dentro,acima,
       nota:dentro?'dentro da faixa de referência':(acima?f.alto:f.baixo),
       sev:dentro?'ok':((f.k==='mc'||f.k==='res')?(acima?'ok':'ruim'):(acima?'ruim':'ok'))};
   });
+}
+/* retrato do mês de referência */
+function retrato(){
+  const r=cenarios()[0].r, rec=r.receita||1;
+  return montaRetrato({cmv:cmvPct(),folha:contaFolha()/rec*100,ocup:contaOcup()/rec*100,
+                       mc:r.mcPct*100,res:r.margem*100});
+}
+/* retrato do período inteiro — é o que o Conselheiro usa, para a tabela não
+   contradizer o resumo logo acima dela */
+function retratoPeriodo(c){
+  const rec=c.rec||1, mc=c.A.meses.reduce((a,x)=>a+x.r.mc,0);
+  return montaRetrato({cmv:cmvPct(),folha:contaFolha()*c.nM/rec*100,ocup:contaOcup()*c.nM/rec*100,
+                       mc:mc/rec*100,res:c.margem});
+}
+
+/* ===================== CONSELHEIRO ===================== */
+/* Mede onde o resultado se perde e quanto vale corrigir cada coisa.
+   Trabalha no ano inteiro, não num mês: é a escala em que a decisão se toma. */
+/* Meses que têm faturamento lançado. Novembro e dezembro do Dois Rios e do
+   Chiado ainda não têm, e o índice 1,00 desses meses é um padrão, não um dado:
+   somar o ano inteiro inventaria dois meses. O Conselheiro só usa o que existe. */
+function mesesComDado(){
+  if(!D.fat||!D.fat.length)return [];
+  const s=new Set();
+  D.fat.forEach(f=>{if(f.receita>0)s.add(+f.data.slice(5,7)-1)});
+  return [...s].sort((a,b)=>a-b);
+}
+function alavancas(){
+  const ms=mesesComDado();
+  if(!ms.length)return null;
+  const meses=ms.map(m=>({m,nome:MESES[m],r:simular(estRegime(D.p.cal[m]||'cheia'),
+     (D.p.cal[m]==='fechada')?{mes:m,holidays:0}:{mes:m})}));
+  const A={meses,receita:meses.reduce((a,x)=>a+x.r.receita,0),
+           total:meses.reduce((a,x)=>a+x.r.resultado,0)};
+  const rec=A.receita, res=A.total, nM=ms.length;
+  if(!rec)return null;
+  const R0=montaRetrato({cmv:cmvPct(),folha:contaFolha()*nM/rec*100,ocup:contaOcup()*nM/rec*100,mc:1,res:1});
+  const acha=k=>R0.find(x=>x.k===k);
+  const cmv=acha('cmv'), folha=acha('folha'), ocup=acha('ocup');
+  const taxas=varPct()-cmvPct();           // cartão, apps: sobem com o preço
+  const carga=D.p.cargaAtual;
+  const fixoAno=custoFixo()*nM, semiAno=custoSemi()*nM;
+  const L=[];
+
+  // 1. CMV — só conta se estiver acima da faixa
+  if(cmv.v>cmv.max){
+    const pp=cmv.v-cmv.max;
+    L.push({id:'cmv',nome:'CMV de alimentos e bebidas',
+      atual:PCT(cmv.v),alvo:'até '+cmv.max+'%',gap:pp,
+      ganho:rec*pp/100,
+      porque:`Cada ponto percentual de CMV vale ${BRL(rec/100)} no período. Estão ${pp.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})} pontos acima do teto da faixa do setor.`,
+      como:['Curva ABC de insumos: os 20% de itens que são 80% do valor comprado — é neles que o ganho está',
+            'Ficha técnica pesada e conferida nos pratos de maior saída, com rendimento real e não estimado',
+            'Inventário semanal dos itens A, não mensal: quebra e consumo interno só aparecem com contagem frequente',
+            'Três cotações nos itens A a cada compra, e acompanhamento do preço médio por quilo ao longo dos meses',
+            'Engenharia de cardápio: margem de contribuição por prato, e reposicionar o que vende muito e margeia pouco']});
+  }
+  // 2. Folha
+  if(folha.v>folha.max){
+    const pp=folha.v-folha.max;
+    L.push({id:'folha',nome:'Folha com encargos',
+      atual:PCT(folha.v),alvo:'até '+folha.max+'%',gap:pp,ganho:rec*pp/100,
+      porque:`Folha ${pp.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})} pontos acima da faixa. Em casa sazonal isso costuma ser quadro dimensionado para a alta rodando o ano todo.`,
+      como:['Medir cobertos por hora trabalhada, por turno — mostra onde sobra gente e onde falta',
+            'Escala por previsão de movimento, não por repetição da semana anterior',
+            'Núcleo fixo nos postos difíceis de repor, ponta flexível no resto',
+            'Banco de horas para concentrar no fim de semana e compensar nos dias fracos',
+            'Qualquer um desses caminhos precisa passar pela convenção coletiva antes de virar decisão']});
+  }
+  // 3. Ocupação
+  if(ocup.v>ocup.max){
+    const pp=ocup.v-ocup.max;
+    L.push({id:'ocup',nome:'Custo de ocupação',
+      atual:PCT(ocup.v),alvo:'até '+ocup.max+'%',gap:pp,ganho:rec*pp/100,
+      porque:`Ocupação ${pp.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})} pontos acima da faixa. É custo fixo: corre igual no mês fraco e no mês forte.`,
+      como:['Renegociar o contrato com parte variável sobre faturamento — numa casa sazonal, protege o caixa da baixa',
+            'Levar à mesa o histórico de doze meses: o locador enxerga o risco que está transferindo']});
+  }
+  // 4. Preço — aumenta receita sem aumentar o CMV em reais
+  const pp5=rec*0.05*(1-(taxas+carga)/100);
+  L.push({id:'preco',nome:'Preço de venda',
+    atual:'—',alvo:'reposicionamento por item',gap:null,ganho:pp5,
+    porque:`Aumento de preço não aumenta o custo do prato em reais: ${BRL(pp5)} no período a cada 5% de reajuste, já descontados cartão e imposto. É a alavanca mais rápida e a mais arriscada.`,
+    como:['Reajuste por item, pela engenharia de cardápio — nunca linear no cardápio inteiro',
+          'Subir primeiro o que vende muito e margeia pouco; segurar o que é referência de preço para o cliente',
+          'Acompanhar cobertos nas quatro semanas seguintes: se cair mais que o ganho, reverter']});
+  // 5. Volume
+  const vol5=(rec*0.05)*(1-(varPct()+carga)/100);
+  L.push({id:'volume',nome:'Movimento nos dias e turnos fortes',
+    atual:'—',alvo:'+5% de cobertos',gap:null,ganho:vol5,
+    porque:`Cada 5% de cobertos a mais vale ${BRL(vol5)} no período. Diferente do preço, aqui o custo do prato acompanha.`,
+    como:['Olhar onde há capacidade ociosa nos dias que já se pagam, antes de criar demanda nova',
+          'Canal de hotel, evento e reserva antecipada: receita previsível em casa de destino',
+          'Segundo giro de mesa no serviço de pico, quando a cozinha aguenta']});
+  // 6. Regime de operação
+  const rk=ranking(D.p.mes);
+  if(rk.length){
+    const melhorAno=rankingAno(ms)[0];
+    const ganhoRegime=melhorAno.total-A.total;
+    if(ganhoRegime>rec*0.002)L.push({id:'regime',nome:'Regime de dias e turnos',
+      atual:descreveRegime(cenarios()[0].est),alvo:descreveRegime(melhorAno.est),gap:null,ganho:ganhoRegime,
+      porque:`A melhor combinação de dias testada rende ${BRL(ganhoRegime)} a mais no período que o regime de hoje.`,
+      como:['Testar primeiro em operação enxuta, que é reversível, antes de fechar qualquer dia',
+            'Rodar a mudança num mês de baixa e medir, em vez de decidir pelo ano inteiro de uma vez']});
+  }
+  L.sort((a,b)=>b.ganho-a.ganho);
+  const margem=res/rec*100, acimaDaMeta=margem>=8;
+  return{A,rec,res,fixoAno,semiAno,L,margem,nM,ms,acimaDaMeta,
+         metaMargem:acimaDaMeta?Math.ceil(margem)+1:8,
+         // acima da meta, o alvo passa a ser ganhar mais um ponto de margem
+         faltaParaMeta:acimaDaMeta?rec*0.01:rec*0.08-res,
+         faltaParaZero:-res};
+}
+/* Quanto cada alavanca sozinha teria de se mover para chegar à meta */
+function caminhos(c){
+  const falta=c.faltaParaMeta, rec=c.rec;
+  const taxas=varPct()-cmvPct(), carga=D.p.cargaAtual;
+  const cmv=retratoPeriodo(c).find(x=>x.k==='cmv');
+  const folhaMes=D.custos.filter(x=>/folha|pessoal/i.test(x.n+x.g)).reduce((a,x)=>a+x.v,0);
+  return[
+   {nome:'Só pelo CMV',  v:falta/rec*100,  un:'p.p. de queda',
+    detalhe:`de ${PCT(cmv.v)} para ${PCT(cmv.v-falta/rec*100)}`,
+    viavel:(cmv.v-falta/rec*100)>=cmv.min},
+   {nome:'Só pelo preço',v:falta/(rec*(1-(taxas+carga)/100))*100, un:'% de reajuste',
+    detalhe:'sem perder cobertos', viavel:falta/(rec*(1-(taxas+carga)/100))*100<=12},
+   {nome:'Só pelo movimento',v:falta/(rec*(1-(varPct()+carga)/100))*100, un:'% de cobertos',
+    detalhe:'com a estrutura de hoje', viavel:falta/(rec*(1-(varPct()+carga)/100))*100<=20},
+   {nome:'Só pela folha', v:folhaMes*c.nM?falta/(folhaMes*c.nM)*100:Infinity, un:'% de corte',
+    detalhe:`sobre ${BRL(folhaMes*c.nM)} de folha no período`, viavel:folhaMes*c.nM?falta/(folhaMes*c.nM)*100<=15:false},
+   {nome:'Só pelo custo fixo',v:c.fixoAno?falta/c.fixoAno*100:Infinity, un:'% de corte',
+    detalhe:`sobre ${BRL(c.fixoAno)} de fixo no período`, viavel:c.fixoAno?falta/c.fixoAno*100<=25:false}
+  ];
 }
 
 /* --- VISÃO GERAL --- */
@@ -1509,57 +1860,272 @@ function addVar(){D.vars.push({n:'Nova conta',p:0});save();renderAll()}
 
 /* --- SIMULADOR --- */
 function rSim(){
-  const P=perg();
-  document.querySelector('#v-sim .vd').innerHTML=P
-    ? 'Monte o cenário, mexa nas premissas e compare. O número que decide quase tudo é a <b>transferência de demanda</b>: quanto do cliente de segunda a quinta reaparece no fim de semana em vez de simplesmente desaparecer.'
-    : 'Esta casa ainda não tem uma decisão em pauta, então aqui é exploração: dá para testar regimes e premissas e ver o efeito, sem que isso seja uma recomendação. A variável que mais pesa é a <b>transferência de demanda</b> — quanto do cliente de um dia fechado reaparece em outro.';
+  const hoje=regimeAtual(), meu=D.p.simDays;
+  const igualHoje=JSON.stringify(meu)===JSON.stringify(hoje);
+
+  document.getElementById('simIntro').innerHTML=
+    'Escolha os dias que quer abrir e veja se melhora ou piora. O resultado é do período inteiro '
+    +'com faturamento lançado. <b>Nada é salvo</b> enquanto você não mandar salvar, e o que você muda '
+    +'não aparece para as outras pessoas.';
+
+  /* ---- picker de dias ---- */
   const EST=['fechado','enxuta','aberto'];
   document.getElementById('simDays').innerHTML=[1,2,3,4,5,6,0].map(d=>{
-    const s=D.p.simDays[d];
-    return `<div class="dcell ${s===0?'off':''} ${s===1?'enx':''}" style="cursor:pointer" onclick="togDay(${d})"><div class="dn">${DOW[d]}</div><div class="dv">${EST[s]}</div><div class="dp">${BRL(baseDia(d))}</div></div>`}).join('');
-  const cs=cenarios(),best=cs.reduce((a,b)=>b.r.resultado>a.r.resultado?b:a);
-  document.getElementById('scens').innerHTML=cs.map(c=>{
-    const r=c.r,d=r.resultado-cs[0].r.resultado;
-    return `<div class="sc ${c.k===best.k?'best':''}">
-      <h4>${c.nome} ${c.k===best.k?'<span class="tag t-v">melhor</span>':''}</h4>
-      <div class="sd">${c.desc}</div>
-      <div class="scl"><span>Dias por semana</span><b>${r.diasAbertos}</b></div>
-      <div class="scl"><span>Receita</span><b>${BRL(r.receita)}</b></div>
-      ${r.transf?`<div class="scl"><span>…transferida</span><b class="pos">+${BRL(r.transf)}</b></div>`:''}
-      ${r.recFeriado?`<div class="scl"><span>…feriados</span><b class="pos">+${BRL(r.recFeriado)}</b></div>`:''}
-      ${r.perdaTeto?`<div class="scl"><span>Barrada por capacidade</span><b class="neg">${BRL(r.perdaTeto)}</b></div>`:''}
-      <div class="scl"><span>Variáveis</span><b>−${BRL(r.cVar)}</b></div>
-      <div class="scl"><span>Tributos</span><b>−${BRL(r.trib)}</b></div>
-      <div class="scl"><span>Semifixos</span><b>−${BRL(r.cSemi)}</b></div>
-      <div class="scl"><span>Fixos</span><b>−${BRL(r.cFixo)}</b></div>
-      ${r.reab?`<div class="scl"><span>Ociosidade/reabertura</span><b>−${BRL(r.reab)}</b></div>`:''}
-      <div class="res">
-        <div class="row" style="justify-content:space-between"><span class="sm">Resultado</span><span class="rv ${r.resultado>0?'pos':'neg'}">${BRL(r.resultado)}</span></div>
-        <div class="row" style="justify-content:space-between;margin-top:4px"><span class="sm">Margem ${PCT(r.margem*100)}</span><span class="sm ${d>0?'pos':d<0?'neg':''}">${c.k==='A'?'referência':(d>0?'+':'−')+BRL(Math.abs(d))}</span></div>
-        <div class="row" style="justify-content:space-between;margin-top:4px"><span class="sm">Equilíbrio</span><span class="sm mono">${isFinite(r.be)?BRL(r.be):'—'}</span></div>
-      </div></div>`}).join('');
+    // média do dia sem ajuste de mês: a tira abaixo é do período, não de um mês
+    const s=meu[d], v=D.dowBase[d]||0, sem=!v&&s===0;
+    return `<div class="dcell ${s===0?'off':''} ${s===1?'enx':''}" style="cursor:pointer" onclick="togDay(${d})">
+      <div class="dn">${DOW[d]}</div><div class="dv">${EST[s]}</div>
+      <div class="dp">${v?BRL(v):(sem?'sem histórico':'—')}</div></div>`}).join('');
 
-  // ponto de virada: transferência necessária para empatar
-  const open=[2,0,0,0,0,2,2];let flip=null;
-  for(let t=0;t<=100;t+=1){const r=simular(open,{transfer:t});if(r.resultado>=cs[0].r.resultado){flip=t;break}}
-  if(!P){
-    const best2=cs.reduce((x,y)=>y.r.resultado>x.r.resultado?y:x);
-    document.getElementById('simRead').innerHTML=`
-     <h3>Leitura</h3><p class="cd">Exploração, não recomendação.</p>
-     <div class="alert i"><span class="ico">◆</span><div><b>Sem pergunta definida, o melhor cenário aqui não é uma recomendação</b>
-     Com as premissas atuais, o cenário de maior resultado em ${MESES[D.p.mes]} seria "${best2.nome}", com ${BRL(best2.r.resultado)} contra ${BRL(cs[0].r.resultado)} da operação atual. Mas trocar regime de funcionamento tem custo de equipe, de relevância e de canal que só faz sentido assumir diante de uma decisão real.</div></div>
-     <div class="alert w"><span class="ico">⚠</span><div><b>As premissas ainda são padrão</b>
-     Transferência de demanda, teto de capacidade e custo de reabertura estão em valores genéricos, não medidos nesta casa. Antes de levar qualquer número daqui para uma conversa, vale calibrá-los.</div></div>`;
+  /* ---- atalhos: inclui a melhor combinação, para quem não quer garimpar ---- */
+  const rkA=rankingAno(mesesComDado());
+  const fds=[2,0,0,0,0,2,2];
+  const enx=[0,1,2,3,4,5,6].map(d=>hoje[d]===0?0:(d>=1&&d<=4?1:2));
+  const igual=a=>JSON.stringify(a)===JSON.stringify(meu);
+  const atalhos=[['Como é hoje',hoje],['Só fim de semana',fds],['Enxuta nos dias fracos',enx]];
+  if(rkA.length)atalhos.push(['★ A melhor pelos números',rkA[0].est]);
+  document.getElementById('presets').innerHTML=atalhos.map(([r,a])=>
+    `<button class="btn g sm ${igual(a)?'on':''}" onclick="aplicarRegime(${JSON.stringify(a).replace(/"/g,'&quot;')})">${r}</button>`).join('');
+
+  /* ---- mês de referência, agora só no ajuste fino ---- */
+  const m=document.getElementById('mesRef');
+  if(m.options.length!==12)m.innerHTML=MESES.map((x,i)=>`<option value="${i}">${x}</option>`).join('');
+  m.value=D.p.mes;
+  const idx=D.season.map((s,i)=>({i,s}));
+  const forte=idx.reduce((a,b)=>b.s>a.s?b:a), fraco=idx.reduce((a,b)=>b.s<a.s?b:a);
+  document.getElementById('atalhosMes').innerHTML=[['mais forte',forte],['mais fraco',fraco]]
+    .map(([r,x])=>`<button class="btn g sm ${D.p.mes===x.i?'on':''}" onclick="setP('mes',${x.i})">${r}: ${MESES[x.i].slice(0,3)}</button>`).join('');
+
+  /* ---- o veredito: três números e uma frase ---- */
+  const el=document.getElementById('veredito');
+  const A=totalPeriodo(hoje), B=totalPeriodo(meu);
+  if(!A||!B){
+    el.innerHTML=`<div class="empty"><span class="ei">◻</span>
+      Esta casa ainda não tem faturamento lançado, então não há o que simular.
+      Lance os dados na aba Faturamento e o simulador passa a funcionar.</div>`;
     return;
   }
-  document.getElementById('simRead').innerHTML=`
-   <h3>Leitura</h3><p class="cd">O número que decide.</p>
-   ${flip===null
-     ?`<div class="alert d"><span class="ico">▲</span><div><b>Fechar de segunda a quinta não empata em nenhuma hipótese de transferência</b>Mesmo com 100% dos clientes de dia de semana migrando para o fim de semana, o resultado do cenário fechado fica abaixo do atual em ${MESES[D.p.mes]} — o teto de capacidade de ${D.p.cap}% barra a migração antes de ela compensar a perda. Ampliar capacidade no fim de semana passa a ser pré-requisito da decisão.</div></div>`
-     :`<div class="alert ${flip<=30?'s':'w'}"><span class="ico">${flip<=30?'●':'◆'}</span><div><b>Ponto de virada: ${flip}% de transferência de demanda</b>Abaixo disso, fechar de segunda a quinta piora o resultado em ${MESES[D.p.mes]}. Acima, melhora. ${flip<=30?'É um patamar alcançável em restaurante de destino turístico — o cenário merece ser levado a sério.':'É um patamar alto: exigiria que boa parte do público de dia de semana estivesse disposto a remarcar, o que raramente acontece com cliente hospedado que janta onde está naquela noite.'}</div></div>`}
-   <div class="alert i"><span class="ico">◆</span><div><b>Rode o mesmo cenário em julho e em março antes de concluir</b>Com índice ${D.season[D.p.mes].toFixed(2)}× o mês de referência é ${MESES[D.p.mes]}. A resposta certa pode não ser fechar dias todo ano, e sim um calendário sazonal: sete dias na alta, três na baixa.</div></div>`;
+  const dif=B.resultado-A.resultado, perM=dif/B.nM;
+  const pos=rkA.findIndex(x=>JSON.stringify(x.est)===JSON.stringify(meu))+1;
+
+  let titulo,cor,ico;
+  if(igualHoje){titulo='É exatamente como a casa opera hoje';cor='i';ico='◆'}
+  else if(dif>0){titulo=`Melhora o resultado em ${BRL(dif)}`;cor='s';ico='●'}
+  else if(dif<0){titulo=`Piora o resultado em ${BRL(-dif)}`;cor='d';ico='▲'}
+  else{titulo='Dá no mesmo que hoje';cor='i';ico='◆'}
+
+  /* uma única frase de explicação, montada do que de fato aconteceu */
+  const L=porDia(D.p.mes);
+  const perdidos=L.filter(x=>meu[x.d]===0 && !x.fechado && x.contrib>0).map(x=>DOW[x.d]);
+  const ok=L.filter(x=>meu[x.d]===0 && !x.fechado && x.contrib<=0).map(x=>DOW[x.d]);
+  const frases=[];
+  if(igualHoje)frases.push('Clique nos dias acima para testar outra configuração, ou use um dos atalhos.');
+  else{
+    if(perdidos.length)frases.push(`Você fechou ${perdidos.join(', ')}, que ${perdidos.length>1?'contribuíam':'contribuía'} para pagar a estrutura fixa.`);
+    if(ok.length)frases.push(`Fechou ${ok.join(', ')}, que não ${ok.length>1?'cobriam':'cobria'} o próprio custo — essa parte faz sentido.`);
+    if(B.transf)frases.push(`${BRL(B.transf)} de receita migraram para os dias abertos${B.perdaTeto?`, e ${BRL(B.perdaTeto)} ficaram de fora por falta de capacidade`:''}.`);
+    if(B.reab)frases.push(`Contei ${BRL(B.reab)} de ociosidade e reabertura.`);
+  }
+
+  /* um único rodapé de ressalva, e só quando muda a leitura */
+  const vira=igualHoje?null:viradaPeriodo(meu);
+  let nota='';
+  if(!igualHoje && vira!==null)
+    nota=`<div class="alert w"><span class="ico">◆</span><div>
+      <b>Este veredito depende de uma premissa não medida</b>
+      Ele vale enquanto a transferência de demanda ficar abaixo de ${vira}%; hoje a premissa está em ${D.p.transfer}%.
+      Acima de ${vira}% o sinal inverte. Vale testar na prática antes de decidir.</div></div>`;
+  else if(!igualHoje)
+    nota=`<div class="alert s"><span class="ico">●</span><div>
+      <b>O veredito se sustenta em qualquer cenário de demanda</b>
+      Testei de 0% a 100% de clientes remarcando para outro dia e o sinal não muda.
+      Você não precisa acertar essa premissa para decidir.</div></div>`;
+
+  el.innerHTML=`
+    <div class="simtopo">
+      <div class="stbloco"><div class="stl">Como é hoje</div>
+        <div class="stv ${A.resultado>0?'pos':'neg'}">${BRL(A.resultado)}</div>
+        <div class="std">${descreveRegime(hoje)}</div></div>
+      <div class="stseta">→</div>
+      <div class="stbloco"><div class="stl">Sua escolha</div>
+        <div class="stv ${B.resultado>0?'pos':'neg'}">${BRL(B.resultado)}</div>
+        <div class="std">${descreveRegime(meu)}</div></div>
+      <div class="stbloco stdif ${dif>0?'ok':(dif<0?'ruim':'')}">
+        <div class="stl">Diferença</div>
+        <div class="stv">${dif===0?'—':(dif>0?'+':'−')+BRL(Math.abs(dif))}</div>
+        <div class="std">em ${B.nM} ${B.nM===1?'mês':'meses'}${dif?` · ${(perM>0?'+':'−')+BRL(Math.abs(perM))}/mês`:''}</div></div>
+    </div>
+    <div class="alert ${cor}"><span class="ico">${ico}</span><div><b>${titulo}</b>
+      ${frases.join(' ')}
+      ${!igualHoje&&pos?` Entre as ${rkA.length} combinações possíveis, a sua ficou em <b>${pos}º lugar</b>.`:''}
+    </div></div>
+    ${nota}
+    <p class="hint" style="margin:-4px 0 18px">O ranking completo das combinações e a leitura de onde o resultado se perde estão na aba Conselheiro.</p>`;
 }
-function togDay(d){D.p.simDays[d]=(D.p.simDays[d]+2)%3;save();renderAll()}  // aberto → enxuta → fechado
+function rConselho(){
+  const u=unitInfo(STORE.active), el=document.getElementById('conselhoDoc');
+  const c=alavancas();
+  if(!c){el.innerHTML=`<h2 class="vt">Conselheiro</h2>
+    <div class="empty"><span class="ei">◻</span>Esta casa ainda não tem dados lançados. O Conselheiro precisa de faturamento e custos para medir onde o resultado se perde.</div>`;return}
+  const cam=caminhos(c), R=retratoPeriodo(c);
+  const fora=R.filter(x=>x.sev==='ruim');
+  const totalGanho=c.L.reduce((a,x)=>a+x.ganho,0);
+  const negativos=c.A.meses.filter(x=>x.r.resultado<0);
+  const viaveis=cam.filter(x=>x.viavel&&isFinite(x.v));
+  // combinação equilibrada: divide a falta entre as três alavancas mais viáveis
+  const tres=c.L.slice(0,3), somaTres=tres.reduce((a,x)=>a+x.ganho,0);
+
+  el.innerHTML=`
+  <div class="doc">
+    <div class="dochead">
+      <img class="pmarca" src="${LOGO[STORE.active]}" alt="${u.nome}">
+      <div>
+        <h2 class="vt" style="margin:0">Conselheiro</h2>
+        <p class="sm">${u.nome} · ${u.cidade} · base de ${c.nM} ${c.nM===1?'mês':'meses'} com faturamento lançado (${MESES[c.ms[0]].toLowerCase()} a ${MESES[c.ms[c.ms.length-1]].toLowerCase()}) · emitido em ${new Date().toLocaleDateString('pt-BR')}</p>
+      </div>
+    </div>
+
+    <div class="alert ${c.res>0?(c.margem<8?'w':'s'):'d'}"><span class="ico">${c.res>0?(c.margem<8?'◆':'●'):'▲'}</span><div>
+      <b>${c.res>0?`No período com dados, a casa acumula ${BRL(c.res)} — ${PCT(c.margem)} da receita`:`No período com dados, a casa acumula prejuízo de ${BRL(-c.res)}`}</b>
+      ${c.acimaDaMeta
+        ? `Está <b>dentro da faixa</b> do setor para casa de serviço completo, que é 8% a 15%. O alvo abaixo passa a ser ganhar mais um ponto de margem: <b>${BRL(c.faltaParaMeta)}</b> no período, ou ${BRL(c.faltaParaMeta/c.nM)} por mês.`
+        : `A referência do setor é 8% a 15%. Para chegar a 8% faltam <b>${BRL(c.faltaParaMeta)}</b> no período, ou ${BRL(c.faltaParaMeta/c.nM)} por mês.`}
+      ${negativos.length?` ${negativos.length} ${negativos.length===1?'mês fecha':'meses fecham'} no vermelho: ${negativos.map(x=>x.nome).join(', ')}.`:''}
+    </div></div>
+
+    <h3 class="dh">1. Onde o resultado se perde</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Indicador</th><th class="n">Hoje</th><th class="n">Faixa do setor</th><th class="n">Distância</th><th class="n">Vale no período</th></tr></thead>
+      <tbody>${R.map(x=>{
+        const d=x.sev==='ruim'?Math.abs(x.v-(x.acima?x.max:x.min)):0;
+        return `<tr>
+        <td>${x.nome}</td>
+        <td class="n mono ${x.sev==='ruim'?'neg':'pos'}"><b>${PCT(x.v)}</b></td>
+        <td class="n sm">${x.min}% a ${x.max}%</td>
+        <td class="n mono">${d?(x.acima?'+':'−')+d.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' p.p.':'dentro'}</td>
+        <td class="n mono">${d&&x.k!=='mc'&&x.k!=='res'?BRL(c.rec*d/100):'—'}</td></tr>`}).join('')}</tbody>
+    </table></div>
+    <p class="hint">Margem de contribuição e resultado são consequência dos três de cima, por isso não somam separado.</p>
+
+    <h3 class="dh">2. As alavancas, da maior para a menor</h3>
+    <p class="sm" style="margin-bottom:14px">Somadas, valem <b>${BRL(totalGanho)}</b> no período de ${c.nM} meses. Ninguém captura tudo — a lista serve para escolher por onde começar.</p>
+    ${c.L.map((x,i)=>`
+      <div class="alav">
+        <div class="alavtop">
+          <div><span class="alavn">${i+1}</span><b>${x.nome}</b>
+            <span class="sm">${x.atual!=='—'?`hoje ${x.atual} · alvo ${x.alvo}`:x.alvo}</span></div>
+          <div class="alavv">${BRL(x.ganho)}<span>no período</span></div>
+        </div>
+        <p class="alavp">${x.porque}</p>
+        <ul class="alavl">${x.como.map(y=>`<li>${y}</li>`).join('')}</ul>
+      </div>`).join('')}
+
+    <h3 class="dh">3. O que cada caminho exigiria sozinho</h3>
+    <p class="sm" style="margin-bottom:12px">${c.acimaDaMeta?`Para ganhar mais um ponto de margem (${BRL(c.faltaParaMeta)} no período), se a casa mexesse em uma coisa só:`:`Para fechar os ${BRL(c.faltaParaMeta)} que faltam até 8% de margem, se a casa mexesse em uma coisa só:`}</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Caminho</th><th class="n">Precisaria de</th><th>Observação</th><th class="n">Realista?</th></tr></thead>
+      <tbody>${cam.map(x=>`<tr>
+        <td><b>${x.nome}</b></td>
+        <td class="n mono">${isFinite(x.v)?(x.v>0?x.v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}):'—')+' '+x.un:'—'}</td>
+        <td class="sm">${x.detalhe}</td>
+        <td class="n">${isFinite(x.v)&&x.v>0?(x.viavel?'<span class="pos">plausível</span>':'<span class="neg">difícil sozinho</span>'):'—'}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <div class="alert ${viaveis.length?'s':'w'}" style="margin-top:12px"><span class="ico">${viaveis.length?'●':'◆'}</span><div>
+      <b>${viaveis.length?`${viaveis.length} ${viaveis.length===1?'caminho isolado é plausível':'caminhos isolados são plausíveis'}: ${viaveis.map(x=>x.nome.replace('Só pel','').replace('Só pel','').trim().replace(/^[oa] /,'')).join(', ')}`:'Nenhum caminho isolado resolve'}</b>
+      ${viaveis.length?'Mesmo assim, dividir a meta entre dois ou três é mais seguro que apostar tudo em um: cada um tem risco próprio, e preço tem o risco de derrubar movimento.'
+        :'A conta não fecha mexendo numa variável só. Vai precisar de combinação, e provavelmente de revisão da estrutura fixa junto.'}
+    </div></div>
+
+    <h3 class="dh">4. Caminho sugerido, combinando</h3>
+    <p class="sm" style="margin-bottom:12px">Dividindo a meta de ${BRL(c.faltaParaMeta)} entre as três maiores alavancas, em vez de forçar uma só:</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Alavanca</th><th class="n">Parcela da meta</th><th class="n">Quanto mover</th></tr></thead>
+      <tbody>${tres.map(x=>{
+        const parte=somaTres?c.faltaParaMeta*(x.ganho/somaTres):0;
+        let mover='—';
+        if(x.id==='cmv')mover=(parte/c.rec*100).toFixed(1)+' p.p. de CMV';
+        else if(x.id==='folha')mover=(parte/c.rec*100).toFixed(1)+' p.p. de folha';
+        else if(x.id==='ocup')mover=(parte/c.rec*100).toFixed(1)+' p.p. de ocupação';
+        else if(x.id==='preco')mover=(parte/(c.rec*(1-((varPct()-cmvPct())+D.p.cargaAtual)/100))*100).toFixed(1)+'% de preço';
+        else if(x.id==='volume')mover=(parte/(c.rec*(1-(varPct()+D.p.cargaAtual)/100))*100).toFixed(1)+'% de cobertos';
+        else if(x.id==='regime')mover='adotar '+x.alvo;
+        return `<tr><td>${x.nome}</td><td class="n mono">${BRL(parte)}</td><td class="n sm">${mover}</td></tr>`}).join('')}
+      </tbody></table></div>
+
+    <h3 class="dh">5. Vale mexer nos dias de funcionamento?</h3>
+    ${(()=>{
+      const rk=rankingAno(c.ms), atual=regimeAtual();
+      if(!rk.length)return '<p>Sem faturamento lançado não há combinação de dias a avaliar.</p>';
+      const i=rk.findIndex(x=>x.est.join()===atual.join()), base=i>=0?rk[i].total:null;
+      const linhas=rk.slice(0,3).concat(i>=0&&i>2?[rk[i]]:[]);
+      return `<p>Testei as ${rk.length} combinações possíveis de aberto, enxuta e fechado nos sete dias,
+        somando os ${c.nM} ${c.nM===1?'mês':'meses'} com dados.
+        ${i>=0?`O regime de hoje é o <b>${i+1}º melhor</b> de ${rk.length}.`:''}</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th></th><th>Regime</th><th class="n">Resultado no período</th><th class="n">vs hoje</th></tr></thead>
+        <tbody>${linhas.map(x=>{
+          const p=rk.indexOf(x)+1, d=base===null?null:x.total-base, eu=p===i+1;
+          return `<tr${eu?' style="background:var(--bg2)"':''}>
+            <td><b>${p}º</b>${eu?' <span class="sm">hoje</span>':''}</td>
+            <td class="sm">${descreveRegime(x.est)}</td>
+            <td class="n mono"><b>${BRL(x.total)}</b></td>
+            <td class="n mono ${d>0?'pos':(d<0?'neg':'')}">${d===null?'—':(d===0?'—':(d>0?'+':'−')+BRL(Math.abs(d)))}</td></tr>`}).join('')}
+        </tbody></table></div>
+      <p>${i===0?'A casa já opera no melhor regime possível pelos números — mexer nos dias não é onde está o ganho.'
+        :(base!==null&&rk[0].total-base<Math.abs(totalGanho)*0.1
+          ?`O melhor regime renderia ${BRL(rk[0].total-base)} a mais no período. É pouco diante de ${BRL(totalGanho)} disponíveis nas alavancas acima: o calendário não é a alavanca principal.`
+          :`O melhor regime renderia ${BRL(rk[0].total-base)} a mais no período.`)}
+        ${rk[0].est.some(v=>v===1)?' Repare que a melhor combinação usa operação enxuta, não fechamento — é reversível, e fechar não é.':''}</p>
+      <p class="sm">A busca só enxerga receita e custo. Não enxerga equipe que se perde ao cortar dias e não se recontrata,
+        posição em buscador e guia, contrato de hotel, nem o que a casa significa para a cidade.</p>`;
+    })()}
+
+    <h3 class="dh">6. Por onde começar</h3>
+    <ol class="passos">
+      ${c.L.slice(0,3).map(x=>`<li><b>${x.nome}</b> — ${x.como[0].toLowerCase()}</li>`).join('')}
+      <li><b>Medir antes de mudar</b> — sem linha de base, nenhuma dessas mudanças tem como ser avaliada depois</li>
+      <li><b>Uma de cada vez</b> — mexer em três coisas juntas e o resultado melhorar não diz qual delas funcionou</li>
+    </ol>
+
+    <div class="alert w" style="margin-top:18px"><span class="ico">⚠</span><div>
+      <b>O que este documento não é</b>
+      É uma leitura dos números lançados contra as faixas de referência do setor de bares e restaurantes. Não substitui conhecer a casa: capacidade de cozinha, perfil de cliente, contrato de aluguel e o que a equipe aguenta não estão nestes dados. Trate como pauta de conversa.
+      ${(D.ressalvas||[]).length?' Valem também as ressalvas registradas na Visão geral.':''}
+    </div></div>
+  </div>`;
+}
+/* Impressão: monta um cabeçalho de documento com a casa, a aba e a data, para o
+   PDF não sair como uma captura de tela anônima, e abre o diálogo do navegador. */
+/* Vale para o botão e para o Ctrl+P: o navegador dispara beforeprint nos dois. */
+function prepararImpressao(){
+  const u=unitInfo(STORE.active), nome=(CUR==='geral'&&ME.role==='exec')?VIEWS.resposta:VIEWS[CUR];
+  // campo de edição não se expande no papel e corta o texto: escreve o valor ao lado
+  const v=document.querySelector('.view.on');
+  if(v){
+    v.querySelectorAll('.soimprime').forEach(x=>x.remove());
+    v.querySelectorAll('input,select').forEach(c=>{
+      if(c.type==='range'||c.type==='file')return;
+      const s=document.createElement('span'); s.className='soimprime';
+      s.textContent=(c.tagName==='SELECT'&&c.selectedIndex>=0)?c.options[c.selectedIndex].text:c.value;
+      c.parentNode.insertBefore(s,c.nextSibling);
+    });
+  }
+  // a aba Conselheiro já traz o próprio cabeçalho dentro do documento
+  if(CUR==='conselho'){document.getElementById('printHead').innerHTML='';return}
+  document.getElementById('printHead').innerHTML=`
+    <img src="${LOGO[STORE.active]}" alt="">
+    <div><b>${nome}</b><span>${u.nome} · ${u.cidade} · ${MESES[D.p.mes]} de referência
+      · emitido em ${new Date().toLocaleDateString('pt-BR')} por ${ME.nome}</span></div>`;
+  const sujo=premissasMudaram();
+  if(sujo)document.getElementById('printHead').innerHTML+=
+    `<div class="pavisio">Premissas alteradas e não salvas — este documento não reflete o estudo oficial.</div>`;
+}
+window.addEventListener('beforeprint',prepararImpressao);
+function baixarPDF(){prepararImpressao();setTimeout(()=>window.print(),60)}
+function copiarConselho(){
+  const t=document.getElementById('conselhoDoc').innerText;
+  navigator.clipboard.writeText(t).then(()=>alert('Texto copiado.'),()=>alert('Não foi possível copiar.'));
+}
 
 /* --- CADA DIA SE PAGA? --- */
 function rDias(){
@@ -1670,9 +2236,9 @@ function rCal(){
      :`<div class="alert s"><span class="ico">●</span><div><b>O calendário montado já é o de maior resultado</b>Nenhum mês ganharia trocando de regime com as premissas atuais.</div></div>`}
    <div class="alert w"><span class="ico">⚠</span><div><b>O número não enxerga tudo</b>Fechar e reabrir custa equipe, posição em buscador e relação com hotel. Alternar regime todo mês é operacionalmente caro — na prática vale agrupar em duas ou três temporadas no ano, não doze decisões separadas.</div></div>`;
 }
-function setCal(m,k){D.p.cal[m]=k;save();renderAll()}
-function calTodos(k){D.p.cal=MESES.map(()=>k);save();renderAll()}
-function aplicarMelhor(){D.p.cal=melhorCalendario();save();renderAll()}
+function setCal(m,k){D.p.cal[m]=k;marcarExploracao();renderAll()}
+function calTodos(k){D.p.cal=MESES.map(()=>k);marcarExploracao();renderAll()}
+function aplicarMelhor(){D.p.cal=melhorCalendario();marcarExploracao();renderAll()}
 
 /* --- MÃO DE OBRA --- */
 function rMo(){
