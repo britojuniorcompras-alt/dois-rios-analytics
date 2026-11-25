@@ -131,6 +131,7 @@ td input,td select{padding:5px 7px;font-size:13px;border-radius:6px}
 .sm{font-size:12.5px;color:var(--tx3)}
 .ro{pointer-events:none;opacity:.6}
 .hidden{display:none!important}
+.escala-ativa{padding:0;max-width:100%}
 #printHead{display:none}
 .soimprime{display:none}
 
@@ -642,6 +643,17 @@ footer{text-align:center;padding:26px;color:var(--tx3);font-size:12px;border-top
   </div>
 
   <!-- ---------- DADOS ---------- -->
+  <!-- ---------- ESCALA (app separado, escala.html, na mesma pasta) ---------- -->
+  <div class="view" id="v-escala" style="padding:0;margin:0">
+    <div id="escala-aviso"></div>
+    <iframe id="escala-frame" src="escala.html" title="Escala da bela Sintra"
+      onload="escalaOk()" onerror="escalaFalhou()"
+      style="width:100%;height:calc(100vh - 56px);min-height:600px;border:0;display:block"></iframe>
+    <p class="vd" style="margin:6px 16px">
+      <a href="escala.html" target="_blank" rel="noopener">Abrir a escala em uma aba separada</a>
+      — melhor para imprimir ou para trabalhar no mês inteiro com a tela cheia.</p>
+  </div>
+
   <div class="view" id="v-dados">
     <h2 class="vt">Dados e acessos</h2>
     <p class="vd">Tudo que é lançado fica salvo neste navegador. Para compartilhar entre os três acessos, exporte e importe o arquivo — ou migramos para banco de dados quando a estrutura estiver validada.</p>
@@ -711,11 +723,11 @@ const CID=()=>{const c=unitInfo(STORE.active);return c?' Em '+c.cidade.split(' �
 /* O que cada papel enxerga. O papel vem do banco, não do navegador. */
 const VISTAS={
   exec:['geral','conselho','parecer'],
-  fin: ['geral','conselho','fat','custo','dias','sim','cal','mo','trib','parecer','consol','dados'],
-  admin:['geral','conselho','fat','custo','dias','sim','cal','mo','trib','parecer','consol','dados']
+  fin: ['geral','conselho','fat','custo','dias','sim','cal','mo','escala','trib','parecer','consol','dados'],
+  admin:['geral','conselho','fat','custo','dias','sim','cal','mo','escala','trib','parecer','consol','dados']
 };
 const CARGO={exec:'Proprietário',fin:'Gerente Financeiro',admin:'Compras e Análise'};
-const VIEWS={geral:'Visão geral',resposta:'A resposta',conselho:'Conselheiro',fat:'Faturamento',custo:'Custos',dias:'Cada dia',sim:'Simulador',cal:'Calendário',mo:'Mão de obra',trib:'Tributário',parecer:'Parecer',consol:'Consolidado',dados:'Dados'};
+const VIEWS={geral:'Visão geral',resposta:'A resposta',conselho:'Conselheiro',fat:'Faturamento',custo:'Custos',dias:'Cada dia',sim:'Simulador',cal:'Calendário',mo:'Mão de obra',escala:'Escala',trib:'Tributário',parecer:'Parecer',consol:'Consolidado',dados:'Dados'};
 const DOW=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
@@ -918,7 +930,9 @@ function sinal(txt,ruim){
 }
 function setUnit(id){
   if(!ME.units.includes(id))return;
-  STORE.active=id;D=STORE.units[id];bindP();renderAll();
+  STORE.active=id;D=STORE.units[id];
+  atualizaNavEscala();
+  if(CUR==='escala'&&id!=='belasintra'){go(ME.views[0]);return}bindP();renderAll();
 }
 function unitInfo(id){return UNITS.find(u=>u.id===id)}
 const BRL=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -1002,6 +1016,7 @@ function start(){
   renderUnitBar();
   const m=document.getElementById('mesRef');m.innerHTML=MESES.map((x,i)=>`<option value="${i}">${x}</option>`).join('');
   if(ME.role==='exec')document.querySelectorAll('#v-custo,#v-fat').forEach(e=>e.classList.add('ro'));
+  atualizaNavEscala();
   bindP();go(ME.views[0]);
 }
 function renderUnitBar(){
@@ -1017,7 +1032,17 @@ function go(v){CUR=v;
   document.getElementById('v-'+v).classList.add('on');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('on'));
   document.getElementById('n-'+v).classList.add('on');
-  window.scrollTo(0,0);renderAll();
+  window.scrollTo(0,0);
+  const mainEl=document.querySelector('main');
+  if(v==='escala'){
+    // a escala é um app próprio dentro do iframe: nada a renderizar aqui
+    if(mainEl)mainEl.classList.add('escala-ativa');
+    avisoEscala();
+    setTimeout(()=>{ if(!escalaCarregou)escalaFalhou(); },2500);
+    return;
+  }
+  if(mainEl)mainEl.classList.remove('escala-ativa');
+  renderAll();
 }
 function bindP(){const p=D.p;
   document.getElementById('sTrans').value=p.transfer;document.getElementById('sCap').value=p.cap;
@@ -1049,6 +1074,38 @@ function togDay(d){
 function aplicarRegime(est){
   D.p.simDays=est.slice();
   marcarExploracao(); renderAll();
+}
+/* ===================== ESCALA =====================
+   A aba Escala é uma porta para escala.html, app separado na mesma pasta.
+   Perdi esta porta num upload de 24/11 que subiu só o index.html: o
+   escala.html nunca saiu do repositório, mas a aba sumiu do menu. */
+let escalaCarregou=false;
+function escalaOk(){
+  escalaCarregou=true;
+  const f=document.getElementById('escala-frame');
+  try{ if(!f.contentDocument||!f.contentDocument.getElementById('grade'))escalaFalhou(); }catch(e){}
+}
+function escalaFalhou(){
+  const el=document.getElementById('escala-aviso');
+  if(el)el.innerHTML=`<div class="alert w"><span class="ico">⚠</span><div><b>O arquivo escala.html não foi encontrado</b>
+    A aba Escala carrega um segundo arquivo, que precisa estar <b>na mesma pasta</b> deste app e com o nome exato
+    <b>escala.html</b> — sem "(1)", sem número no fim. Se você baixou os dois, confira o nome na pasta Downloads.
+    No site publicado, suba os dois arquivos na raiz do repositório.</div></div>`;
+}
+function avisoEscala(){
+  const el=document.getElementById('escala-aviso');
+  if(!el)return;
+  let u=null;
+  try{ u=(typeof STORE!=='undefined'&&STORE)?unitInfo(STORE.active):null; }catch(e){}
+  if(!u){el.innerHTML='';return;}
+  el.innerHTML=(u.id==='belasintra')?'' :
+    `<div class="alert w"><span class="ico">⚠</span><div><b>Casa ativa: ${u.nome}</b>
+      A escala é da bela Sintra. O conteúdo abaixo não muda de casa — as outras ainda não têm escala no app.</div></div>`;
+}
+function atualizaNavEscala(){
+  const btn=document.getElementById('n-escala');
+  if(!btn)return;
+  btn.style.display=(STORE.active==='belasintra')?'':'none';
 }
 function marcarExploracao(){
   if(!D._pSalvo)D._pSalvo=JSON.parse(JSON.stringify(D.p));  // guarda o estado do banco
