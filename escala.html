@@ -212,6 +212,7 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
   <button class="tab" data-p="equipe">Equipe</button>
   <button class="tab" data-p="cobertura">Cobertura</button>
   <button class="tab" data-p="fechamento">Fechamento</button>
+  <button class="tab" data-p="prazos" id="tab-prazos">Prazos</button>
   <button class="tab" data-p="ajustes">Ajustes</button>
 </div></nav>
 <div id="barra"></div>
@@ -350,6 +351,22 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
 </section>
 
 <!-- AJUSTES -->
+<!-- PRAZOS -->
+<section class="painel" id="p-prazos">
+  <h2>Prazos trabalhistas</h2>
+  <p class="sub">Datas que vencem sozinhas e custam caro quando passam. Tudo aqui sai da data de admissão de cada pessoa — nada é digitado duas vezes.</p>
+  <div class="linha" style="margin-bottom:14px">
+    <label style="margin:0">Olhar os próximos</label>
+    <select id="pz-janela" onchange="setJanelaPrazos(this.value)" style="max-width:150px">
+      <option value="30">30 dias</option><option value="60">60 dias</option>
+      <option value="90">90 dias</option><option value="180">180 dias</option>
+      <option value="365">1 ano</option>
+    </select>
+    <button class="btn sec" onclick="copiarPrazos()">Copiar lista</button>
+  </div>
+  <div id="lista-prazos"></div>
+</section>
+
 <section class="painel" id="p-ajustes">
   <h2>Ajustes</h2>
   <p class="sub">Parâmetros, turnos e setores.</p>
@@ -486,7 +503,7 @@ function aplicarTema(id,recolorir){
 
 const PADRAO={
   cfg:{jornada:42,folgasMin:2,custoHora:16,maxConsec:6,maxFerias:1,feriadoComoDomingo:true,tema:'sintra',
-       semDom:7, semDomF:2},
+       semDom:7, semDomF:2, tetoExperiencia:90, janelaPrazos:90},
   setores:[
     {id:'s1',nome:'Salão',cor:'#1b4965',funcoes:['Maître','Chefe de fila','Garçom','Commis','Hostess']},
     {id:'s2',nome:'Cozinha',cor:'#c1663f',funcoes:['Chef','Sous-chef','Cozinheiro','Chapeiro','Saladeiro','Auxiliar de cozinha']},
@@ -604,7 +621,24 @@ function presenca(t){
   const[hi,mi]=(t.inicio||'0:0').split(':').map(Number),[hf,mf]=(t.fim||'0:0').split(':').map(Number);
   let s=(hf*60+mf)-(hi*60+mi); if(s<=0)s+=1440; return s/60;
 }
-function calcHoras(t){return Math.max(0,+(presenca(t)-(+t.intervalo||0)).toFixed(2));}
+/* Turno partido: dois blocos de trabalho separados por um descanso longo.
+   Quando saida/volta estão preenchidos, o intervalo deixa de ser um número
+   digitado e passa a ser a distância entre os dois horários. Turnos sem
+   esses campos seguem funcionando como antes. */
+function ehPartido(t){return !!(t&&t.saida&&t.volta);}
+function minDe(hhmm){const[a,b]=(hhmm||'0:0').split(':').map(Number);return a*60+b;}
+function dif(ini,fim){let s=minDe(fim)-minDe(ini); if(s<=0)s+=1440; return s;}
+function pausaTurno(t){return ehPartido(t)?+(dif(t.saida,t.volta)/60).toFixed(2):(+t.intervalo||0);}
+function blocosTurno(t){
+  return ehPartido(t)
+    ? [{ini:t.inicio,fim:t.saida},{ini:t.volta,fim:t.fim}]
+    : [{ini:t.inicio,fim:t.fim}];
+}
+function calcHoras(t){
+  if(ehPartido(t))
+    return +((dif(t.inicio,t.saida)+dif(t.volta,t.fim))/60).toFixed(2);
+  return Math.max(0,+(presenca(t)-(+t.intervalo||0)).toFixed(2));
+}
 
 /* ============ calendário ============ */
 function hojeISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -700,6 +734,124 @@ const brData=v=>v?String(v).split('-').reverse().join('/'):'';
 function diasEntre(ini,fim){
   const a=new Date(ini+'T12:00:00'),b=new Date(fim+'T12:00:00');
   return Math.round((b-a)/86400000)+1;
+}
+
+/* ================= PRAZOS TRABALHISTAS =================
+   Tudo aqui nasce da data de admissão. As regras:
+   · Férias — período aquisitivo de 12 meses (CLT 130); concessivo nos 12
+     meses seguintes (CLT 134); não concedidas no prazo, pagam-se em dobro
+     com o terço (CLT 137). Como os 30 dias precisam CABER dentro do
+     concessivo, o último dia para INICIAR é 29 dias antes do fim dele —
+     e o aviso sai 30 dias antes do início (CLT 135).
+   · Experiência — teto de 90 dias corridos, uma única prorrogação
+     (CLT 445 e 451). A convenção da categoria pode fixar prazo menor,
+     por isso o teto é configurável e não fica fixo no código.
+   · Exame periódico — a periodicidade varia por função e idade, então o
+     app não calcula: guarda a data que o RH informa e avisa. */
+
+function maisDias(iso,n){
+  const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function maisAnos(iso,n){
+  const d=new Date(iso+'T12:00:00'); d.setFullYear(d.getFullYear()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function faltamDias(iso){
+  return Math.round((new Date(iso+'T12:00:00')-new Date(hojeISO()+'T12:00:00'))/86400000);
+}
+/* As férias já concedidas estão nos afastamentos do tipo "ferias". */
+function feriasGozadas(colabId){
+  return (D.afastamentos||[]).filter(a=>a.quem===colabId&&a.tipo==='ferias')
+    .map(a=>({ini:a.ini,fim:a.fim})).sort((x,y)=>x.ini<y.ini?-1:1);
+}
+function prazosDoColab(c){
+  const out=[], hoje=hojeISO();
+  if(!c.admissao)return out;
+
+  /* ---- experiência ---- */
+  if(c.tipoContrato==='experiencia'){
+    const teto=D.cfg.tetoExperiencia||90;
+    const p1=c.expDias||0;
+    if(p1>0&&p1<teto){
+      const fim1=maisDias(c.admissao,p1-1);
+      out.push({tipo:'experiencia',titulo:'Fim do 1º período de experiência',
+        quem:c.id,data:fim1,
+        detalhe:`${p1} dias corridos desde a admissão. Até aqui é preciso decidir entre prorrogar uma única vez ou encerrar.`,
+        base:'CLT art. 445 e 451'});
+    }
+    const fimTeto=maisDias(c.admissao,teto-1);
+    out.push({tipo:'experiencia',titulo:'Fim do contrato de experiência',
+      quem:c.id,data:fimTeto,
+      detalhe:`${teto} dias corridos desde a admissão. Passando daqui sem encerrar, o contrato passa a valer por prazo indeterminado.`,
+      base:'CLT art. 445, parágrafo único'});
+  }
+
+  /* ---- férias ----
+     Cada ciclo vencido é um direito próprio, mas listar um por linha
+     afoga a tela: cinco pessoas viram doze linhas e ninguém lê. Então
+     junto por pessoa — a linha mostra o caso mais grave e diz quantos
+     períodos existem atrás dele. */
+  const gozadas=feriasGozadas(c.id);
+  const vencidos=[], aVencer=[];
+  for(let ciclo=1;ciclo<=12;ciclo++){
+    const fimAq=maisDias(maisAnos(c.admissao,ciclo),-1);
+    if(fimAq>maisAnos(hoje,1))break;
+    if(fimAq>hoje)continue;                                 // direito ainda não adquirido
+    const fimCon=maisDias(maisAnos(c.admissao,ciclo+1),-1);
+    const ultimoInicio=maisDias(fimCon,-29);                // 30 dias têm de caber
+    const prazoAviso=maisDias(ultimoInicio,-30);
+    if(gozadas.some(g=>g.ini>fimAq&&g.ini<=fimCon))continue; // concedidas no prazo
+    (hoje>ultimoInicio?vencidos:aVencer).push({fimAq,fimCon,ultimoInicio,prazoAviso});
+  }
+  if(vencidos.length){
+    const v=vencidos[0], n=vencidos.length;   // o mais antigo é o de maior exposição
+    out.push({tipo:'ferias',titulo:n>1?`Férias vencidas em dobro — ${n} períodos`:'Férias vencidas em dobro',
+      quem:c.id, data:v.ultimoInicio, forcarVencido:true,
+      detalhe:`O período aquisitivo mais antigo sem férias fechou em ${brData(v.fimAq)}. `
+        +`O prazo para iniciar os 30 dias era ${brData(v.ultimoInicio)}, e passou. `
+        +`A remuneração dessas férias é devida em dobro, com o terço. `
+        +(n>1?`São ${n} períodos nessa situação — conceder um não resolve os outros.`:'')
+        +` Conceder agora interrompe a contagem; cada dia a mais não aumenta a dobra, mas aumenta o risco de reclamação.`,
+      base:'CLT art. 130, 134 e 137'});
+  }
+  if(aVencer.length){
+    const a=aVencer[0];
+    out.push({tipo:'ferias',titulo:'Férias a conceder',
+      quem:c.id, data:a.ultimoInicio,
+      detalhe:`Aquisitivo fechado em ${brData(a.fimAq)}. Para não pagar em dobro, as férias precisam COMEÇAR até `
+        +`${brData(a.ultimoInicio)} — os 30 dias têm de caber no concessivo, que acaba em ${brData(a.fimCon)}.`,
+      aviso:a.prazoAviso,
+      base:'CLT art. 130, 134, 135 e 137'});
+  }
+
+  /* ---- exame periódico ---- */
+  if(c.exameAte){
+    out.push({tipo:'exame',titulo:'Exame periódico',quem:c.id,data:c.exameAte,
+      detalhe:'Data informada pelo RH. O app não calcula a periodicidade — ela varia por função e idade.',
+      base:'data informada'});
+  }
+  return out;
+}
+/* Todos os prazos, com urgência, ordenados pelo mais apertado. */
+function todosPrazos(){
+  const janela=D.cfg.janelaPrazos||90, hoje=hojeISO();
+  const lista=[];
+  (D.colaboradores||[]).forEach(c=>prazosDoColab(c).forEach(p=>{
+    const d=faltamDias(p.data);
+    if(d>janela)return;
+    p.dias=d;
+    p.nivel=(p.forcarVencido||d<0)?'vencido':(d<=15?'urgente':'proximo');
+    // o aviso de férias pode estourar antes da própria data-limite
+    if(p.aviso){
+      const da=faltamDias(p.aviso);
+      if(da<0&&p.nivel!=='vencido')p.nivel='urgente';
+      p.diasAviso=da;
+    }
+    p.nome=c.nome; p.setor=(setorDe(c.setorId)||{}).nome||'';
+    lista.push(p);
+  }));
+  return lista.sort((a,b)=>a.dias-b.dias);
 }
 
 /* ---------- feriados ---------- */
@@ -1193,7 +1345,61 @@ function analisar(){
       S.push({nivel:'c',titulo:`Turno ${t.nome}: ${h1(pres)}h de presença com ${h1(inter*60)} min de intervalo`,
         detalhe:`O art. 71 da CLT exige no mínimo 1 hora de intervalo para jornadas acima de 6 horas. Convenção ou acordo coletivo pode reduzir, mas nunca abaixo de 30 minutos. Ajuste o intervalo deste turno em Ajustes.`,
         acao:()=>irPara('ajustes'),rotulo:'Ajustar turno',seguro:false});
+
+    /* teto de 2h do art. 71: acima disso só com acordo escrito ou norma coletiva */
+    if(ehPartido(t)){
+      const p=pausaTurno(t);
+      if(p>2.01)
+        S.push({nivel:'c',titulo:`Turno ${t.nome}: descanso de ${h1(p)}h exige acordo escrito`,
+          detalhe:`O art. 71 da CLT fixa o intervalo em no mínimo 1 hora e, salvo acordo escrito ou norma coletiva, no máximo 2 horas. `
+            +`Este turno para das ${t.saida} às ${t.volta}, ${h1((p-2)*60)} min além do teto. `
+            +`O TST admite o intervalo maior, mas só com acordo escrito entre as partes ou cláusula na convenção. `
+            +`Sem esse documento, o excedente pode ser cobrado como tempo à disposição.`,
+          acao:()=>irPara('ajustes'),rotulo:'Ver turnos',seguro:false});
+      else if(p>1.98)
+        S.push({nivel:'a',titulo:`Turno ${t.nome}: descanso no limite exato do art. 71`,
+          detalhe:`São exatamente ${h1(p)}h de parada, o teto da lei sem acordo escrito. Não há folga: se a volta atrasar para ${t.volta.slice(0,2)}:15, o intervalo passa de 2 horas e aí precisa de documento. Vale combinar com a equipe que a volta é no horário.`,
+          seguro:true});
+    }
   });
+
+  /* 3c-bis. buraco de cobertura durante a pausa do turno partido.
+     A grade de cobertura é por turno e por dia, então ela não enxerga
+     que o setor fica vazio no meio da tarde: para ela a pessoa está
+     escalada o dia inteiro. Esta checagem olha hora a hora. */
+  (function(){
+    const sem=semanas()[iSem()]||[];
+    D.setores.forEach(st=>{
+      const partidos=turnosDoSetor(st.id).filter(ehPartido);
+      if(!partidos.length)return;
+      sem.forEach((dia,wi)=>{
+        if(!dia)return;
+        // minutos cobertos por quem está escalado neste setor e dia
+        const cob=[];
+        D.colaboradores.filter(c=>c.setorId===st.id).forEach(c=>{
+          const v=getE(c.id,dia); const t=turnoDe(v); if(!t)return;
+          blocosTurno(t).forEach(b=>{
+            let i=minDe(b.ini), f=minDe(b.fim); if(f<=i)f+=1440;
+            cob.push([i,f]);
+          });
+        });
+        if(!cob.length)return;
+        partidos.forEach(tp=>{
+          const pi=minDe(tp.saida), pf=minDe(tp.volta);
+          // alguém cobre a janela da pausa?
+          const coberto=cob.some(([i,f])=>i<=pi&&f>=pf);
+          if(coberto)return;
+          const parcial=cob.some(([i,f])=>f>pi&&i<pf);
+          S.push({nivel:parcial?'a':'c',
+            titulo:`${st.nome}: ${parcial?'cobertura fraca':'ninguém'} das ${tp.saida} às ${tp.volta} — ${DC[wi]} ${dia}`,
+            detalhe:`O turno ${tp.nome} para para o descanso nessa faixa. A grade de cobertura conta a pessoa como escalada o dia inteiro, então esse vazio não aparece lá. `
+              +(parcial?`Há alguém em parte da janela, mas não na janela toda.`:`Nenhum colaborador deste setor está em serviço nesse intervalo.`)
+              +` Se a casa atende nesse horário, escale alguém de turno corrido para cobrir.`,
+            seguro:true});
+        });
+      });
+    });
+  })();
 
   /* 3d. jornada diária acima de 8h — EC 141 */
   D.turnos.forEach(t=>{
@@ -2062,6 +2268,28 @@ function formColab(id){
         <option value="F" ${c.sexo==='F'?'selected':''}>Feminino — domingos alternados</option>
         <option value="M" ${c.sexo==='M'?'selected':''}>Masculino — até 2 seguidos</option></select></div>
     </div>
+    <div style="margin-top:14px;padding:12px;border:1px solid var(--borda);border-radius:9px">
+      <label style="margin-bottom:8px;display:block">Contrato e prazos</label>
+      <div class="grade g3">
+        <div><label>Data de admissão</label>
+          <input type="date" id="f-adm" value="${c.admissao||''}">
+          <p style="font-size:11px;color:var(--fraco);margin-top:4px">De onde saem os prazos de férias e de experiência.</p></div>
+        <div><label>Tipo de contrato</label>
+          <select id="f-tipo" onchange="toggleExp()">
+            <option value="efetivo" ${c.tipoContrato!=='experiencia'?'selected':''}>Prazo indeterminado</option>
+            <option value="experiencia" ${c.tipoContrato==='experiencia'?'selected':''}>Experiência</option>
+          </select></div>
+        <div id="bloco-exp" style="${c.tipoContrato==='experiencia'?'':'display:none'}">
+          <label>1º período (dias)</label>
+          <input type="number" id="f-exp" min="1" max="90" value="${c.expDias||45}">
+          <p style="font-size:11px;color:var(--fraco);margin-top:4px">Contagem em dias corridos, não em meses.</p></div>
+      </div>
+      <div class="grade g3" style="margin-top:10px">
+        <div><label>Próximo exame periódico</label>
+          <input type="date" id="f-exame" value="${c.exameAte||''}">
+          <p style="font-size:11px;color:var(--fraco);margin-top:4px">A periodicidade varia por função e idade — informe a data que a clínica deu.</p></div>
+      </div>
+    </div>
     <div style="margin-top:14px;padding:12px;background:var(--azul-suave);border-radius:9px">
       <label>Regime de escala</label>
       <select id="f-regime" onchange="toggleRegime()" style="max-width:420px">
@@ -2099,6 +2327,10 @@ function formColab(id){
     </div></div>`;
   document.getElementById('f-nome').focus();
 }
+function toggleExp(){
+  const t=document.getElementById('f-tipo').value;
+  document.getElementById('bloco-exp').style.display=t==='experiencia'?'':'none';
+}
 function toggleRegime(){
   const r=document.getElementById('f-regime').value;
   document.getElementById('bloco-fixa').style.display=r==='fixa'?'':'none';
@@ -2117,6 +2349,10 @@ function salvarColab(id){
     turnoId:document.getElementById('f-turno').value,
     jornada:+document.getElementById('f-jor').value||D.cfg.jornada,
     sexo:document.getElementById('f-sexo').value,
+    admissao:document.getElementById('f-adm').value||'',
+    tipoContrato:document.getElementById('f-tipo').value,
+    expDias:+document.getElementById('f-exp').value||0,
+    exameAte:document.getElementById('f-exame').value||'',
     turnosOk:tok.length?tok:turnosDoSetor(document.getElementById('f-setor').value).map(t=>t.id), folgaFixa:ff};
   if(id)Object.assign(colabDe(id),dd); else D.colaboradores.push(Object.assign({id:uid()},dd));
   salvar();document.getElementById('form-colab').innerHTML='';renderTudo();
@@ -2398,7 +2634,15 @@ function aplicarSetoresTurno(id){
   logar(`Turno "${t.nome}": setores atualizados`);
   salvar();renderTudo();
 }
-function editTurno(id,k,v){const t=turnoDe(id);t[k]=(k==='intervalo'||k==='horas')?(+v||0):v;t.horas=calcHoras(t);salvar();renderTudo();}
+function editTurno(id,k,v){
+  const t=turnoDe(id);
+  t[k]=(k==='intervalo'||k==='horas')?(+v||0):v;
+  if(k==='saida'&&!v)delete t.saida;
+  if(k==='volta'&&!v)delete t.volta;
+  if(ehPartido(t))t.intervalo=pausaTurno(t);   // a pausa passa a ser derivada
+  t.horas=calcHoras(t);
+  salvar();renderTudo();
+}
 function novoTurno(sid){
   const t={id:uid(),nome:'Novo turno',inicio:'10:00',fim:'18:24',intervalo:0,
     cor:CT[D.turnos.length%CT.length],cod:'N'+(D.turnos.length+1),setores:sid?[sid]:[]};
@@ -2517,7 +2761,7 @@ function renderAjustes(){
   document.getElementById('c-sdf').value=D.cfg.semDomF||2;
   const alvo=D.cfg.jornada/(7-D.cfg.folgasMin);
   document.getElementById('lista-turnos').innerHTML=
-    `<table><thead><tr><th>Cor · sigla · nome</th><th>Setores</th><th>Início</th><th>Fim</th><th style="text-align:center">Presença</th><th style="text-align:center">Intervalo</th><th style="text-align:center">Horas úteis</th><th></th></tr></thead><tbody>`
+    `<table><thead><tr><th>Cor · sigla · nome</th><th>Setores</th><th>Início</th><th>Sai</th><th>Volta</th><th>Fim</th><th style="text-align:center">Presença</th><th style="text-align:center">Intervalo</th><th style="text-align:center">Horas úteis</th><th></th></tr></thead><tbody>`
     +D.turnos.map(t=>{const hu=calcHoras(t),sm=hu*(7-D.cfg.folgasMin),ok=Math.abs(sm-D.cfg.jornada)<0.05;
     return `<tr><td><div style="display:flex;gap:6px;align-items:center">
       <input type="color" value="${t.cor||'#2a6f97'}" onchange="editTurno('${t.id}','cor',this.value)" style="width:34px;padding:2px;flex:0 0 auto" title="Cor">
@@ -2537,9 +2781,13 @@ function renderAjustes(){
         </div>`:''}
       </td>
       <td><input type="time" value="${t.inicio}" onchange="editTurno('${t.id}','inicio',this.value)"></td>
+      <td><input type="time" value="${t.saida||''}" onchange="editTurno('${t.id}','saida',this.value)" title="Sai para o descanso — deixe vazio se o turno for corrido"></td>
+      <td><input type="time" value="${t.volta||''}" onchange="editTurno('${t.id}','volta',this.value)" title="Volta do descanso"></td>
       <td><input type="time" value="${t.fim}" onchange="editTurno('${t.id}','fim',this.value)"></td>
       <td style="text-align:center;color:var(--fraco)">${presenca(t).toFixed(2)}h</td>
-      <td><input type="number" step="0.25" min="0" value="${t.intervalo||0}" style="text-align:center" onchange="editTurno('${t.id}','intervalo',this.value)"></td>
+      <td style="text-align:center">${ehPartido(t)
+        ? `<b style="color:${pausaTurno(t)>2?'var(--vermelho)':'var(--texto)'}">${h1(pausaTurno(t))}h</b><br><span style="font-size:10px;color:var(--fraco)">calculado</span>`
+        : `<input type="number" step="0.25" min="0" value="${t.intervalo||0}" style="text-align:center" onchange="editTurno('${t.id}','intervalo',this.value)">`}</td>
       <td style="text-align:center"><b class="${ok?'ok':'alerta'}">${hu}h</b><br><span style="font-size:10px;color:var(--fraco)">${h1(sm)}h/sem</span></td>
       <td><button class="btn sec mini" onclick="delTurno('${t.id}')">×</button></td></tr>`;}).join('')
     +`</tbody></table><p style="margin-top:9px;font-size:12px;color:var(--fraco)">Horas úteis = presença − intervalo. Para fechar ${D.cfg.jornada}h em ${7-D.cfg.folgasMin} dias, cada turno precisa de <b>${h1(alvo)}h úteis</b>.</p>`;
@@ -2664,6 +2912,70 @@ function renderCab(){
 }
 
 /* ============ render geral ============ */
+function setJanelaPrazos(v){ D.cfg.janelaPrazos=+v||90; salvar(); renderPrazos(); }
+
+function renderPrazos(){
+  const el=document.getElementById('lista-prazos'); if(!el)return;
+  const sel=document.getElementById('pz-janela'); if(sel)sel.value=String(D.cfg.janelaPrazos||90);
+
+  const semAdm=(D.colaboradores||[]).filter(c=>!c.admissao);
+  const lista=todosPrazos();
+  const ICO={ferias:'🌴',experiencia:'📄',exame:'🩺'};
+  const ROT={vencido:'VENCIDO',urgente:'URGENTE',proximo:'PRÓXIMO'};
+  const COR={vencido:'var(--vermelho)',urgente:'var(--amarelo)',proximo:'var(--azul-claro)'};
+
+  let h='';
+
+  // quem ainda não tem admissão não entra em conta nenhuma — é preciso dizer isso
+  if(semAdm.length)
+    h+=`<div class="nota at"><b>${semAdm.length} ${semAdm.length===1?'pessoa está':'pessoas estão'} fora desta lista</b> —
+      sem data de admissão não há prazo a calcular: ${semAdm.slice(0,6).map(c=>esc(c.nome)).join(', ')}${semAdm.length>6?' e outros':''}.
+      Preencha na aba Equipe.</div>`;
+
+  if(!lista.length){
+    h+=`<div class="vazio"><p>Nenhum prazo nos próximos ${D.cfg.janelaPrazos||90} dias.</p>
+      <p style="font-size:12px;color:var(--fraco)">Aumente a janela acima para enxergar mais longe.</p></div>`;
+    el.innerHTML=h; return;
+  }
+
+  const n=k=>lista.filter(x=>x.nivel===k).length;
+  h+=`<div class="nota ${n('vencido')?'at':'bo'}">
+    <b>${lista.length} prazo(s) na janela de ${D.cfg.janelaPrazos||90} dias.</b>
+    ${n('vencido')?`${n('vencido')} já vencido(s). `:''}${n('urgente')?`${n('urgente')} nos próximos 15 dias. `:''}
+    ${!n('vencido')&&!n('urgente')?'Nada apertado por enquanto.':''}</div>`;
+
+  h+='<div class="rolar"><table><thead><tr><th></th><th>Quem</th><th>O que vence</th><th>Quando</th><th>Falta</th></tr></thead><tbody>';
+  lista.forEach(p=>{
+    const dias=p.dias<0?`<b style="color:var(--vermelho)">${-p.dias} dia(s) atrás</b>`
+      :(p.dias===0?'<b>hoje</b>':`${p.dias} dia(s)`);
+    h+=`<tr>
+      <td style="white-space:nowrap"><span style="font-size:15px">${ICO[p.tipo]||'•'}</span>
+        <span style="font-size:10px;font-weight:700;color:${COR[p.nivel]}">${ROT[p.nivel]}</span></td>
+      <td><b>${esc(p.nome)}</b><br><span style="font-size:11px;color:var(--fraco)">${esc(p.setor)}</span></td>
+      <td><b>${esc(p.titulo)}</b>
+        <div style="font-size:11.5px;color:var(--fraco);margin-top:3px;max-width:560px">${esc(p.detalhe)}</div>
+        ${p.aviso?`<div style="font-size:11.5px;margin-top:4px;color:${p.diasAviso<0?'var(--vermelho)':'var(--fraco)'}">
+          ${p.diasAviso<0?'⚠ O prazo do aviso por escrito já passou':'Aviso por escrito até '+brData(p.aviso)}</div>`:''}
+        <div style="font-size:10px;color:var(--fraco);margin-top:4px">${esc(p.base)}</div></td>
+      <td style="white-space:nowrap">${brData(p.data)}</td>
+      <td style="white-space:nowrap">${dias}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  h+=`<p style="font-size:11.5px;color:var(--fraco);margin-top:12px">
+    As férias já lançadas como afastamento são descontadas automaticamente — um ciclo com férias concedidas dentro do prazo some desta lista.
+    O exame periódico não é calculado: o app mostra a data que o RH informou no cadastro.</p>`;
+  el.innerHTML=h;
+}
+function copiarPrazos(){
+  const lista=todosPrazos();
+  if(!lista.length)return alert('Nada a copiar nesta janela.');
+  const txt='PRAZOS TRABALHISTAS — '+brData(hojeISO())+'\n\n'+lista.map(p=>
+    `${p.dias<0?'[VENCIDO]':(p.dias<=15?'[URGENTE]':'')} ${p.nome} (${p.setor})\n`+
+    `  ${p.titulo}: ${brData(p.data)}${p.dias<0?' — venceu há '+(-p.dias)+' dia(s)':' — faltam '+p.dias+' dia(s)'}\n`+
+    `  ${p.detalhe}\n`+(p.aviso?`  Aviso por escrito até ${brData(p.aviso)}\n`:'')).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('Lista copiada.')).catch(()=>alert('Não consegui copiar.'));
+}
+
 function renderTudo(){
   let fid=null,si=null,sf=null;
   try{const a=document.activeElement;if(a&&a.id){fid=a.id;si=a.selectionStart;sf=a.selectionEnd;}}catch(e){}
@@ -2677,7 +2989,7 @@ function renderTudo(){
 
   renderBarra();renderCab();renderPincel();renderLegenda();
   renderHoje();renderGrade();renderEscAvisos();renderCobSemana();renderCartoes();
-  renderSug();renderEquipe();renderAfast();renderDem();renderDiag();renderFech();renderAjustes();renderBaks();
+  renderSug();renderEquipe();renderPrazos();renderAfast();renderDem();renderDiag();renderFech();renderAjustes();renderBaks();
   if(document.getElementById('painel-copia')?.style.display==='')renderCopia();
 
   if(fid){try{const e=document.getElementById(fid);if(e&&e.focus){e.focus();if(si!==null&&e.setSelectionRange)e.setSelectionRange(si,sf);}}catch(e){}}
