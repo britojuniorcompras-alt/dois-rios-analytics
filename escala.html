@@ -619,7 +619,18 @@ function carregar(){
 const SB_URL='https://kfgcqshhltemsochafid.supabase.co';
 const SB_KEY='sb_publishable_-t8ynneFzBs_Xw3oEWenzA_APQqzOa-';
 const UNIDADE='belasintra';
-let TOKEN=null, QUEM=null, NUVEM='desligada';   // desligada | ok | erro | somente-leitura
+let TOKEN=null, QUEM=null, NUVEM='desligada';   // desligada | ok | erro | somente-leitura | conflito
+/* A tabela guarda UMA linha por casa, com tudo dentro. Enquanto só uma pessoa
+   usava, isso bastava. Com duas pessoas abertas ao mesmo tempo virou armadilha:
+   cada gravação empurrava a cópia inteira daquele navegador por cima do que
+   estava no banco, e quem salvasse por último apagava o trabalho do outro sem
+   ninguém ver. Pior: a tela de quem já estava aberto nunca era atualizada.
+   Daqui para frente guardo a versão que li, só gravo se ela ainda for a mais
+   nova, e releio quando a aba volta para a frente. */
+let VERSAO=null;        // updated_at da linha que eu carreguei
+let QUEM_SALVOU=null;   // e-mail de quem gravou essa versão
+let SUJO=false;         // tenho alteração local ainda não confirmada no banco
+let CONFLITO=null;      // {em, por} quando alguém gravou depois de mim
 
 function lerSessao(){
   try{
@@ -646,6 +657,8 @@ async function carregarNuvem(){
     const linhas=await apiSB('/rest/v1/escala_dados?select=payload,updated_at,updated_by&unidade_id=eq.'+UNIDADE);
     if(linhas&&linhas.length&&linhas[0].payload){
       D=Object.assign(JSON.parse(JSON.stringify(PADRAO)),linhas[0].payload);
+      VERSAO=linhas[0].updated_at; QUEM_SALVOU=linhas[0].updated_by;
+      SUJO=false; CONFLITO=null;
       const n=repararSetores();
       if(n){console.warn('escala: '+n+' pessoa(s) apontavam para setor inexistente — realocadas');salvar();}
       NUVEM='ok';
@@ -653,7 +666,7 @@ async function carregarNuvem(){
       return true;
     }
     // nuvem vazia: sobe o que este navegador tem
-    NUVEM='ok';
+    NUVEM='ok'; VERSAO=null; QUEM_SALVOU=null;
     if((D.colaboradores||[]).length)await gravarNuvem(true);
     return true;
   }catch(e){
@@ -666,14 +679,38 @@ let gravandoNuvem=false, pendente=false;
 async function gravarNuvem(silencioso){
   if(NUVEM==='desligada'||TRAVA_SALVAR)return;
   if(gravandoNuvem){pendente=true;return}
+  if(CONFLITO)return;   /* conflito aberto: ninguém grava até a pessoa decidir */
   gravandoNuvem=true;
   try{
-    await apiSB('/rest/v1/escala_dados?on_conflict=unidade_id',{
-      method:'POST',
-      headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},
-      body:JSON.stringify({unidade_id:UNIDADE,payload:D,updated_at:new Date().toISOString(),updated_by:QUEM})
-    });
-    NUVEM='ok'; ERRO_NUVEM='';
+    const agora=new Date().toISOString();
+    const corpo={unidade_id:UNIDADE,payload:D,updated_at:agora,updated_by:QUEM};
+    if(VERSAO){
+      /* só gravo se a linha ainda estiver na versão que eu li. Se outra pessoa
+         gravou nesse meio-tempo, o filtro não acha nada, volta lista vazia, e
+         eu paro em vez de apagar o trabalho dela. */
+      const r=await apiSB('/rest/v1/escala_dados?unidade_id=eq.'+UNIDADE
+          +'&updated_at=eq.'+encodeURIComponent(VERSAO),{
+        method:'PATCH',
+        headers:{'Prefer':'return=representation'},
+        body:JSON.stringify(corpo)
+      });
+      if(!r||!r.length){
+        const atual=await apiSB('/rest/v1/escala_dados?select=updated_at,updated_by&unidade_id=eq.'+UNIDADE);
+        CONFLITO=(atual&&atual[0])?{em:atual[0].updated_at,por:atual[0].updated_by}:{em:null,por:null};
+        NUVEM='conflito'; gravandoNuvem=false; pendente=false;
+        marcaNuvem(); avisarConflito();
+        return;
+      }
+      VERSAO=r[0].updated_at; QUEM_SALVOU=r[0].updated_by;
+    }else{
+      await apiSB('/rest/v1/escala_dados?on_conflict=unidade_id',{
+        method:'POST',
+        headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify(corpo)
+      });
+      VERSAO=agora; QUEM_SALVOU=QUEM;
+    }
+    NUVEM='ok'; ERRO_NUVEM=''; SUJO=false;
   }catch(e){
     NUVEM = /permission|denied|row-level|42501/i.test(String(e.message||e)) ? 'somente-leitura' : 'erro';
     ERRO_NUVEM=String(e.message||e);
@@ -687,21 +724,96 @@ async function gravarNuvem(silencioso){
 let tSalvar=null;
 function salvar(){
   if(TRAVA_SALVAR)return;   /* leitura falhou: não grava por cima do que está salvo */
+  SUJO=true;
   try{localStorage.setItem('abs_escalas_v1',JSON.stringify(D));}
   catch(e){alert('Não consegui salvar — armazenamento cheio ou bloqueado.');}
   clearTimeout(tSalvar);
   tSalvar=setTimeout(()=>gravarNuvem(true),900);   /* agrupa rajadas de edição */
 }
+
+/* ===================== MANTER A TELA EM DIA =====================
+   Antes a escala lia o banco uma vez, na abertura, e nunca mais. Quem deixava
+   a aba aberta ficava olhando uma foto velha — e ainda podia gravar aquela foto
+   por cima do trabalho novo de outra pessoa. Agora releio quando a aba volta
+   para a frente e de minuto em minuto enquanto ela está visível. */
+async function sincronizar(porPedido){
+  if(NUVEM==='desligada'||CONFLITO)return;
+  if(gravandoNuvem||SUJO){ if(porPedido)alert('Tem alteração sua ainda subindo. Espere o selo ficar verde e tente de novo.'); return; }
+  try{
+    const l=await apiSB('/rest/v1/escala_dados?select=updated_at,updated_by&unidade_id=eq.'+UNIDADE);
+    if(!l||!l.length)return;
+    if(l[0].updated_at===VERSAO){ if(porPedido)avisarNuvem('Já está na versão mais nova.'); return; }
+    /* banco mais novo e nada meu pendente: posso trocar sem perder nada */
+    const ok=await carregarNuvem();
+    if(ok){
+      renderTudo(); marcaNuvem();
+      avisarNuvem('Tela atualizada com a versão de '+(QUEM_SALVOU||'outro acesso')
+        +', de '+horaCurta(VERSAO)+'.');
+    }
+  }catch(e){}
+}
+function horaCurta(iso){
+  try{const d=new Date(iso);return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return '—';}
+}
+function avisarNuvem(txt){
+  const el=document.getElementById('aviso-nuvem'); if(!el)return;
+  el.innerHTML=`<div class="nota bo">${esc(txt)}</div>`;
+  clearTimeout(avisarNuvem._t);
+  avisarNuvem._t=setTimeout(()=>{ if(!CONFLITO)el.innerHTML=''; },8000);
+}
+/* Conflito não se resolve sozinho: as duas versões são trabalho de alguém.
+   Mostro quem gravou, quando, e deixo a escolha — sem botão escondido e sem
+   decidir no lugar da pessoa. */
+function avisarConflito(){
+  const el=document.getElementById('aviso-nuvem'); if(!el||!CONFLITO)return;
+  el.innerHTML=`<div class="nota at">
+    <b>Não gravei: ${esc(CONFLITO.por||'outro acesso')} salvou uma alteração ${CONFLITO.em?'às '+horaCurta(CONFLITO.em):'depois de você'}.</b>
+    <br>Sua tela foi aberta antes disso, então gravar agora apagaria o que a outra pessoa fez.
+    O que você mexeu continua guardado neste navegador até você escolher.
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn mini" onclick="conflitoPegarDoBanco()">Carregar a versão do banco e descartar a minha</button>
+      <button class="btn mini terr" onclick="conflitoMandarMinha()">Gravar a minha por cima</button>
+    </div>
+    <div style="font-size:11px;color:var(--fraco);margin-top:6px">
+      Na dúvida, carregue a do banco: a versão anterior fica guardada no histórico e eu consigo recuperar.
+    </div></div>`;
+}
+async function conflitoPegarDoBanco(){
+  CONFLITO=null; NUVEM='ok';
+  const ok=await carregarNuvem();
+  renderTudo(); marcaNuvem();
+  document.getElementById('aviso-nuvem').innerHTML='';
+  if(ok)avisarNuvem('Pronto, você está na versão do banco, salva por '+(QUEM_SALVOU||'outro acesso')+'.');
+}
+async function conflitoMandarMinha(){
+  if(!confirm('Isso substitui no banco o que a outra pessoa gravou. A versão dela fica no histórico, mas sai da tela de todos. Continuar?'))return;
+  try{
+    const l=await apiSB('/rest/v1/escala_dados?select=updated_at,updated_by&unidade_id=eq.'+UNIDADE);
+    VERSAO=(l&&l[0])?l[0].updated_at:null;
+  }catch(e){}
+  CONFLITO=null; NUVEM='ok';
+  document.getElementById('aviso-nuvem').innerHTML='';
+  await gravarNuvem(false);
+  marcaNuvem();
+  if(NUVEM==='ok')avisarNuvem('Sua versão foi gravada.');
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden)sincronizar(false); });
+setInterval(()=>{ if(!document.hidden)sincronizar(false); },60000);
 /* Mostra onde os dados estão, para ninguém trabalhar achando que salvou. */
 function marcaNuvem(){
   const el=document.getElementById('selo-nuvem'); if(!el)return;
   const M={
     ok:            ['●','Salvo no banco do grupo','var(--verde)'],
+    conflito:      ['▲','Não gravei — outra pessoa salvou depois de você','var(--vermelho)'],
     'somente-leitura':['◆','Você vê, mas não pode gravar','var(--amarelo)'],
     erro:          ['▲','Falha ao gravar no banco — salvo só neste navegador','var(--vermelho)'],
     desligada:     ['◻','Só neste navegador — abra pelo app analítico para salvar no banco','var(--fraco)']
   }[NUVEM]||['◻','',''];
   el.innerHTML=`<span style="color:${M[2]}">${M[0]}</span> <span style="font-size:11px;color:var(--fraco)">${M[1]}</span>`
+    /* quem salvou e quando: é o que responde "será que o outro já mexeu?" */
+    +(NUVEM==='ok'&&VERSAO?`<div style="font-size:10px;color:var(--fraco)">última gravação ${esc(horaCurta(VERSAO))}${QUEM_SALVOU?' · '+esc(String(QUEM_SALVOU).split('@')[0]):''}
+        · <a href="#" onclick="event.preventDefault();sincronizar(true)" style="color:var(--azul)">atualizar</a></div>`:'')
     +(NUVEM==='erro'&&ERRO_NUVEM?`<div style="font-size:10px;color:var(--fraco)">${esc(ERRO_NUVEM).slice(0,70)}</div>`:'');
 }
 let D=carregar();
