@@ -199,6 +199,7 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
 <header><div class="hdr">
   <div class="marca">Escala · a bela Sintra<small id="sub-hdr">Gestão de escala</small></div>
   <div style="display:flex;gap:8px;align-items:center">
+    <span id="selo-nuvem" style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;margin-right:4px"></span>
     <button class="sino" onclick="irPara('sugestoes')" id="sino"></button>
     <button class="sino" onclick="abrirTemas()" title="Mudar as cores do app">Cores</button>
   </div>
@@ -303,6 +304,12 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
 
 <!-- EQUIPE -->
 <section class="painel" id="p-equipe">
+  <div id="aviso-nuvem"></div>
+  <div class="linha" style="margin-bottom:12px">
+    <button class="btn sec" onclick="pedirImportacao()">Importar lista do escritório</button>
+    <input type="file" id="arq-equipe" accept=".json,application/json" style="display:none" onchange="importarEquipe(event)">
+    <span style="font-size:11.5px;color:var(--fraco)">Atualiza quem já existe pelo nome e inclui quem falta. Não apaga ninguém.</span>
+  </div>
   <h2>Equipe</h2>
   <p class="sub">Quanto mais completo o cadastro, melhores as sugestões. Os turnos que cada um pode fazer são o que dá liberdade ao gerador.</p>
   <div class="linha">
@@ -381,10 +388,12 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
       <div><label>Idem, para mulheres</label><input type="number" id="c-sdf" min="1" step="1" onchange="salvarCfg()"></div>
     </div>
     <p style="margin-top:10px;font-size:12px;color:var(--fraco)">
-      <b>Máx. dias seguidos:</b> a CLT garante um descanso a cada 7 dias, então mais de 6 dias em sequência é risco.<br>
+      <b>Máx. dias seguidos:</b> a Portaria MTE 2.041/2026 (art. 4º) veda trabalhar mais de <b>5 dias seguidos</b>.
+      Com dois repousos por semana, 6 dias em sequência deixou de caber.<br>
       <b>Folga no domingo a cada N semanas:</b> restaurantes e bares têm autorização permanente para abrir aos domingos
-      (Anexo IV da Portaria MTP 671/2021) e seguem a regra geral de <b>7 semanas</b> do art. 58, §2º — o comércio em geral
-      é 3. Para mulheres vale o art. 386 da CLT, aplicado pelo TST como folga dominical <b>quinzenal</b>.
+      (Anexo IV da Portaria MTP 671/2021), e desde 23/11/2026 a regra é <b>4 semanas</b> (art. 4º, §5º da Portaria MTE
+      2.041/2026, que revogou a regra anterior de 7 semanas) — o comércio em geral é 3.
+      Para mulheres vale o art. 386 da CLT, folga dominical <b>quinzenal</b>, mantida pela nova Portaria.
       Se o acordo coletivo de bares e restaurantes de São Paulo exigir intervalo menor, ajuste aqui: o acordo prevalece.</p>
   </div>
   <div class="card"><h3>Cores do app <span class="tag">tema</span></h3>
@@ -502,15 +511,17 @@ function aplicarTema(id,recolorir){
 }
 
 const PADRAO={
-  cfg:{jornada:42,folgasMin:2,custoHora:16,maxConsec:6,maxFerias:1,feriadoComoDomingo:true,tema:'sintra',
-       semDom:7, semDomF:2, tetoExperiencia:90, janelaPrazos:90},
+  cfg:{jornada:42,folgasMin:2,custoHora:16,maxConsec:5,maxFerias:1,feriadoComoDomingo:true,tema:'sintra',
+       semDom:4, semDomF:2, tetoExperiencia:90, janelaPrazos:90},
   setores:[
     {id:'s1',nome:'Salão',cor:'#1b4965',funcoes:['Maître','Chefe de fila','Garçom','Commis','Hostess']},
     {id:'s2',nome:'Cozinha',cor:'#c1663f',funcoes:['Chef','Sous-chef','Cozinheiro','Chapeiro','Saladeiro','Auxiliar de cozinha']},
     {id:'s3',nome:'Copa',cor:'#2e7d5b',funcoes:['Copeiro','Auxiliar de copa']},
     {id:'s4',nome:'Caixa',cor:'#7b4b94',funcoes:['Supervisor de caixa','Operador de caixa','Recepcionista']},
     {id:'s5',nome:'Manutenção',cor:'#3d7ea6',funcoes:['Técnico de manutenção','Auxiliar','Steward','Limpeza']},
-    {id:'s6',nome:'Almoxarifado',cor:'#a8465c',funcoes:['Almoxarife','Conferente','Auxiliar de almoxarifado']},
+    {id:'s6',nome:'Almoxarifado',cor:'#a8465c',funcoes:['Almoxarife','Conferente','Auxiliar de almoxarifado','Comprador','Assistente de compras']},
+    {id:'s8',nome:'Administrativo',cor:'#6b7a8f',funcoes:['Gerente administrativo','Assistente administrativo','Departamento pessoal','Aprendiz']},
+    {id:'s9',nome:'Manobristas',cor:'#8a6d3b',funcoes:['Manobrista','Porteiro']},
     {id:'s7',nome:'Escritório',cor:'#4a7c59',funcoes:['Gerência','Compras','Administrativo','Financeiro','RH']},
     {id:'s8',nome:'Bar',cor:'#c9961e',funcoes:['Barman','Barista','Auxiliar de bar']}
   ],
@@ -565,7 +576,9 @@ function carregar(){
   try{o.faltas=o.faltas||{};o.manuais=o.manuais||{};o.escalaMes=o.escalaMes||{};o.demanda=o.demanda||{};
     ['afastamentos','feriados','modelos','historico','ajustesBanco'].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[];});
     if(o.cfg.maxFerias===undefined)o.cfg.maxFerias=1;
-    if(o.cfg.semDom===undefined)o.cfg.semDom=7;      /* Portaria MTP 671/2021, art. 58 §2º */
+    if(o.cfg.semDom===undefined)o.cfg.semDom=4;      /* Portaria MTE 2.041/2026, art. 4º §5º */
+    if(o.cfg.semDom===7)o.cfg.semDom=4;               /* a regra de 7 semanas foi revogada em 23/11/2026 */
+    if(o.cfg.maxConsec===6)o.cfg.maxConsec=5;         /* art. 4º: não mais que 5 dias seguidos */
     if(o.cfg.semDomF===undefined)o.cfg.semDomF=2;    /* art. 386 da CLT */
     if(o.cfg.feriadoComoDomingo===undefined)o.cfg.feriadoComoDomingo=true;
   }catch(e){}
@@ -597,10 +610,98 @@ function carregar(){
   }catch(e){}});
   return o;
 }
+/* ===================== GUARDA NA NUVEM =====================
+   Os dados da equipe são pessoais e antes viviam só no localStorage deste
+   navegador: sem backup, invisíveis para o RH, e perdidos ao limpar o
+   navegador. Agora vão para a mesma tabela protegida do app analítico, com
+   o MESMO login — a escala roda na mesma origem, então reaproveita a sessão
+   em vez de pedir outra senha.
+   O localStorage continua, como cache para funcionar offline. */
+const SB_URL='https://kfgcqshhltemsochafid.supabase.co';
+const SB_KEY='sb_publishable_-t8ynneFzBs_Xw3oEWenzA_APQqzOa-';
+const UNIDADE='belasintra';
+let TOKEN=null, QUEM=null, NUVEM='desligada';   // desligada | ok | erro | somente-leitura
+
+function lerSessao(){
+  try{
+    const s=JSON.parse(localStorage.getItem('grupo_sessao')||'null');
+    if(s&&s.t){TOKEN=s.t;QUEM=s.e||null;return true}
+  }catch(e){}
+  return false;
+}
+async function apiSB(caminho,opt={}){
+  const r=await fetch(SB_URL+caminho,Object.assign({},opt,{headers:Object.assign({
+    'apikey':SB_KEY,'Content-Type':'application/json',
+    'Authorization':'Bearer '+(TOKEN||SB_KEY)},opt.headers||{})}));
+  const t=await r.text();
+  let js=null; try{js=t?JSON.parse(t):null}catch(e){}
+  if(!r.ok)throw new Error((js&&(js.message||js.msg||js.error))||('HTTP '+r.status));
+  return js;
+}
+
+/* Carrega da nuvem. Se a nuvem estiver vazia e houver dados neste navegador,
+   sobe o que existe uma única vez — é a migração de quem já usava o app. */
+async function carregarNuvem(){
+  if(!lerSessao()){NUVEM='desligada';return false}
+  try{
+    const linhas=await apiSB('/rest/v1/escala_dados?select=payload,updated_at,updated_by&unidade_id=eq.'+UNIDADE);
+    if(linhas&&linhas.length&&linhas[0].payload){
+      D=Object.assign(JSON.parse(JSON.stringify(PADRAO)),linhas[0].payload);
+      NUVEM='ok';
+      try{localStorage.setItem('abs_escalas_v1',JSON.stringify(D));}catch(e){}
+      return true;
+    }
+    // nuvem vazia: sobe o que este navegador tem
+    NUVEM='ok';
+    if((D.colaboradores||[]).length)await gravarNuvem(true);
+    return true;
+  }catch(e){
+    NUVEM='erro'; ERRO_NUVEM=String(e.message||e);
+    return false;
+  }
+}
+let ERRO_NUVEM='';
+let gravandoNuvem=false, pendente=false;
+async function gravarNuvem(silencioso){
+  if(NUVEM==='desligada'||TRAVA_SALVAR)return;
+  if(gravandoNuvem){pendente=true;return}
+  gravandoNuvem=true;
+  try{
+    await apiSB('/rest/v1/escala_dados?on_conflict=unidade_id',{
+      method:'POST',
+      headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({unidade_id:UNIDADE,payload:D,updated_at:new Date().toISOString(),updated_by:QUEM})
+    });
+    NUVEM='ok'; ERRO_NUVEM='';
+  }catch(e){
+    NUVEM = /permission|denied|row-level|42501/i.test(String(e.message||e)) ? 'somente-leitura' : 'erro';
+    ERRO_NUVEM=String(e.message||e);
+    if(!silencioso)console.warn('escala: falha ao gravar na nuvem —',ERRO_NUVEM);
+  }
+  gravandoNuvem=false;
+  marcaNuvem();
+  if(pendente){pendente=false;gravarNuvem(true);}
+}
+
+let tSalvar=null;
 function salvar(){
   if(TRAVA_SALVAR)return;   /* leitura falhou: não grava por cima do que está salvo */
   try{localStorage.setItem('abs_escalas_v1',JSON.stringify(D));}
   catch(e){alert('Não consegui salvar — armazenamento cheio ou bloqueado.');}
+  clearTimeout(tSalvar);
+  tSalvar=setTimeout(()=>gravarNuvem(true),900);   /* agrupa rajadas de edição */
+}
+/* Mostra onde os dados estão, para ninguém trabalhar achando que salvou. */
+function marcaNuvem(){
+  const el=document.getElementById('selo-nuvem'); if(!el)return;
+  const M={
+    ok:            ['●','Salvo no banco do grupo','var(--verde)'],
+    'somente-leitura':['◆','Você vê, mas não pode gravar','var(--amarelo)'],
+    erro:          ['▲','Falha ao gravar no banco — salvo só neste navegador','var(--vermelho)'],
+    desligada:     ['◻','Só neste navegador — abra pelo app analítico para salvar no banco','var(--fraco)']
+  }[NUVEM]||['◻','',''];
+  el.innerHTML=`<span style="color:${M[2]}">${M[0]}</span> <span style="font-size:11px;color:var(--fraco)">${M[1]}</span>`
+    +(NUVEM==='erro'&&ERRO_NUVEM?`<div style="font-size:10px;color:var(--fraco)">${esc(ERRO_NUVEM).slice(0,70)}</div>`:'');
 }
 let D=carregar();
 
@@ -804,7 +905,22 @@ function prazosDoColab(c){
     if(gozadas.some(g=>g.ini>fimAq&&g.ini<=fimCon))continue; // concedidas no prazo
     (hoje>ultimoInicio?vencidos:aVencer).push({fimAq,fimCon,ultimoInicio,prazoAviso});
   }
-  if(vencidos.length){
+  /* Sem NENHUMA férias lançada, o app não sabe se a pessoa está em atraso ou
+     se é o histórico que falta. Dizer "vencida em dobro" aí seria inventar:
+     quem tem 20 anos de casa certamente tirou férias que ninguém lançou.
+     Então o aviso muda de natureza — vira pedido de dado, não veredito. */
+  if(vencidos.length && !gozadas.length){
+    const v=vencidos[0], n=vencidos.length;
+    out.push({tipo:'ferias',titulo:'Férias a confirmar — nenhum histórico lançado',
+      quem:c.id, data:v.ultimoInicio, semHistorico:true,
+      detalhe:`Não há nenhuma férias lançada para esta pessoa, admitida em ${brData(c.admissao)}. `
+        +`O app não tem como saber se ela está em atraso ou se é o registro que falta — `
+        +`e com ${n} ciclo(s) desde a admissão, o mais provável é que o histórico não tenha sido lançado. `
+        +`Lance as últimas férias em Afastamentos e este aviso se ajusta sozinho. `
+        +`Só depois disso o número de períodos vencidos quer dizer alguma coisa.`,
+      base:'CLT art. 130, 134 e 137 — pendente de histórico'});
+  }
+  else if(vencidos.length){
     const v=vencidos[0], n=vencidos.length;   // o mais antigo é o de maior exposição
     out.push({tipo:'ferias',titulo:n>1?`Férias vencidas em dobro — ${n} períodos`:'Férias vencidas em dobro',
       quem:c.id, data:v.ultimoInicio, forcarVencido:true,
@@ -820,7 +936,9 @@ function prazosDoColab(c){
     out.push({tipo:'ferias',titulo:'Férias a conceder',
       quem:c.id, data:a.ultimoInicio,
       detalhe:`Aquisitivo fechado em ${brData(a.fimAq)}. Para não pagar em dobro, as férias precisam COMEÇAR até `
-        +`${brData(a.ultimoInicio)} — os 30 dias têm de caber no concessivo, que acaba em ${brData(a.fimCon)}.`,
+        +`${brData(a.ultimoInicio)} — os 30 dias têm de caber no concessivo, que acaba em ${brData(a.fimCon)}. `
+        +`Atenção ao escolher o dia: as férias não podem começar nos dois dias que antecedem feriado ou dia de repouso `
+        +`(CLT art. 134, §3º). Com dois repousos por semana a partir de 16/12/2026, sobram menos dias válidos para iniciar.`,
       aviso:a.prazoAviso,
       base:'CLT art. 130, 134, 135 e 137'});
   }
@@ -841,7 +959,8 @@ function todosPrazos(){
     const d=faltamDias(p.data);
     if(d>janela)return;
     p.dias=d;
-    p.nivel=(p.forcarVencido||d<0)?'vencido':(d<=15?'urgente':'proximo');
+    p.nivel = p.semHistorico ? 'semdado'
+            : ((p.forcarVencido||d<0) ? 'vencido' : (d<=15?'urgente':'proximo'));
     // o aviso de férias pode estourar antes da própria data-limite
     if(p.aviso){
       const da=faltamDias(p.aviso);
@@ -1316,7 +1435,7 @@ function analisar(){
       S.push({nivel:'c',titulo:`${c.nome} trabalha ${ds} domingos seguidos`,
         detalhe:c.sexo==='F'
           ?`Mulheres têm direito a folga dominical a cada ${cicloDom(c)} semanas (art. 386 da CLT, conforme a jurisprudência do TST). Isso permite no máximo ${lim} domingo(s) seguido(s) de trabalho.`
-          :`Restaurantes e bares têm autorização permanente para funcionar aos domingos (Anexo IV da Portaria MTP 671/2021), e nesse caso o repouso deve coincidir com o domingo ao menos uma vez a cada ${cicloDom(c)} semanas (art. 58, §2º) — no máximo ${lim} domingos seguidos. O acordo coletivo pode exigir intervalo menor.`,
+          :`Restaurantes e bares têm autorização permanente para funcionar aos domingos (Anexo IV da Portaria MTP 671/2021), e desde 23/11/2026 o repouso deve coincidir com o domingo ao menos uma vez a cada ${cicloDom(c)} semanas (art. 4º, §5º da Portaria MTE 2.041/2026, que revogou a regra de 7 semanas) — no máximo ${lim} domingos seguidos. O acordo coletivo pode exigir intervalo menor.`,
         acao:dom.length>lim?()=>{setE(c.id,dom[lim],'F',true);}:null,
         rotulo:dom.length>lim?`Folgar dia ${dom[lim]}`:null,seguro:true});
     }
@@ -2285,6 +2404,19 @@ function formColab(id){
           <p style="font-size:11px;color:var(--fraco);margin-top:4px">Contagem em dias corridos, não em meses.</p></div>
       </div>
       <div class="grade g3" style="margin-top:10px">
+        <div><label>Empresa (CNPJ)</label>
+          <select id="f-emp">
+            <option value="delivery" ${c.empresa!=='bettencas'?'selected':''}>A Bela Cintra Delivery</option>
+            <option value="bettencas" ${c.empresa==='bettencas'?'selected':''}>Bettencas</option>
+          </select>
+          <p style="font-size:11px;color:var(--fraco);margin-top:4px">Vale para folha e custo. Não muda quem cobre turno.</p></div>
+        <div><label>Alocado em outra casa</label>
+          <select id="f-aloc" onchange="toggleCob()">
+            <option value="" ${!c.alocadoEm?'selected':''}>Não — é do quadro desta casa</option>
+            <option value="chiado" ${c.alocadoEm==='chiado'?'selected':''}>Chiado</option>
+            <option value="campos" ${c.alocadoEm==='campos'?'selected':''}>Dois Rios (Campos)</option>
+          </select>
+          <p style="font-size:11px;color:var(--fraco);margin-top:4px">Fica disponível para cobrir folga, fora do quadro fixo e do custo.</p></div>
         <div><label>Próximo exame periódico</label>
           <input type="date" id="f-exame" value="${c.exameAte||''}">
           <p style="font-size:11px;color:var(--fraco);margin-top:4px">A periodicidade varia por função e idade — informe a data que a clínica deu.</p></div>
@@ -2327,6 +2459,62 @@ function formColab(id){
     </div></div>`;
   document.getElementById('f-nome').focus();
 }
+/* ===================== IMPORTAR A LISTA DO ESCRITÓRIO =====================
+   A lista vem em arquivo que VOCÊ escolhe no seu computador. Ela nunca entra
+   no código do app: o repositório é público, e nome de funcionário não pode
+   ir para lá. Daqui os dados seguem para o banco protegido. */
+function pedirImportacao(){ document.getElementById('arq-equipe').click(); }
+
+function importarEquipe(ev){
+  const arq=ev.target.files&&ev.target.files[0]; if(!arq)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    let lista=null;
+    try{ lista=JSON.parse(e.target.result); }
+    catch(err){ alert('Não consegui ler o arquivo. Ele precisa ser o .json que eu te mandei.'); return; }
+    if(!Array.isArray(lista)||!lista.length){ alert('O arquivo não tem nenhuma pessoa dentro.'); return; }
+
+    const antes=(D.colaboradores||[]).length;
+    const porNome=new Map((D.colaboradores||[]).map(c=>[c.nome.toUpperCase().trim(),c]));
+    let novos=0, atualizados=0;
+    const turnoPadrao=(D.turnos[0]||{}).id;
+
+    lista.forEach(p=>{
+      const chave=String(p.nome||'').toUpperCase().trim(); if(!chave)return;
+      const existente=porNome.get(chave);
+      const campos={
+        nome:p.nome, cargo:p.cargo||'', setorId:p.setorId||turnoPadrao&&D.setores[0].id,
+        admissao:p.admissao||'', empresa:p.empresa||'delivery',
+        alocadoEm:p.alocadoEm||'', cobertura:!!p.cobertura
+      };
+      if(existente){ Object.assign(existente,campos); atualizados++; }
+      else{
+        D.colaboradores.push(Object.assign({
+          id:uid(), turnoId:turnoPadrao, jornada:D.cfg.jornada||42, sexo:'',
+          turnosOk:D.turnos.map(t=>t.id), folgaFixa:[], regime:'rodizio',
+          /* quem cobre folga de outra casa não entra no quadro fixo nem no custo */
+          contaCob:!p.cobertura,
+          tipoContrato:'efetivo', expDias:0, exameAte:'',
+          fixa:{0:'F',1:'F',2:'F',3:'F',4:'F',5:'F',6:'F'}
+        },campos));
+        novos++;
+      }
+    });
+    salvar(); renderTudo();
+    alert('Lista importada.\n\n'+novos+' pessoa(s) incluída(s)\n'+atualizados+' atualizada(s)\n'
+      +'Total agora: '+D.colaboradores.length+' (antes: '+antes+')\n\n'
+      +'Os marcados como cobertura ficam disponíveis para tapar folga, mas fora do quadro fixo.');
+    ev.target.value='';
+  };
+  r.readAsText(arq);
+}
+
+/* Quem é de outra casa não entra na contagem de cobertura do quadro fixo. */
+function toggleCob(){
+  const fora=!!document.getElementById('f-aloc').value;
+  const cb=document.getElementById('f-cob');
+  if(cb)cb.checked=!fora;
+}
 function toggleExp(){
   const t=document.getElementById('f-tipo').value;
   document.getElementById('bloco-exp').style.display=t==='experiencia'?'':'none';
@@ -2353,6 +2541,9 @@ function salvarColab(id){
     tipoContrato:document.getElementById('f-tipo').value,
     expDias:+document.getElementById('f-exp').value||0,
     exameAte:document.getElementById('f-exame').value||'',
+    empresa:document.getElementById('f-emp').value,
+    alocadoEm:document.getElementById('f-aloc').value,
+    cobertura:!!document.getElementById('f-aloc').value,
     turnosOk:tok.length?tok:turnosDoSetor(document.getElementById('f-setor').value).map(t=>t.id), folgaFixa:ff};
   if(id)Object.assign(colabDe(id),dd); else D.colaboradores.push(Object.assign({id:uid()},dd));
   salvar();document.getElementById('form-colab').innerHTML='';renderTudo();
@@ -2733,9 +2924,9 @@ function renderConformidade(){
     ${linha('Duas folgas por semana','EC 141',folR,'Uma delas preferencialmente aos domingos.')}
     ${linha('Descanso de 11h entre jornadas','CLT, art. 66',inter,'O caso clássico em restaurante é fechar no jantar e abrir no almoço do dia seguinte.')}
     ${linha('Intervalo de 1h dentro da jornada','CLT, art. 71',intraR,'Acima de 6h de trabalho. Convenção coletiva pode reduzir, nunca abaixo de 30 minutos.')}
-    ${linha('No máximo '+(D.cfg.maxConsec||6)+' dias seguidos','CLT, art. 67',seqR,'O repouso semanal deve vir a cada 7 dias.')}
-    ${linha('Revezamento de domingos','Portaria MTP 671/2021, art. 58 · CLT, art. 386',domR,
-      `Restaurantes e bares têm autorização permanente (Anexo IV): folga dominical a cada ${D.cfg.semDom||7} semanas. Mulheres: a cada ${D.cfg.semDomF||2} semanas, pelo art. 386. O acordo coletivo pode exigir intervalo menor.`)}
+    ${linha('No máximo '+(D.cfg.maxConsec||5)+' dias seguidos','Portaria MTE 2.041/2026, art. 4º',seqR,'Com dois repousos semanais, o empregado não pode trabalhar mais de 5 dias seguidos.')}
+    ${linha('Revezamento de domingos','Portaria MTE 2.041/2026, art. 4º · CLT, art. 386',domR,
+      `Restaurantes e bares têm autorização permanente (Anexo IV): folga dominical a cada ${D.cfg.semDom||4} semanas, preferencialmente. Mulheres: a cada ${D.cfg.semDomF||2} semanas, pelo art. 386, mantido pela nova Portaria. O acordo coletivo pode exigir intervalo menor.`)}
     </tbody></table></div>
     <div class="nota at" style="margin:13px 0 0">O app confere o que dá para conferir a partir da escala. <b>Ele não substitui a assessoria trabalhista.</b>
     Três coisas dependem do acordo coletivo de bares e restaurantes de São Paulo e precisam ser confirmadas com a contabilidade:
@@ -2921,8 +3112,8 @@ function renderPrazos(){
   const semAdm=(D.colaboradores||[]).filter(c=>!c.admissao);
   const lista=todosPrazos();
   const ICO={ferias:'🌴',experiencia:'📄',exame:'🩺'};
-  const ROT={vencido:'VENCIDO',urgente:'URGENTE',proximo:'PRÓXIMO'};
-  const COR={vencido:'var(--vermelho)',urgente:'var(--amarelo)',proximo:'var(--azul-claro)'};
+  const ROT={vencido:'VENCIDO',urgente:'URGENTE',proximo:'PRÓXIMO',semdado:'FALTA DADO'};
+  const COR={vencido:'var(--vermelho)',urgente:'var(--amarelo)',proximo:'var(--azul-claro)',semdado:'var(--fraco)'};
 
   let h='';
 
@@ -2939,6 +3130,11 @@ function renderPrazos(){
   }
 
   const n=k=>lista.filter(x=>x.nivel===k).length;
+  if(n('semdado'))
+    h+=`<div class="nota at"><b>${n('semdado')} pessoa(s) sem histórico de férias lançado</b>
+      Para elas o app não consegue dizer se há atraso: ele conhece a data de admissão, mas não as férias já tiradas.
+      Enquanto o histórico não entrar em Afastamentos, esses casos aparecem como <b>FALTA DADO</b> — não como vencidos.
+      Peça ao escritório a data das últimas férias de cada um; é o que falta para esta aba virar controle de verdade.</div>`;
   h+=`<div class="nota ${n('vencido')?'at':'bo'}">
     <b>${lista.length} prazo(s) na janela de ${D.cfg.janelaPrazos||90} dias.</b>
     ${n('vencido')?`${n('vencido')} já vencido(s). `:''}${n('urgente')?`${n('urgente')} nos próximos 15 dias. `:''}
@@ -2996,6 +3192,21 @@ function renderTudo(){
 }
 aplicarTema(D.cfg.tema||'sintra',false);
 renderTudo();
+
+/* Busca os dados no banco do grupo. Enquanto não responde, a tela já mostra
+   o cache local — melhor do que uma tela branca. */
+(async function(){
+  const ok=await carregarNuvem();
+  marcaNuvem();
+  if(ok)renderTudo();
+  if(NUVEM==='desligada'){
+    const el=document.getElementById('aviso-nuvem');
+    if(el)el.innerHTML=`<div class="nota at"><b>Esta lista está só neste navegador</b>
+      Para salvar no banco do grupo, com backup e visível para o financeiro, abra a escala
+      pela aba <b>Escala</b> dentro do app analítico, depois de entrar com seu login.
+      <a href="https://britojuniorcompras-alt.github.io/inteligencia-analitica-grupo-a-bela-sintra/" target="_blank" rel="noopener">Abrir o app analítico</a></div>`;
+  }
+})();
 </script>
 </body>
 </html>
