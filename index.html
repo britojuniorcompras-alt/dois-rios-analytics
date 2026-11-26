@@ -646,11 +646,13 @@ footer{text-align:center;padding:26px;color:var(--tx3);font-size:12px;border-top
   <!-- ---------- ESCALA (app separado, escala.html, na mesma pasta) ---------- -->
   <div class="view" id="v-escala" style="padding:0;margin:0">
     <div id="escala-aviso"></div>
-    <iframe id="escala-frame" src="escala.html" title="Escala da bela Sintra"
-      onload="escalaOk()" onerror="escalaFalhou()"
+    <iframe id="escala-frame" title="Escala da bela Sintra"
+      onload="if(this.getAttribute('src')&&window.escalaOk)escalaOk()"
+      onerror="if(window.escalaFalhou)escalaFalhou()"
       style="width:100%;height:calc(100vh - 56px);min-height:600px;border:0;display:block"></iframe>
     <p class="vd" style="margin:6px 16px">
       <a href="escala.html" target="_blank" rel="noopener">Abrir a escala em uma aba separada</a>
+      · <a href="#" onclick="recarregarEscala();return false">Recarregar a escala</a>
       — melhor para imprimir ou para trabalhar no mês inteiro com a tela cheia.</p>
   </div>
 
@@ -1037,6 +1039,11 @@ function go(v){CUR=v;
   if(v==='escala'){
     // a escala é um app próprio dentro do iframe: nada a renderizar aqui
     if(mainEl)mainEl.classList.add('escala-ativa');
+    /* Carrega na primeira abertura, com marca de versão. Sem isso o navegador
+       serve a cópia em cache DENTRO do iframe e a pessoa continua vendo a
+       versão antiga por mais que recarregue a página de fora. */
+    const fr=document.getElementById('escala-frame');
+    if(fr&&!fr.getAttribute('src'))fr.setAttribute('src','escala.html?v='+Date.now());
     avisoEscala();
     setTimeout(()=>{ if(!escalaCarregou)escalaFalhou(); },2500);
     return;
@@ -1080,10 +1087,30 @@ function aplicarRegime(est){
    Perdi esta porta num upload de 24/11 que subiu só o index.html: o
    escala.html nunca saiu do repositório, mas a aba sumiu do menu. */
 let escalaCarregou=false;
+/* A escala, quando carrega, me manda um aviso de dentro do iframe. É o único
+   jeito que funciona tanto no site publicado quanto com os dois arquivos
+   abertos direto da pasta, onde o navegador me proíbe de olhar lá dentro. */
+window.addEventListener('message',ev=>{
+  if(ev&&ev.data&&ev.data.escala==='ok'){
+    escalaCarregou=true;
+    const el=document.getElementById('escala-aviso');
+    if(el&&el.innerHTML.includes('não foi encontrado'))avisoEscala();
+  }
+});
 function escalaOk(){
-  escalaCarregou=true;
+  /* o onload dispara até para página de erro, então ele não serve de prova:
+     quem confirma é o aviso que a escala manda. Aqui só adianto o diagnóstico
+     quando consigo mesmo ler o que veio. */
   const f=document.getElementById('escala-frame');
-  try{ if(!f.contentDocument||!f.contentDocument.getElementById('grade'))escalaFalhou(); }catch(e){}
+  /* Só acuso arquivo faltando quando CONSIGO ler o que veio e não é a escala.
+     Aberto direto da pasta (file://), o navegador bloqueia a leitura de dentro
+     do iframe e contentDocument vem nulo — isso não quer dizer que o arquivo
+     não existe, e acusar aqui mostrava um erro falso para quem baixou os dois.
+     O arquivo realmente ausente continua pego pelo prazo de 2,5s lá no go(). */
+  try{
+    const doc=f.contentDocument;
+    if(doc && doc.readyState!=='loading' && !doc.getElementById('grade'))escalaFalhou();
+  }catch(e){}
 }
 function escalaFalhou(){
   const el=document.getElementById('escala-aviso');
@@ -1091,6 +1118,14 @@ function escalaFalhou(){
     A aba Escala carrega um segundo arquivo, que precisa estar <b>na mesma pasta</b> deste app e com o nome exato
     <b>escala.html</b> — sem "(1)", sem número no fim. Se você baixou os dois, confira o nome na pasta Downloads.
     No site publicado, suba os dois arquivos na raiz do repositório.</div></div>`;
+}
+/* Força buscar a escala no servidor, ignorando o cache do navegador. */
+function recarregarEscala(){
+  const fr=document.getElementById('escala-frame');
+  if(!fr)return;
+  escalaCarregou=false;
+  document.getElementById('escala-aviso').innerHTML='';
+  fr.setAttribute('src','escala.html?v='+Date.now());
 }
 function avisoEscala(){
   const el=document.getElementById('escala-aviso');

@@ -819,7 +819,7 @@ function horasSem(c,s){let t=0;s.forEach(d=>{if(d&&trabalha(c,d))t+=turnoDe(getE
 function folgasSem(c,s){let n=0;s.forEach(d=>{if(d&&getE(c,d)==='F')n++;});return n;}
 /* o ciclo legal é "folga em domingo ao menos uma vez a cada N semanas";
    trabalhar N-1 domingos seguidos ainda cumpre, o N-ésimo não */
-const cicloDom=c=>Math.max(1,(c.sexo==='F'?(D.cfg.semDomF||2):(D.cfg.semDom||7)));
+const cicloDom=c=>Math.max(1,(c.sexo==='F'?(D.cfg.semDomF||2):(D.cfg.semDom||4)));
 const limDom=c=>cicloDom(c)-1;
 /* ---------- afastamentos por período ---------- */
 function afastamentoEm(cid,isoDia){
@@ -1286,7 +1286,7 @@ function violSetor(sid){
   let v=0; const sems=semanas();
   EQ().filter(c=>c.setorId===sid&&noRodizio(c)).forEach(c=>{
     v+=falhasInterjornada(c.id).length*8;
-    if(maiorSeq(c.id)>(D.cfg.maxConsec||6))v+=8;
+    if(maiorSeq(c.id)>(D.cfg.maxConsec||5))v+=8;
     if(domSeg(c.id)>limDom(c))v+=8;
     const jor=c.jornada||D.cfg.jornada;
     sems.forEach(sem=>{
@@ -1302,7 +1302,7 @@ const notaSetor=sid=>custoSetor(sid)+violSetor(sid);
 
 /* nenhuma pessoa deve passar do máximo de dias seguidos */
 function corrigirSequencias(){
-  const mx=D.cfg.maxConsec||6;
+  const mx=D.cfg.maxConsec||5;
   EQ().filter(noRodizio).forEach(c=>{
     let guarda=0;
     while(maiorSeq(c.id)>mx && guarda++<12){
@@ -1359,7 +1359,7 @@ function limparMes(){
 let SUG=[];
 function candidatosCobrir(sid,dia,tid){
   const sem=semanas().find(w=>w.includes(dia))||[];
-  const t=turnoDe(tid), mx=D.cfg.maxConsec||6;
+  const t=turnoDe(tid), mx=D.cfg.maxConsec||5;
   return EQ().filter(c=>c.setorId===sid&&noRodizio(c))
     .filter(c=>!afastadoNoDia(c.id,dia))           /* férias, atestado e licença não cobrem turno */
     .filter(c=>turnosDoSetor(sid).some(t=>t.id===tid))
@@ -1427,7 +1427,7 @@ function analisar(){
   /* 2. dias seguidos acima do limite — vale para todos, inclusive escala fixa */
   EQ().forEach(c=>{
     const seq=maiorSeq(c.id);
-    if(seq>(D.cfg.maxConsec||6))
+    if(seq>(D.cfg.maxConsec||5))
       S.push({nivel:'c',titulo:`${c.nome} trabalha ${seq} dias seguidos`,
         detalhe:`O limite configurado é ${D.cfg.maxConsec}. Sequências longas são risco trabalhista e de saúde — a CLT garante descanso a cada 7 dias.`,
         acao:noRodizio(c)?()=>{corrigirSequencias();}:null,
@@ -1573,10 +1573,19 @@ function analisar(){
 
   /* 4. sem sexo no cadastro */
   const semSexo=EQ().filter(c=>!c.sexo&&noRodizio(c));
-  if(semSexo.length)
-    S.push({nivel:'a',titulo:`${semSexo.length} pessoa(s) sem sexo no cadastro`,
-      detalhe:`A regra de domingos é diferente para mulheres (folga quinzenal, art. 386). Sem esse dado o app aplica a regra menos rígida e pode deixar passar um vencimento. Faltam: ${semSexo.slice(0,8).map(c=>c.nome).join(', ')}${semSexo.length>8?'…':''}.`,
+  if(semSexo.length){
+    /* um ou dois em branco é um lembrete; metade da casa em branco significa
+       que a regra do art. 386 está desligada para o restaurante inteiro, e
+       isso não pode ficar escondido entre os avisos */
+    const maioria=semSexo.length>EQ().filter(noRodizio).length/2;
+    S.push({nivel:maioria?'c':'a',
+      titulo:`${semSexo.length} pessoa(s) sem sexo no cadastro`
+        +(maioria?' — a regra de domingo das mulheres está desligada':''),
+      detalhe:`O art. 386 da CLT dá às mulheres folga dominical a cada ${D.cfg.semDomF||2} semanas, prazo menor que o dos homens. `
+        +`Sem esse dado na ficha, o app aplica a todos o prazo geral de ${D.cfg.semDom||4} semanas: uma mulher escalada acima do limite dela não aparece como problema em lugar nenhum. `
+        +`Faltam: ${semSexo.slice(0,8).map(c=>c.nome).join(', ')}${semSexo.length>8?` e mais ${semSexo.length-8}`:''}.`,
       acao:()=>irPara('equipe'),rotulo:'Abrir equipe',seguro:false});
+  }
 
   /* 5. horas acima / abaixo */
   let ocio=0, extra=0;
@@ -1660,15 +1669,31 @@ function analisar(){
         seguro:false});
   });
 
-  /* 9. setor sem necessidade preenchida */
-  D.setores.forEach(st=>{
-    if(!EQ().some(c=>c.setorId===st.id))return;
-    let soma=0;for(let w=0;w<7;w++)turnosDoSetor(st.id).forEach(t=>soma+=getDem(st.id,w,t.id));
-    if(!soma)
-      S.push({nivel:'a',titulo:`${st.nome} está sem necessidade de cobertura`,
+  /* 9. setor sem necessidade preenchida.
+     Um setor em branco é um lembrete. A maior parte da casa em branco é outra
+     coisa: a conferência de cobertura inteira para de valer, o gerador fica
+     sem alvo e um dia sem gente aparece como dia tranquilo. Nesse caso vira
+     um aviso só, crítico, em vez de oito avisos pequenos. */
+  {
+    const comGente=D.setores.filter(st=>EQ().some(c=>c.setorId===st.id));
+    const mudos=comGente.filter(st=>{
+      let soma=0;for(let w=0;w<7;w++)turnosDoSetor(st.id).forEach(t=>soma+=getDem(st.id,w,t.id));
+      return !soma;
+    });
+    const pessoas=mudos.reduce((a,st)=>a+EQ().filter(c=>c.setorId===st.id).length,0);
+    if(mudos.length && pessoas>EQ().length/2){
+      S.push({nivel:'c',
+        titulo:`${mudos.length} setor(es) sem necessidade cadastrada, com ${pessoas} de ${EQ().length} pessoa(s) dentro`,
+        detalhe:`Em ${mudos.map(st=>st.nome.trim()).join(', ')} ninguém informou quantas pessoas cada turno precisa. `
+          +`Enquanto isso não for preenchido na aba Cobertura, o app não consegue apontar furo nesses setores, `
+          +`"Gerar mês" não tem alvo para mirar e um dia sem ninguém aparece como dia tranquilo.`,
+        acao:()=>irPara('cobertura'),rotulo:'Abrir a Cobertura',seguro:false});
+    } else {
+      mudos.forEach(st=>S.push({nivel:'a',titulo:`${st.nome.trim()} está sem necessidade de cobertura`,
         detalhe:`Sem esse dado o app não sabe quantas pessoas o setor precisa por dia, e nem o gerador nem as sugestões conseguem trabalhar nele.`,
-        acao:()=>irPara('cobertura'),rotulo:'Preencher',seguro:false});
-  });
+        acao:()=>irPara('cobertura'),rotulo:'Preencher',seguro:false}));
+    }
+  }
 
   /* 10. pessoas presas a um turno só */
   const presos=EQ().filter(c=>noRodizio(c)&&c.turnosOk.length===1&&D.turnos.length>1);
@@ -1807,7 +1832,20 @@ function renderHoje(){
   al.innerHTML = furos.length
     ? `<div class="nota at"><b>${furos.length} furo(s) de cobertura neste dia.</b> ${furos.map(f=>esc(f.st.nome)+' · '+esc(f.t.nome)+' ('+f.tem+' de '+f.nec+')').join(' · ')}
        <br><button class="btn mini terr" style="margin-top:8px" onclick="irPara('sugestoes')">Ver quem pode cobrir</button></div>`
-    : `<div class="nota bo"><b>Dia coberto.</b> Todos os turnos com necessidade preenchida têm gente suficiente.</div>`;
+    : (()=>{
+        /* "Dia coberto" sem necessidade cadastrada é falso sossego: o app não
+           tinha nada contra o que comparar. Melhor dizer a verdade. */
+        const comGente=D.setores.filter(st=>EQ().some(c=>c.setorId===st.id));
+        const mudos=comGente.filter(st=>!turnosDoSetor(st.id).some(t=>demDoDia(st.id,d,t.id)));
+        if(mudos.length===comGente.length)
+          return `<div class="nota at"><b>Não dá para dizer se o dia está coberto.</b>
+            Nenhum setor tem necessidade cadastrada para hoje, então não há régua para comparar.
+            <br><button class="btn mini terr" style="margin-top:8px" onclick="irPara('cobertura')">Preencher a necessidade</button></div>`;
+        if(mudos.length)
+          return `<div class="nota bo"><b>Dia coberto nos setores com necessidade preenchida.</b>
+            Sem régua em: ${mudos.map(st=>esc(st.nome.trim())).join(', ')} — nesses, o app não tem como avisar de furo.</div>`;
+        return `<div class="nota bo"><b>Dia coberto.</b> Todos os turnos com necessidade preenchida têm gente suficiente.</div>`;
+      })();
 
   let blocoCobrir='';
   if(furos.length){
@@ -2217,7 +2255,7 @@ function renderLegenda(){
     <div><b>Colunas Horas e Folgas</b> — totais do mês inteiro, não da semana.</div>
     <div><b>Seq.</b> — maior sequência de dias seguidos sem folga no mês.</div>
     <div><b>Dom.</b> — domingos trabalhados em sequência. O repouso precisa cair num domingo ao menos uma vez a cada
-      ${D.cfg.semDom||7} semanas (${(D.cfg.semDomF||2)} para mulheres), então o limite exibido é esse número menos um.</div>
+      ${D.cfg.semDom||4} semanas (${(D.cfg.semDomF||2)} para mulheres), então o limite exibido é esse número menos um.</div>
   </div>`;
 }
 function renderBarraSetores(){
@@ -2259,7 +2297,7 @@ function renderGrade(){
     h+=`<tr class="sep"><td colspan="${n+5}">${esc(st.nome)} · ${time.length}</td></tr>`;
     time.forEach(c=>{
       let fg=0;for(let d=1;d<=n;d++)if(getE(c.id,d)==='F')fg++;
-      const sq=maiorSeq(c.id), ds=domSeg(c.id), lim=limDom(c), mx=D.cfg.maxConsec||6;
+      const sq=maiorSeq(c.id), ds=domSeg(c.id), lim=limDom(c), mx=D.cfg.maxConsec||5;
       h+=`<tr><td style="position:sticky;left:0;background:var(--branco);z-index:1;padding:4px 8px"
         title="${esc(c.nome)} · ${esc(c.cargo)||'—'}${c.contaCob===false?' · fora da cobertura':''}">
         <b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:218px">${esc(c.nome)}</b>
@@ -2385,7 +2423,7 @@ function renderSug(){
     h+=`<tr class="sep"><td colspan="5">${esc(st.nome)} · média de ${h1(med)} dias de fim de semana por pessoa</td></tr>`;
     time.slice().sort((a,b)=>fdsTrab(b.id)-fdsTrab(a.id)).forEach(c=>{
       let dom=0;for(let d=1;d<=n;d++)if(dsem(d)===6&&trabalha(c.id,d))dom++;
-      const f=fdsTrab(c.id), mx=D.cfg.maxConsec||6, sq=maiorSeq(c.id);
+      const f=fdsTrab(c.id), mx=D.cfg.maxConsec||5, sq=maiorSeq(c.id);
       h+=`<tr><td><b>${esc(c.nome)}</b>${c.naEscala===false?'<br><span style="font-size:10px;color:var(--fraco)">fora da escala</span>':''}${c.alocadoEm?`<br><span style="font-size:10px;color:var(--fraco)">cobre folga · ${esc(c.alocadoEm==='campos'?'Dois Rios':'Chiado')}</span>`:''}${c.empresa==='bettencas'?'<br><span style="font-size:10px;color:var(--fraco)">Bettencas</span>':''}</td><td style="text-align:center">${horasMes(c.id)}h</td>
         <td style="text-align:center"><b class="${f>med+1.5?'alerta':(f<med-1.5?'ok':'')}">${f}</b></td>
         <td style="text-align:center">${dom}</td>
@@ -2943,10 +2981,10 @@ function baixarFechamento(){
 function salvarCfg(){
   D.cfg.jornada=+document.getElementById('c-jor').value||42;
   D.cfg.folgasMin=+document.getElementById('c-fol').value||2;
-  D.cfg.maxConsec=+document.getElementById('c-con').value||6;
+  D.cfg.maxConsec=+document.getElementById('c-con').value||5;
   D.cfg.custoHora=+document.getElementById('c-cus').value||0;
   D.cfg.maxFerias=+document.getElementById('c-fer').value||1;
-  D.cfg.semDom=Math.max(1,+document.getElementById('c-sd').value||7);
+  D.cfg.semDom=Math.max(1,+document.getElementById('c-sd').value||4);
   D.cfg.semDomF=Math.max(1,+document.getElementById('c-sdf').value||2);
   salvar();renderTudo();
 }
@@ -3053,13 +3091,16 @@ function renderConformidade(){
   const n=nDias();
   const conta=f=>D.colaboradores.filter(f).length;
   const inter=D.colaboradores.filter(c=>falhasInterjornada(c.id).length).length;
-  const seqR=conta(c=>maiorSeq(c.id)>(D.cfg.maxConsec||6));
+  const seqR=conta(c=>maiorSeq(c.id)>(D.cfg.maxConsec||5));
   const domR=conta(c=>noRodizio(c)&&domSeg(c.id)>limDom(c));
   const folR=conta(c=>semanas().some(sem=>sem.filter(Boolean).length===7
     &&!sem.filter(Boolean).some(d=>afastadoNoDia(c.id,d))&&folgasSem(c.id,sem)<D.cfg.folgasMin));
   const intraR=D.turnos.filter(t=>presenca(t)>6&&(+t.intervalo||0)<1-0.01).length;
   const diaR=D.turnos.filter(t=>t.horas>8.01).length;
   const semanaR=conta(c=>semanas().some(sem=>sem.filter(Boolean).length===7&&horasSem(c.id,sem)>(c.jornada||D.cfg.jornada)+0.05));
+  /* sem sexo no cadastro a regra do art. 386 fica desligada em silêncio para
+     as mulheres — e silêncio, aqui, é o pior resultado possível */
+  const semSexo=conta(c=>naEscala(c)&&!c.sexo);
   const linha=(reg,base,ruim,obs)=>`<tr>
     <td><b>${reg}</b><br><span style="font-size:11px;color:var(--fraco)">${base}</span></td>
     <td style="text-align:center;white-space:nowrap">${ruim?`<b class="ruim">${ruim}</b>`:'<b class="ok">ok</b>'}</td>
@@ -3074,6 +3115,8 @@ function renderConformidade(){
     ${linha('No máximo '+(D.cfg.maxConsec||5)+' dias seguidos','Portaria MTE 2.041/2026, art. 4º',seqR,'Com dois repousos semanais, o empregado não pode trabalhar mais de 5 dias seguidos.')}
     ${linha('Revezamento de domingos','Portaria MTE 2.041/2026, art. 4º · CLT, art. 386',domR,
       `Restaurantes e bares têm autorização permanente (Anexo IV): folga dominical a cada ${D.cfg.semDom||4} semanas, preferencialmente. Mulheres: a cada ${D.cfg.semDomF||2} semanas, pelo art. 386, mantido pela nova Portaria. O acordo coletivo pode exigir intervalo menor.`)}
+    ${linha('Sexo informado no cadastro','Necessário para aplicar o art. 386',semSexo,
+      'Sem essa informação o app não consegue aplicar o prazo mais curto das mulheres e trata a pessoa pelo prazo geral. Preencha na ficha de cada um, na aba Equipe.')}
     </tbody></table></div>
     <div class="nota at" style="margin:13px 0 0">O app confere o que dá para conferir a partir da escala. <b>Ele não substitui a assessoria trabalhista.</b>
     Três coisas dependem do acordo coletivo de bares e restaurantes de São Paulo e precisam ser confirmadas com a contabilidade:
@@ -3095,7 +3138,7 @@ function renderAjustes(){
   document.getElementById('c-con').value=D.cfg.maxConsec;
   document.getElementById('c-cus').value=D.cfg.custoHora;
   document.getElementById('c-fer').value=D.cfg.maxFerias||1;
-  document.getElementById('c-sd').value=D.cfg.semDom||7;
+  document.getElementById('c-sd').value=D.cfg.semDom||4;
   document.getElementById('c-sdf').value=D.cfg.semDomF||2;
   const alvo=D.cfg.jornada/(7-D.cfg.folgasMin);
   document.getElementById('lista-turnos').innerHTML=
@@ -3340,6 +3383,12 @@ function renderTudo(){
 aplicarTema(D.cfg.tema||'sintra',false);
 setorInicial();
 renderTudo();
+
+/* Avisa o app analítico que a escala subiu de verdade. Quando ele me carrega
+   dentro de um iframe, ele não consegue olhar aqui dentro para conferir —
+   principalmente se os dois arquivos forem abertos direto da pasta. Sem este
+   sinal ele tinha de adivinhar, e adivinhava errado nos dois sentidos. */
+try{ if(window.parent&&window.parent!==window)window.parent.postMessage({escala:'ok'},'*'); }catch(e){}
 
 /* Busca os dados no banco do grupo. Enquanto não responde, a tela já mostra
    o cache local — melhor do que uma tela branca. */
