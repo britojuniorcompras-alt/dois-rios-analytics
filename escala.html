@@ -717,6 +717,12 @@ function turnosDoSetor(sid){
 /* nunca devolve vazio — usada onde o código precisa de ao menos um turno */
 function turnosSeguro(sid){const l=turnosDoSetor(sid);return l.length?l:D.turnos;}
 const turnosDoColab=c=>turnosDoSetor(c.setorId);
+/* Quem entra na montagem da escala. Vetar alguém não é apagar: a pessoa
+   continua no cadastro, continua contando para férias e prazos, mas some da
+   grade, da cobertura e das contas de capacidade. Serve para ADM, gerência e
+   quem não cumpre turno. */
+const naEscala=c=>c&&c.naEscala!==false;
+const EQ=()=>(D.colaboradores||[]).filter(naEscala);
 const colabDe=id=>D.colaboradores.find(c=>c.id===id);
 function presenca(t){
   const[hi,mi]=(t.inicio||'0:0').split(':').map(Number),[hf,mf]=(t.fim||'0:0').split(':').map(Number);
@@ -1081,7 +1087,7 @@ function respeita11h(cid,d,t){
   return true;
 }
 function corrigirInterjornada(){
-  D.colaboradores.filter(noRodizio).forEach(c=>{
+  EQ().filter(noRodizio).forEach(c=>{
     let guarda=0;
     while(falhasInterjornada(c.id).length&&guarda++<15){
       const f=falhasInterjornada(c.id)[0];
@@ -1153,7 +1159,7 @@ function getDem(s,w,t){return D.demanda?.[s]?.[w]?.[t]??0;}
 function setDem(s,w,t,v){
   D.demanda[s]=D.demanda[s]||{};D.demanda[s][w]=D.demanda[s][w]||{};
   D.demanda[s][w][t]=Math.max(0,+v||0);salvar();renderTudo();}
-function escalados(s,d,t){return D.colaboradores.filter(c=>c.setorId===s&&c.contaCob!==false&&getE(c.id,d)===t&&!faltou(c.id,d)).length;}
+function escalados(s,d,t){return EQ().filter(c=>c.setorId===s&&c.contaCob!==false&&getE(c.id,d)===t&&!faltou(c.id,d)).length;}
 /* num feriado, a necessidade do dia pode seguir a de domingo */
 function demDoDia(sid,d,tid){
   if(D.cfg.feriadoComoDomingo&&feriadoNoDia(d)&&feriadoNoDia(d).tipo!=='facultativo')
@@ -1170,13 +1176,13 @@ function gerar(indices){
   const sems=semanas();
   D.setores.forEach(S=>{
     /* quem tem escala fixa recebe o próprio padrão e sai do rodízio */
-    D.colaboradores.filter(c=>c.setorId===S.id&&!noRodizio(c)).forEach(c=>{
+    EQ().filter(c=>c.setorId===S.id&&!noRodizio(c)).forEach(c=>{
       for(let d=1;d<=nDias();d++){
         if(ehMan(c.id,d))continue;
         setE(c.id,d,c.fixa?.[dsem(d)]||'F',false);
       }
     });
-    const time=D.colaboradores.filter(c=>c.setorId===S.id&&noRodizio(c));
+    const time=EQ().filter(c=>c.setorId===S.id&&noRodizio(c));
     if(!time.length)return;
     const nec=DIAS.map((_,w)=>turnosDoSetor(S.id).reduce((a,t)=>a+getDem(S.id,w,t.id),0));
     const streak={};time.forEach(c=>streak[c.id]=domSegEntrada(c.id));
@@ -1277,7 +1283,7 @@ function custoSetor(sid){
 /* quebras de regra num setor, em peso */
 function violSetor(sid){
   let v=0; const sems=semanas();
-  D.colaboradores.filter(c=>c.setorId===sid&&noRodizio(c)).forEach(c=>{
+  EQ().filter(c=>c.setorId===sid&&noRodizio(c)).forEach(c=>{
     v+=falhasInterjornada(c.id).length*8;
     if(maiorSeq(c.id)>(D.cfg.maxConsec||6))v+=8;
     if(domSeg(c.id)>limDom(c))v+=8;
@@ -1296,7 +1302,7 @@ const notaSetor=sid=>custoSetor(sid)+violSetor(sid);
 /* nenhuma pessoa deve passar do máximo de dias seguidos */
 function corrigirSequencias(){
   const mx=D.cfg.maxConsec||6;
-  D.colaboradores.filter(noRodizio).forEach(c=>{
+  EQ().filter(noRodizio).forEach(c=>{
     let guarda=0;
     while(maiorSeq(c.id)>mx && guarda++<12){
       /* acha o dia da sequência cuja folga custa menos ao setor */
@@ -1332,13 +1338,13 @@ function corrigirSequencias(){
   });
 }
 function gerarMes(){
-  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  if(!EQ().length)return alert('Cadastre a equipe primeiro.');
   const n=Object.keys(D.manuais[mesAtivo]||{}).length;
   if(!confirm('Gerar o rodízio de '+rotMes()+'?'+(n?'\n\n'+n+' célula(s) ajustada(s) à mão serão preservadas.':'')))return;
   gerar(semanas().map((_,i)=>i));
 }
 function gerarSemana(){
-  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  if(!EQ().length)return alert('Cadastre a equipe primeiro.');
   const i=iSem(),ds=(semanas()[i]||[]).filter(Boolean);
   if(!confirm('Regerar a semana '+ds[0]+'–'+ds[ds.length-1]+'? Seus ajustes manuais serão preservados.'))return;
   gerar([i]);
@@ -1353,7 +1359,7 @@ let SUG=[];
 function candidatosCobrir(sid,dia,tid){
   const sem=semanas().find(w=>w.includes(dia))||[];
   const t=turnoDe(tid), mx=D.cfg.maxConsec||6;
-  return D.colaboradores.filter(c=>c.setorId===sid&&noRodizio(c))
+  return EQ().filter(c=>c.setorId===sid&&noRodizio(c))
     .filter(c=>!afastadoNoDia(c.id,dia))           /* férias, atestado e licença não cobrem turno */
     .filter(c=>turnosDoSetor(sid).some(t=>t.id===tid))
     .filter(c=>!trabalha(c.id,dia)&&getE(c.id,dia)!=='FER'&&!faltou(c.id,dia))
@@ -1382,13 +1388,13 @@ function candidatosCobrir(sid,dia,tid){
 }
 function analisar(){
   const S=[];
-  if(!D.colaboradores.length){SUG=S;return S;}
+  if(!EQ().length){SUG=S;return S;}
   const sems=semanas(), n=nDias();
 
   /* 1. furos de cobertura */
   const furos=[];
   D.setores.forEach(st=>{
-    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    if(!EQ().some(c=>c.setorId===st.id))return;
     for(let d=1;d<=n;d++){const w=dsem(d);
       turnosDoSetor(st.id).forEach(t=>{
         const nec=demDoDia(st.id,d,t.id); if(!nec)return;
@@ -1418,7 +1424,7 @@ function analisar(){
   });
 
   /* 2. dias seguidos acima do limite — vale para todos, inclusive escala fixa */
-  D.colaboradores.forEach(c=>{
+  EQ().forEach(c=>{
     const seq=maiorSeq(c.id);
     if(seq>(D.cfg.maxConsec||6))
       S.push({nivel:'c',titulo:`${c.nome} trabalha ${seq} dias seguidos`,
@@ -1428,7 +1434,7 @@ function analisar(){
   });
 
   /* 3. domingos seguidos */
-  D.colaboradores.filter(noRodizio).forEach(c=>{
+  EQ().filter(noRodizio).forEach(c=>{
     const ds=domSeg(c.id), lim=limDom(c);
     if(ds>lim){
       const dom=[];for(let d=1;d<=n;d++)if(dsem(d)===6&&trabalha(c.id,d))dom.push(d);
@@ -1442,7 +1448,7 @@ function analisar(){
   });
 
   /* 3b. descanso entre jornadas — art. 66 da CLT */
-  D.colaboradores.forEach(c=>{
+  EQ().forEach(c=>{
     const f=falhasInterjornada(c.id);
     if(!f.length)return;
     const p=f[0];
@@ -1495,7 +1501,7 @@ function analisar(){
         if(!dia)return;
         // minutos cobertos por quem está escalado neste setor e dia
         const cob=[];
-        D.colaboradores.filter(c=>c.setorId===st.id).forEach(c=>{
+        EQ().filter(c=>c.setorId===st.id).forEach(c=>{
           const v=getE(c.id,dia); const t=turnoDe(v); if(!t)return;
           blocosTurno(t).forEach(b=>{
             let i=minDe(b.ini), f=minDe(b.fim); if(f<=i)f+=1440;
@@ -1530,7 +1536,7 @@ function analisar(){
 
   /* 3e. gente demais afastada ao mesmo tempo no setor */
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id);
+    const time=EQ().filter(c=>c.setorId===st.id);
     if(time.length<2)return;
     let pior=0,diaPior=0;
     for(let d=1;d<=n;d++){
@@ -1545,7 +1551,7 @@ function analisar(){
 
   /* 3e2. setor sem turno próprio */
   D.setores.forEach(st=>{
-    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    if(!EQ().some(c=>c.setorId===st.id))return;
     if(!turnosDoSetor(st.id).length)
       S.push({nivel:'c',titulo:`${st.nome} está sem nenhum turno`,
         detalhe:`Todos os turnos foram atribuídos a outros setores, então o gerador não tem horário nenhum para escalar este setor. Crie um turno para ele em Ajustes → Setores → "+ Turno deste setor".`,
@@ -1565,7 +1571,7 @@ function analisar(){
   }
 
   /* 4. sem sexo no cadastro */
-  const semSexo=D.colaboradores.filter(c=>!c.sexo&&noRodizio(c));
+  const semSexo=EQ().filter(c=>!c.sexo&&noRodizio(c));
   if(semSexo.length)
     S.push({nivel:'a',titulo:`${semSexo.length} pessoa(s) sem sexo no cadastro`,
       detalhe:`A regra de domingos é diferente para mulheres (folga quinzenal, art. 386). Sem esse dado o app aplica a regra menos rígida e pode deixar passar um vencimento. Faltam: ${semSexo.slice(0,8).map(c=>c.nome).join(', ')}${semSexo.length>8?'…':''}.`,
@@ -1573,7 +1579,7 @@ function analisar(){
 
   /* 5. horas acima / abaixo */
   let ocio=0, extra=0;
-  D.colaboradores.filter(noRodizio).forEach(c=>{
+  EQ().filter(noRodizio).forEach(c=>{
     const jor=c.jornada||D.cfg.jornada;
     sems.forEach(sem=>{
       if(sem.filter(Boolean).length<7)return;
@@ -1597,7 +1603,7 @@ function analisar(){
 
   /* 6. sobra num dia e falta em outro, no mesmo setor */
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id&&noRodizio(c));
+    const time=EQ().filter(c=>c.setorId===st.id&&noRodizio(c));
     if(time.length<2)return;
     const saldo=DIAS.map((_,w)=>{
       let dif=0,cont=0;
@@ -1618,7 +1624,7 @@ function analisar(){
 
   /* 6b. furo concentrado no domingo = conflito com o revezamento, não má distribuição */
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id);
+    const time=EQ().filter(c=>c.setorId===st.id);
     if(!time.length)return;
     let dDom=0,dOut=0;
     for(let d=1;d<=n;d++){const w=dsem(d);
@@ -1635,7 +1641,7 @@ function analisar(){
 
   /* 7. equilíbrio de fins de semana */
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id&&noRodizio(c));
+    const time=EQ().filter(c=>c.setorId===st.id&&noRodizio(c));
     if(time.length<3)return;
     const v=time.map(c=>({c,n:fdsTrab(c.id)})).sort((a,b)=>b.n-a.n);
     if(v[0].n-v[v.length-1].n>=3)
@@ -1655,7 +1661,7 @@ function analisar(){
 
   /* 9. setor sem necessidade preenchida */
   D.setores.forEach(st=>{
-    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    if(!EQ().some(c=>c.setorId===st.id))return;
     let soma=0;for(let w=0;w<7;w++)turnosDoSetor(st.id).forEach(t=>soma+=getDem(st.id,w,t.id));
     if(!soma)
       S.push({nivel:'a',titulo:`${st.nome} está sem necessidade de cobertura`,
@@ -1664,8 +1670,8 @@ function analisar(){
   });
 
   /* 10. pessoas presas a um turno só */
-  const presos=D.colaboradores.filter(c=>noRodizio(c)&&c.turnosOk.length===1&&D.turnos.length>1);
-  if(presos.length>=Math.max(3,D.colaboradores.length*0.5))
+  const presos=EQ().filter(c=>noRodizio(c)&&c.turnosOk.length===1&&D.turnos.length>1);
+  if(presos.length>=Math.max(3,EQ().length*0.5))
     S.push({nivel:'d',titulo:`${presos.length} pessoas fazem um turno só`,
       detalhe:`Com equipe enxuta, polivalência vale mais que gente nova: quem pode cobrir almoço e jantar dá ao gerador o dobro de combinações para fechar os furos. Marque no cadastro quem já consegue fazer mais de um turno.`,
       acao:()=>irPara('equipe'),rotulo:'Abrir equipe',seguro:false});
@@ -1677,7 +1683,7 @@ function analisar(){
 /* busca local: troca um dia de trabalho por um dia de folga da mesma semana,
    e só mantém a troca se a nota do setor melhorar de verdade */
 function otimizarSetor(sid){
-  const time=D.colaboradores.filter(c=>c.setorId===sid&&noRodizio(c));
+  const time=EQ().filter(c=>c.setorId===sid&&noRodizio(c));
   if(time.length<2)return 0;
   const sems=semanas().filter(w=>w.filter(Boolean).length>=5);
   let movidas=0;
@@ -1719,7 +1725,7 @@ function otimizarSetor(sid){
   return movidas;
 }
 function otimizar(){
-  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  if(!EQ().length)return alert('Cadastre a equipe primeiro.');
   const antes=D.setores.reduce((a,s)=>a+custoSetor(s.id),0);
   let m=0;D.setores.forEach(s=>{m+=otimizarSetor(s.id)||0;});
   corrigirSequencias();salvar();renderTudo();
@@ -1788,11 +1794,11 @@ function renderHoje(){
   const dt=new Date(diaSel+'T12:00:00');
   document.getElementById('t-hoje').textContent=
     (diaSel===hojeISO()?'Hoje · ':'')+DIAS[w]+', '+d+' de '+MESES[dt.getMonth()];
-  if(!D.colaboradores.length){el.innerHTML='<div class="card"><div class="vazio"><p>Cadastre a equipe para começar.</p><button class="btn" onclick="irPara(\'equipe\')">Ir para Equipe</button></div></div>';al.innerHTML='';return;}
+  if(!EQ().length){el.innerHTML='<div class="card"><div class="vazio"><p>Cadastre a equipe para começar.</p><button class="btn" onclick="irPara(\'equipe\')">Ir para Equipe</button></div></div>';al.innerHTML='';return;}
 
   let furos=[];
   D.setores.forEach(st=>{
-    if(!D.colaboradores.some(c=>c.setorId===st.id))return;
+    if(!EQ().some(c=>c.setorId===st.id))return;
     turnosDoSetor(st.id).forEach(t=>{const nec=demDoDia(st.id,d,t.id);if(!nec)return;
       const tem=escalados(st.id,d,t.id);if(tem<nec)furos.push({st,t,nec,tem});});
   });
@@ -1821,7 +1827,7 @@ function renderHoje(){
   }
 
   el.innerHTML=blocoCobrir+D.setores.map(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id);
+    const time=EQ().filter(c=>c.setorId===st.id);
     if(!time.length)return '';
     const blocos=turnosDoSetor(st.id).map(t=>{
       const pes=time.filter(c=>getE(c.id,d)===t.id);
@@ -1869,20 +1875,20 @@ function cobrir(cid,dia,tid){
    com os números reais do mês já preenchidos, e tem um botão só. */
 let copiaOrig=null;
 function alvosDoEscopo(v){
-  if(!v||v==='todos')return D.colaboradores.slice();
+  if(!v||v==='todos')return EQ().slice();
   const[t,id]=v.split(':');
-  return t==='setor'?D.colaboradores.filter(c=>c.setorId===id):D.colaboradores.filter(c=>c.id===id);
+  return t==='setor'?EQ().filter(c=>c.setorId===id):EQ().filter(c=>c.id===id);
 }
 function opcoesEscopo(){
   return '<option value="todos">Todos os setores</option>'
-    +'<optgroup label="Um setor">'+D.setores.filter(s=>D.colaboradores.some(c=>c.setorId===s.id))
+    +'<optgroup label="Um setor">'+D.setores.filter(s=>EQ().some(c=>c.setorId===s.id))
       .map(s=>`<option value="setor:${s.id}">${esc(s.nome)}</option>`).join('')+'</optgroup>'
-    +'<optgroup label="Uma pessoa">'+D.setores.map(s=>D.colaboradores.filter(c=>c.setorId===s.id)
+    +'<optgroup label="Uma pessoa">'+D.setores.map(s=>EQ().filter(c=>c.setorId===s.id)
       .map(c=>`<option value="pessoa:${c.id}">${esc(c.nome)} · ${esc(s.nome)}</option>`).join('')).join('')+'</optgroup>';
 }
 function abrirCopia(){
   const el=document.getElementById('painel-copia');
-  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  if(!EQ().length)return alert('Cadastre a equipe primeiro.');
   if(el.style.display===''){el.style.display='none';return;}
   renderCopia();mostrarPainel(el);
 }
@@ -1996,7 +2002,7 @@ function acaoDia(){
 function salvarModelo(){
   const sem=semanas()[iSem()], ds=sem.filter(Boolean);
   const nome=prompt(`Nome para o modelo da semana ${ds[0]}–${ds[ds.length-1]}:`,
-    `Semana padrão ${D.setores.find(x=>D.colaboradores.some(c=>c.setorId===x.id))?.nome||''}`.trim());
+    `Semana padrão ${D.setores.find(x=>EQ().some(c=>c.setorId===x.id))?.nome||''}`.trim());
   if(!nome)return;
   const dados={};
   escopoAtual().forEach(c=>{
@@ -2091,7 +2097,7 @@ function setoresVis(){
   return D.setores.filter(s=>c&&s.id===c.setorId);
 }
 function timeDe(sid){
-  const t=D.colaboradores.filter(c=>c.setorId===sid);
+  const t=EQ().filter(c=>c.setorId===sid);
   return (FILTRO&&FILTRO.tipo==='pessoa')?t.filter(c=>c.id===FILTRO.id):t;
 }
 function mostrarPainel(el){
@@ -2101,12 +2107,12 @@ function mostrarPainel(el){
 }
 function abrirImp(){
   const el=document.getElementById('painel-imp');
-  if(!D.colaboradores.length)return alert('Cadastre a equipe primeiro.');
+  if(!EQ().length)return alert('Cadastre a equipe primeiro.');
   const q=document.getElementById('imp-quem');
   q.innerHTML='<option value="todos">Tudo — todos os setores</option>'
-    +'<optgroup label="Um setor">'+D.setores.filter(s=>D.colaboradores.some(c=>c.setorId===s.id))
+    +'<optgroup label="Um setor">'+D.setores.filter(s=>EQ().some(c=>c.setorId===s.id))
       .map(s=>`<option value="setor:${s.id}">${esc(s.nome)}</option>`).join('')+'</optgroup>'
-    +'<optgroup label="Uma pessoa">'+D.setores.map(s=>D.colaboradores.filter(c=>c.setorId===s.id)
+    +'<optgroup label="Uma pessoa">'+D.setores.map(s=>EQ().filter(c=>c.setorId===s.id)
       .map(c=>`<option value="pessoa:${c.id}">${esc(c.nome)} · ${esc(s.nome)}</option>`).join('')).join('')+'</optgroup>';
   if(el.style.display===''){el.style.display='none';return;}
   mostrarPainel(el);
@@ -2191,7 +2197,7 @@ function renderLegenda(){
 function renderGrade(){
   const el=document.getElementById('grade'), r=document.getElementById('rot-mes');
   if(r)r.textContent=rotMes();
-  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Cadastre a equipe primeiro.</p></div>';return;}
+  if(!EQ().length){el.innerHTML='<div class="vazio"><p>Cadastre a equipe primeiro.</p></div>';return;}
   const n=nDias(), sems=semanas(), wi=iSem();
   const ativos=(sems[wi]||[]).filter(Boolean);
   const hojeD=hojeISO().slice(0,7)===mesAtivo?+hojeISO().slice(8):-1;
@@ -2243,18 +2249,18 @@ function renderGrade(){
 function renderEscAvisos(){
   const el=document.getElementById('esc-avisos');if(!el)return;
   const s=analisar(), cr=s.filter(x=>x.nivel==='c').length;
-  el.innerHTML = !D.colaboradores.length ? ''
+  el.innerHTML = !EQ().length ? ''
     : cr ? `<div class="nota at"><b>${cr} ponto(s) crítico(s) nesta escala.</b> ${esc(s.find(x=>x.nivel==='c').titulo)}${cr>1?` e mais ${cr-1}.`:'.'}
         <br><button class="btn mini terr" style="margin-top:8px" onclick="irPara('sugestoes')">Ver sugestões</button></div>`
     : `<div class="nota bo"><b>Escala sem pontos críticos.</b> Cobertura, folgas, sequências e domingos conferidos.</div>`;
 }
 function renderCobSemana(){
   const el=document.getElementById('cob-semana');if(!el)return;
-  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
+  if(!EQ().length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
   const sem=semanas()[iSem()]||Array(7).fill(null);
   let h=`<table><thead><tr><th>Setor / Turno</th>${DC.map((d,i)=>`<th style="text-align:center">${d}${sem[i]?' '+sem[i]:''}</th>`).join('')}</tr></thead><tbody>`;
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    const time=EQ().filter(c=>c.setorId===st.id);if(!time.length)return;
     h+=`<tr class="sep"><td colspan="8">${esc(st.nome)}</td></tr>`;
     turnosDoSetor(st.id).forEach(t=>{
       h+=`<tr><td>${esc(t.nome)}</td>`;
@@ -2271,7 +2277,7 @@ function renderCobSemana(){
 }
 function renderCartoes(){
   const el=document.getElementById('cartoes');if(!el)return;
-  if(!D.colaboradores.length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
+  if(!EQ().length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
   const sem=semanas()[iSem()]||Array(7).fill(null), ds=sem.filter(Boolean);
   el.innerHTML=`<div class="nota">Semana <b>${ds[0]}–${ds[ds.length-1]} de ${rotMes()}</b>.</div>`
   +setoresVis().map(st=>{
@@ -2293,7 +2299,7 @@ function copiarWhats(){
   const sem=semanas()[iSem()]||[], ds=sem.filter(Boolean);
   let t=`*ESCALA ${ds[0]}–${ds[ds.length-1]} DE ${rotMes().toUpperCase()} — a bela Sintra*\n\n`;
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    const time=EQ().filter(c=>c.setorId===st.id);if(!time.length)return;
     t+=`*${st.nome.toUpperCase()}*\n`;
     time.forEach(c=>{
       t+=`• ${c.nome}\n  `+DC.map((dd,i)=>{const d=sem[i];if(!d)return null;
@@ -2319,7 +2325,7 @@ function renderSug(){
   const el=document.getElementById('lista-sug');if(!el)return;
   const S=analisar();
   const nome={c:'Crítico',a:'Atenção',d:'Dica'};
-  el.innerHTML = !D.colaboradores.length
+  el.innerHTML = !EQ().length
     ? '<div class="card"><div class="vazio"><p>Cadastre a equipe e a cobertura para o app analisar.</p></div></div>'
     : (!S.length
       ? '<div class="nota bo"><b>Nada a corrigir.</b> Cobertura, jornada, folgas, sequências e domingos estão dentro das regras configuradas.</div>'
@@ -2329,17 +2335,17 @@ function renderSug(){
         </div></div>`).join(''));
 
   const eq=document.getElementById('equilibrio');
-  if(!D.colaboradores.length){eq.innerHTML='';return;}
+  if(!EQ().length){eq.innerHTML='';return;}
   const n=nDias();
   let h=`<table><thead><tr><th>Colaborador</th><th style="text-align:center">Horas no mês</th><th style="text-align:center">Dias de fim de semana</th><th style="text-align:center">Domingos trabalhados</th><th style="text-align:center">Maior sequência</th></tr></thead><tbody>`;
   D.setores.forEach(st=>{
-    const time=D.colaboradores.filter(c=>c.setorId===st.id);if(!time.length)return;
+    const time=EQ().filter(c=>c.setorId===st.id);if(!time.length)return;
     const med=time.reduce((a,c)=>a+fdsTrab(c.id),0)/time.length;
     h+=`<tr class="sep"><td colspan="5">${esc(st.nome)} · média de ${h1(med)} dias de fim de semana por pessoa</td></tr>`;
     time.slice().sort((a,b)=>fdsTrab(b.id)-fdsTrab(a.id)).forEach(c=>{
       let dom=0;for(let d=1;d<=n;d++)if(dsem(d)===6&&trabalha(c.id,d))dom++;
       const f=fdsTrab(c.id), mx=D.cfg.maxConsec||6, sq=maiorSeq(c.id);
-      h+=`<tr><td><b>${esc(c.nome)}</b></td><td style="text-align:center">${horasMes(c.id)}h</td>
+      h+=`<tr><td><b>${esc(c.nome)}</b>${c.naEscala===false?'<br><span style="font-size:10px;color:var(--fraco)">fora da escala</span>':''}${c.alocadoEm?`<br><span style="font-size:10px;color:var(--fraco)">cobre folga · ${esc(c.alocadoEm==='campos'?'Dois Rios':'Chiado')}</span>`:''}${c.empresa==='bettencas'?'<br><span style="font-size:10px;color:var(--fraco)">Bettencas</span>':''}</td><td style="text-align:center">${horasMes(c.id)}h</td>
         <td style="text-align:center"><b class="${f>med+1.5?'alerta':(f<med-1.5?'ok':'')}">${f}</b></td>
         <td style="text-align:center">${dom}</td>
         <td style="text-align:center"><b class="${sq>mx?'ruim':''}">${sq}</b></td></tr>`;
@@ -2410,6 +2416,12 @@ function formColab(id){
             <option value="bettencas" ${c.empresa==='bettencas'?'selected':''}>Bettencas</option>
           </select>
           <p style="font-size:11px;color:var(--fraco);margin-top:4px">Vale para folha e custo. Não muda quem cobre turno.</p></div>
+        <div><label>Entra na escala?</label>
+          <select id="f-naesc">
+            <option value="1" ${c.naEscala!==false?'selected':''}>Sim — cumpre turno</option>
+            <option value="0" ${c.naEscala===false?'selected':''}>Não — fora da escala</option>
+          </select>
+          <p style="font-size:11px;color:var(--fraco);margin-top:4px">"Não" tira da grade e das contas de capacidade. Continua no cadastro e nos Prazos.</p></div>
         <div><label>Alocado em outra casa</label>
           <select id="f-aloc" onchange="toggleCob()">
             <option value="" ${!c.alocadoEm?'selected':''}>Não — é do quadro desta casa</option>
@@ -2521,7 +2533,11 @@ function importarEquipe(ev){
       const campos={
         nome:p.nome, cargo:p.cargo||'', setorId:p.setorId||turnoPadrao&&D.setores[0].id,
         admissao:p.admissao||'', empresa:p.empresa||'delivery',
-        alocadoEm:p.alocadoEm||'', cobertura:!!p.cobertura
+        alocadoEm:p.alocadoEm||'', cobertura:!!p.cobertura,
+        /* quem é do administrativo não cumpre turno: entra no cadastro,
+           fora da grade. Dá para mudar na ficha de cada um. */
+        naEscala: p.naEscala!==undefined ? !!p.naEscala
+                : !(setorDe(p.setorId)||{}).nome || (setorDe(p.setorId).nome!=='Administrativo')
       };
       if(existente){ Object.assign(existente,campos); atualizados++; }
       else{
@@ -2578,6 +2594,7 @@ function salvarColab(id){
     expDias:+document.getElementById('f-exp').value||0,
     exameAte:document.getElementById('f-exame').value||'',
     empresa:document.getElementById('f-emp').value,
+    naEscala:document.getElementById('f-naesc').value==='1',
     alocadoEm:document.getElementById('f-aloc').value,
     cobertura:!!document.getElementById('f-aloc').value,
     turnosOk:tok.length?tok:turnosDoSetor(document.getElementById('f-setor').value).map(t=>t.id), folgaFixa:ff};
@@ -2610,7 +2627,9 @@ function renderEquipe(){
   let h='<div class="rolar"><table><thead><tr><th>Nome</th><th>Turno habitual</th><th>Pode fazer</th><th>Jornada</th><th>Folga fixa</th><th></th></tr></thead><tbody>';
   D.setores.forEach(s=>{
     const time=D.colaboradores.filter(c=>c.setorId===s.id);if(!time.length)return;
-    h+=`<tr class="sep"><td colspan="6"><span class="ponto" style="background:${s.cor}"></span> ${esc(s.nome)} · ${time.length}</td></tr>`;
+    const fora=time.filter(c=>c.naEscala===false).length;
+    h+=`<tr class="sep"><td colspan="6"><span class="ponto" style="background:${s.cor}"></span> ${esc(s.nome)} · ${time.length}`
+      +(fora?` <span style="font-weight:400;color:var(--fraco)">· ${fora} fora da escala</span>`:'')+`</td></tr>`;
     const vistos=new Set();
     (s.funcoes||[]).concat(time.map(c=>c.cargo||'')).forEach(f=>{
       if(vistos.has(f))return;vistos.add(f);
@@ -2631,7 +2650,7 @@ function renderEquipe(){
       });
     });
   });
-  el.innerHTML=h+`</tbody></table></div><p style="margin-top:11px;font-size:13px;color:var(--fraco)"><b>${D.colaboradores.length}</b> colaboradores. A coluna "Pode fazer" é a sua margem de manobra: quem faz todos os turnos aparece em verde.</p>`;
+  el.innerHTML=h+`</tbody></table></div><p style="margin-top:11px;font-size:13px;color:var(--fraco)"><b>${D.colaboradores.length}</b> no cadastro, <b>${EQ().length}</b> entram na escala. A coluna "Pode fazer" é a sua margem de manobra: quem faz todos os turnos aparece em verde.</p>`;
 }
 
 function renderAfast(){
