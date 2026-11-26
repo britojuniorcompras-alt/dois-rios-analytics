@@ -2475,13 +2475,49 @@ function importarEquipe(ev){
     if(!Array.isArray(lista)||!lista.length){ alert('O arquivo não tem nenhuma pessoa dentro.'); return; }
 
     const antes=(D.colaboradores||[]).length;
-    const porNome=new Map((D.colaboradores||[]).map(c=>[c.nome.toUpperCase().trim(),c]));
+    /* O cadastro daqui costuma ter o primeiro nome ("Caique") e a planilha do
+       escritório traz o nome inteiro ("CAIQUE DA SILVA PIMENTEL"). Comparar
+       texto exato criaria a pessoa duas vezes. Então: casa exato primeiro e,
+       se não, casa um nome curto com o nome completo quando a correspondência
+       for única — nunca quando houver dúvida. */
+    const chave=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                   .toUpperCase().replace(/\s+/g,' ').trim();
+    const atuais=(D.colaboradores||[]);
+    const exato=new Map(atuais.map(c=>[chave(c.nome),c]));
+    function acharExistente(nomeNovo){
+      const k=chave(nomeNovo);
+      if(exato.has(k))return {c:exato.get(k),modo:'exato'};
+      const primeiro=k.split(' ')[0];
+      // nomes curtos no cadastro que batem com o primeiro nome da planilha
+      const cand=atuais.filter(c=>{
+        const ck=chave(c.nome);
+        return ck.split(' ').length<=2 && (k===ck || k.startsWith(ck+' ') || ck.split(' ')[0]===primeiro);
+      });
+      if(cand.length===1)return {c:cand[0],modo:'parcial'};
+      if(cand.length>1)return {c:null,modo:'ambiguo'};
+      return {c:null,modo:'novo'};
+    }
+
+    /* Mostra o que vai acontecer ANTES de mexer em 55 cadastros. */
+    const plano=lista.map(p=>Object.assign({p},acharExistente(p.nome)));
+    const nNovo=plano.filter(x=>x.modo==='novo').length;
+    const nExa=plano.filter(x=>x.modo==='exato').length;
+    const nPar=plano.filter(x=>x.modo==='parcial');
+    const nAmb=plano.filter(x=>x.modo==='ambiguo');
+    let aviso='Vou aplicar:\n\n'+nNovo+' pessoa(s) nova(s)\n'
+      +(nExa?nExa+' atualizada(s) pelo nome exato\n':'')
+      +(nPar.length?nPar.length+' reconhecida(s) pelo primeiro nome:\n'
+         +nPar.map(x=>'   • '+x.c.nome+'  →  '+x.p.nome).join('\n')+'\n':'')
+      +(nAmb.length?'\n'+nAmb.length+' com nome ambíguo, vou criar separado e você confere:\n'
+         +nAmb.map(x=>'   • '+x.p.nome).join('\n')+'\n':'')
+      +'\nNinguém é apagado. Confirma?';
+    if(!confirm(aviso)){ ev.target.value=''; return; }
+
     let novos=0, atualizados=0;
     const turnoPadrao=(D.turnos[0]||{}).id;
 
-    lista.forEach(p=>{
-      const chave=String(p.nome||'').toUpperCase().trim(); if(!chave)return;
-      const existente=porNome.get(chave);
+    plano.forEach(({p,c:existente})=>{
+      if(!String(p.nome||'').trim())return;
       const campos={
         nome:p.nome, cargo:p.cargo||'', setorId:p.setorId||turnoPadrao&&D.setores[0].id,
         admissao:p.admissao||'', empresa:p.empresa||'delivery',
