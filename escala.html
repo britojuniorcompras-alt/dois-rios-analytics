@@ -521,8 +521,6 @@ const PADRAO={
     {id:'s4',nome:'Caixa',cor:'#7b4b94',funcoes:['Supervisor de caixa','Operador de caixa','Recepcionista']},
     {id:'s5',nome:'Manutenção',cor:'#3d7ea6',funcoes:['Técnico de manutenção','Auxiliar','Steward','Limpeza']},
     {id:'s6',nome:'Almoxarifado',cor:'#a8465c',funcoes:['Almoxarife','Conferente','Auxiliar de almoxarifado','Comprador','Assistente de compras']},
-    {id:'s8',nome:'Administrativo',cor:'#6b7a8f',funcoes:['Gerente administrativo','Assistente administrativo','Departamento pessoal','Aprendiz']},
-    {id:'s9',nome:'Manobristas',cor:'#8a6d3b',funcoes:['Manobrista','Porteiro']},
     {id:'s7',nome:'Escritório',cor:'#4a7c59',funcoes:['Gerência','Compras','Administrativo','Financeiro','RH']},
     {id:'s8',nome:'Bar',cor:'#c9961e',funcoes:['Barman','Barista','Auxiliar de bar']}
   ],
@@ -648,6 +646,8 @@ async function carregarNuvem(){
     const linhas=await apiSB('/rest/v1/escala_dados?select=payload,updated_at,updated_by&unidade_id=eq.'+UNIDADE);
     if(linhas&&linhas.length&&linhas[0].payload){
       D=Object.assign(JSON.parse(JSON.stringify(PADRAO)),linhas[0].payload);
+      const n=repararSetores();
+      if(n){console.warn('escala: '+n+' pessoa(s) apontavam para setor inexistente — realocadas');salvar();}
       NUVEM='ok';
       try{localStorage.setItem('abs_escalas_v1',JSON.stringify(D));}catch(e){}
       return true;
@@ -2504,6 +2504,55 @@ function formColab(id){
    A lista vem em arquivo que VOCÊ escolhe no seu computador. Ela nunca entra
    no código do app: o repositório é público, e nome de funcionário não pode
    ir para lá. Daqui os dados seguem para o banco protegido. */
+/* O cadastro de setores é do usuário, não meu. A lista do escritório traz o
+   NOME do setor e aqui eu procuro o equivalente que já existe — comparando
+   sem acento, sem maiúscula e sem espaço sobrando. Só crio se não houver
+   nada parecido. Foi por não fazer isso que 9 pessoas foram parar em setores
+   inexistentes e sumiram da grade. */
+const chaveSetor=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'')
+                    .toLowerCase().replace(/\s+/g,' ').trim();
+const SINONIMOS={
+  'adm':['adm','administrativo','escritorio','administracao'],
+  'manobrista':['manobrista','manobristas','manobra','valet'],
+  'servicos gerais':['servicos gerais','limpeza','steward'],
+  'salao':['salao','atendimento'],
+  'cozinha':['cozinha'],
+  'copa':['copa'],
+  'caixa':['caixa','recepcao'],
+  'almoxarifado':['almoxarifado','almoxarixado','estoque','compras'],
+  'padaria':['padaria','panificacao'],
+  'confeitaria':['confeitaria','sobremesas']
+};
+function acharSetorPorNome(nome){
+  const k=chaveSetor(nome); if(!k)return null;
+  const exato=D.setores.find(s=>chaveSetor(s.nome)===k);
+  if(exato)return exato;
+  // procura pelo grupo de sinônimos
+  const grupo=Object.values(SINONIMOS).find(g=>g.includes(k));
+  if(grupo){
+    const achado=D.setores.find(s=>grupo.includes(chaveSetor(s.nome)));
+    if(achado)return achado;
+  }
+  return null;
+}
+function garantirSetor(nome){
+  const s=acharSetorPorNome(nome); if(s)return s;
+  const novo={id:uid(),nome:String(nome).trim(),cor:'#6b7a8f',funcoes:[]};
+  D.setores.push(novo); return novo;
+}
+/* Conserta quem ficou apontando para setor que não existe. */
+function repararSetores(){
+  const ids=new Set(D.setores.map(s=>s.id));
+  const orfaos=(D.colaboradores||[]).filter(c=>!ids.has(c.setorId));
+  if(!orfaos.length)return 0;
+  orfaos.forEach(c=>{
+    const alvo = acharSetorPorNome(c.setorNome||'')
+              || acharSetorPorNome(({s8:'ADM',s9:'Manobrista'})[c.setorId]||'')
+              || D.setores[0];
+    c.setorId=alvo.id;
+  });
+  return orfaos.length;
+}
 function pedirImportacao(){ document.getElementById('arq-equipe').click(); }
 
 function importarEquipe(ev){
@@ -2559,14 +2608,16 @@ function importarEquipe(ev){
 
     plano.forEach(({p,c:existente})=>{
       if(!String(p.nome||'').trim())return;
+      const alvoSetor = p.setor ? garantirSetor(p.setor)
+                       : (D.setores.find(s=>s.id===p.setorId) || D.setores[0]);
       const campos={
-        nome:p.nome, cargo:p.cargo||'', setorId:p.setorId||turnoPadrao&&D.setores[0].id,
+        nome:p.nome, cargo:p.cargo||'', setorId:alvoSetor.id, setorNome:alvoSetor.nome,
         admissao:p.admissao||'', empresa:p.empresa||'delivery',
         alocadoEm:p.alocadoEm||'', cobertura:!!p.cobertura,
         /* quem é do administrativo não cumpre turno: entra no cadastro,
            fora da grade. Dá para mudar na ficha de cada um. */
-        naEscala: p.naEscala!==undefined ? !!p.naEscala
-                : !(setorDe(p.setorId)||{}).nome || (setorDe(p.setorId).nome!=='Administrativo')
+        /* todo mundo entra na escala; quem não cumpre turno você veta na ficha */
+        naEscala: p.naEscala!==undefined ? !!p.naEscala : true
       };
       if(existente){ Object.assign(existente,campos); atualizados++; }
       else{
