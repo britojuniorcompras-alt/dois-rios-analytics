@@ -283,7 +283,7 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
   </div>
   <div id="pincel"></div>
   <div id="esc-avisos"></div>
-  <div class="card" id="box-leg"><h3>Legenda</h3><div id="legenda"></div></div>
+  <div class="card" id="box-leg"><details><summary style="cursor:pointer;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--azul)">Legenda e regras</summary><div id="legenda" style="margin-top:10px"></div></details></div>
   <div class="card" id="box-grade"><div class="rolar"><div id="grade"></div></div></div>
   <div class="card" id="box-cob"><h3>Semana ativa</h3><div id="sel-sem" class="linha"></div>
     <div class="rolar"><div id="cob-semana"></div></div></div>
@@ -2101,6 +2101,17 @@ function setorNaTela(){
 }
 function verSetor(id){ D.cfg.setorVisivel=id||''; salvar(); renderTudo(); }
 
+/* Com uma casa grande, abrir em "Todos" joga 55 linhas na tela e ninguém lê
+   nada. Então, só enquanto ele nunca escolheu nada, a tela abre no primeiro
+   setor com gente. Assim que ele clicar em "Todos", o '' fica gravado e eu
+   não mexo mais. */
+function setorInicial(){
+  if(D.cfg.setorVisivel!==undefined)return;
+  if(EQ().length<=20)return;
+  const s=D.setores.find(x=>EQ().some(c=>c.setorId===x.id));
+  if(s)D.cfg.setorVisivel=s.id;
+}
+
 function setoresVis(){
   if(!FILTRO){
     const s=setorNaTela();
@@ -2231,7 +2242,7 @@ function renderGrade(){
   const ativos=(sems[wi]||[]).filter(Boolean);
   const hojeD=hojeISO().slice(0,7)===mesAtivo?+hojeISO().slice(8):-1;
 
-  let h=`<table><thead><tr><th style="min-width:128px;position:sticky;left:0;background:var(--branco);z-index:2">Colaborador</th>`;
+  let h=`<table><thead><tr><th style="min-width:230px;position:sticky;left:0;background:var(--branco);z-index:2">Colaborador</th>`;
   for(let d=1;d<=n;d++)
     {const fr=feriadoNoDia(d);
     h+=`<th class="${dsem(d)===6?'dom':''}${dsem(d)===0?' ini':''}${ativos.includes(d)?' ativa':''}${d===hojeD?' hoje-col':''}"
@@ -2249,9 +2260,10 @@ function renderGrade(){
     time.forEach(c=>{
       let fg=0;for(let d=1;d<=n;d++)if(getE(c.id,d)==='F')fg++;
       const sq=maiorSeq(c.id), ds=domSeg(c.id), lim=limDom(c), mx=D.cfg.maxConsec||6;
-      h+=`<tr><td style="position:sticky;left:0;background:var(--branco);z-index:1"><b>${esc(c.nome)}</b>
-        ${c.regime==='fixa'?'<span class="tag" style="font-size:9px;margin-left:4px">fixa</span>':''}
-        <br><span style="font-size:10px;color:var(--fraco)">${esc(c.cargo)||'—'}${c.contaCob===false?' · fora da cobertura':''}</span></td>`;
+      h+=`<tr><td style="position:sticky;left:0;background:var(--branco);z-index:1;padding:4px 8px"
+        title="${esc(c.nome)} · ${esc(c.cargo)||'—'}${c.contaCob===false?' · fora da cobertura':''}">
+        <b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:218px">${esc(c.nome)}</b>
+        <span style="font-size:10px;color:var(--fraco);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:218px">${esc(c.cargo)||'—'}${c.contaCob===false?' · fora da cobertura':''}${c.regime==='fixa'?' · fixa':''}</span></td>`;
       for(let d=1;d<=n;d++){
         const v=getE(c.id,d), fal=faltou(c.id,d), af=ehAfast(v)?TIPOS_AF[v.slice(3)]:null;
         const cls=fal?'falta':(af?'fer':(v==='F'?'f':(v==='FER'?'fer':'')));
@@ -2288,8 +2300,8 @@ function renderCobSemana(){
   if(!EQ().length){el.innerHTML='<div class="vazio"><p>Sem equipe.</p></div>';return;}
   const sem=semanas()[iSem()]||Array(7).fill(null);
   let h=`<table><thead><tr><th>Setor / Turno</th>${DC.map((d,i)=>`<th style="text-align:center">${d}${sem[i]?' '+sem[i]:''}</th>`).join('')}</tr></thead><tbody>`;
-  D.setores.forEach(st=>{
-    const time=EQ().filter(c=>c.setorId===st.id);if(!time.length)return;
+  setoresVis().forEach(st=>{
+    const time=timeDe(st.id);if(!time.length)return;
     h+=`<tr class="sep"><td colspan="8">${esc(st.nome)}</td></tr>`;
     turnosDoSetor(st.id).forEach(t=>{
       h+=`<tr><td>${esc(t.nome)}</td>`;
@@ -3326,6 +3338,7 @@ function renderTudo(){
   if(fid){try{const e=document.getElementById(fid);if(e&&e.focus){e.focus();if(si!==null&&e.setSelectionRange)e.setSelectionRange(si,sf);}}catch(e){}}
 }
 aplicarTema(D.cfg.tema||'sintra',false);
+setorInicial();
 renderTudo();
 
 /* Busca os dados no banco do grupo. Enquanto não responde, a tela já mostra
@@ -3333,7 +3346,7 @@ renderTudo();
 (async function(){
   const ok=await carregarNuvem();
   marcaNuvem();
-  if(ok)renderTudo();
+  if(ok){ setorInicial(); renderTudo(); }
   if(NUVEM==='desligada'){
     const el=document.getElementById('aviso-nuvem');
     if(el)el.innerHTML=`<div class="nota at"><b>Esta lista está só neste navegador</b>
