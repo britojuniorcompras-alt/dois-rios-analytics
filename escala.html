@@ -642,13 +642,50 @@ function lerSessao(){
   }catch(e){}
   return false;
 }
-async function apiSB(caminho,opt={}){
+/* O crachá da sessão vence sozinho depois de um tempo. O app analítico já
+   sabia renovar; a escala não sabia, e quem deixasse a aba aberta a manhã
+   inteira passava a gravar só no próprio navegador, com um selo vermelho
+   pequeno como único aviso. Agora: tento de novo com o crachá que estiver
+   guardado (o analítico pode ter renovado), e se ainda não servir, renovo
+   aqui mesmo com o comprovante que fica junto da sessão. */
+let renovando=null;
+async function renovarSessao(){
+  if(renovando)return renovando;
+  renovando=(async()=>{
+    try{
+      const s=JSON.parse(localStorage.getItem('grupo_sessao')||'null');
+      if(!s||!s.r)return false;
+      if(s.t&&s.t!==TOKEN){ TOKEN=s.t; QUEM=s.e||QUEM; return true; }   // outra aba já renovou
+      const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{
+        method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({refresh_token:s.r})});
+      if(!r.ok)return false;
+      const n=await r.json();
+      if(!n||!n.access_token)return false;
+      TOKEN=n.access_token; QUEM=s.e||QUEM;
+      localStorage.setItem('grupo_sessao',JSON.stringify({t:TOKEN,r:n.refresh_token||s.r,e:s.e}));
+      return true;
+    }catch(e){return false}
+    finally{ setTimeout(()=>{renovando=null;},0); }
+  })();
+  return renovando;
+}
+const sessaoVencida=m=>/jwt|expired|invalid token|401|not authenticated|bad_jwt/i.test(String(m||''));
+
+async function apiSB(caminho,opt={},jaTentou){
   const r=await fetch(SB_URL+caminho,Object.assign({},opt,{headers:Object.assign({
     'apikey':SB_KEY,'Content-Type':'application/json',
     'Authorization':'Bearer '+(TOKEN||SB_KEY)},opt.headers||{})}));
   const t=await r.text();
   let js=null; try{js=t?JSON.parse(t):null}catch(e){}
-  if(!r.ok)throw new Error((js&&(js.message||js.msg||js.error))||('HTTP '+r.status));
+  if(!r.ok){
+    const msg=(js&&(js.message||js.msg||js.error))||('HTTP '+r.status);
+    /* uma tentativa só: renovo e repito. Sem laço, para uma sessão de verdade
+       encerrada não virar martelada no servidor. */
+    if(!jaTentou && (r.status===401||sessaoVencida(msg)) && await renovarSessao())
+      return apiSB(caminho,opt,true);
+    throw new Error(msg);
+  }
   return js;
 }
 
@@ -715,7 +752,9 @@ async function gravarNuvem(silencioso){
     }
     NUVEM='ok'; ERRO_NUVEM=''; SUJO=false;
   }catch(e){
-    NUVEM = /permission|denied|row-level|42501/i.test(String(e.message||e)) ? 'somente-leitura' : 'erro';
+    NUVEM = /permission|denied|row-level|42501/i.test(String(e.message||e)) ? 'somente-leitura'
+          : sessaoVencida(e.message||e) ? 'sessao'   /* nem renovar resolveu: é entrar de novo */
+          : 'erro';
     ERRO_NUVEM=String(e.message||e);
     if(!silencioso)console.warn('escala: falha ao gravar na nuvem —',ERRO_NUVEM);
   }
@@ -809,6 +848,7 @@ function marcaNuvem(){
   const M={
     ok:            ['●','Salvo no banco do grupo','var(--verde)'],
     conflito:      ['▲','Não gravei — outra pessoa salvou depois de você','var(--vermelho)'],
+    sessao:        ['▲','Sua sessão expirou — entre de novo para voltar a salvar','var(--vermelho)'],
     'somente-leitura':['◆','Você vê, mas não pode gravar','var(--amarelo)'],
     erro:          ['▲','Falha ao gravar no banco — salvo só neste navegador','var(--vermelho)'],
     desligada:     ['◻','Só neste navegador — abra pelo app analítico para salvar no banco','var(--fraco)']
@@ -817,6 +857,7 @@ function marcaNuvem(){
     /* quem salvou e quando: é o que responde "será que o outro já mexeu?" */
     +(NUVEM==='ok'&&VERSAO?`<div style="font-size:10px;color:var(--fraco)">última gravação ${esc(horaCurta(VERSAO))}${QUEM_SALVOU?' · '+esc(String(QUEM_SALVOU).split('@')[0]):''}
         · <a href="#" onclick="event.preventDefault();sincronizar(true)" style="color:var(--azul)">atualizar</a></div>`:'')
+    +(NUVEM==='sessao'?`<div style="font-size:10px;color:var(--fraco)">O que você mexeu está guardado aqui. Abra o app, entre de novo e volte nesta aba.</div>`:'')
     +(NUVEM==='erro'&&ERRO_NUVEM?`<div style="font-size:10px;color:var(--fraco)">${esc(ERRO_NUVEM).slice(0,70)}</div>`:'');
 }
 let D=carregar();
@@ -1541,7 +1582,13 @@ function analisar(){
         : `Ninguém do setor pode assumir sem estourar o limite de dias seguidos. Reduza a necessidade desse turno, empreste alguém de outro setor, ou aceite o furo neste dia.`,
       acao: cand.length?()=>{
         setE(cand[0].c.id,f.d,f.t.id,true);
-        if(folgaDevolvida)setE(cand[0].c.id,folgaDevolvida,'F',true);
+        /* recalculo o dia da folga AGORA, e não lá na análise: em "aplicar
+           todas" as correções rodam em fila e cada uma muda a escala, então o
+           dia que eu tinha escolhido pode já ter virado folga por outra. */
+        const sem=(semanas().find(w=>w.includes(f.d))||[]);
+        const dia=sem.find(x=>x&&x!==f.d && trabalha(cand[0].c.id,x) && !ehMan(cand[0].c.id,x)
+          && escalados(f.st.id,x,getE(cand[0].c.id,x))>getDem(f.st.id,dsem(x),getE(cand[0].c.id,x)));
+        if(dia)setE(cand[0].c.id,dia,'F',true);
       }:null,
       rotulo: cand.length?`Escalar ${cand[0].c.nome.split(' ')[0]}`:null,
       /* só entra no "aplicar todas" quando a folga tem para onde ir e o turno
@@ -2540,8 +2587,12 @@ function ocultarSug(i){
   D.sugOcultas[chaveSug(s)]={titulo:s.titulo,em:new Date().toISOString()};
   salvar(); renderTudo();
 }
-function mostrarSug(chave){
-  if(!D.sugOcultas)return;
+/* Recebe a POSIÇÃO na lista, não a chave. A chave carrega nome de gente e
+   barra vertical; passada dentro de um onclick, um apóstrofo no nome
+   ("D'ALMEIDA") fecharia a string e o botão parava de funcionar. */
+function mostrarSug(i){
+  const l=Object.keys(D.sugOcultas||{});
+  const chave=l[i]; if(chave===undefined)return;
   delete D.sugOcultas[chave];
   salvar(); renderTudo();
 }
@@ -2584,9 +2635,9 @@ function renderSug(){
         <a href="#" onclick="event.preventDefault();verOcultas()" style="font-size:12px;color:var(--azul)">
           ${lista.length} sugestão(ões) ignorada(s) — ver</a>
         <div class="corpo-ocultas" style="display:none;margin-top:10px">
-          ${lista.map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--linha)">
+          ${lista.map(([k,v],i)=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--linha)">
             <span style="font-size:12px;color:var(--fraco)">${esc(v.titulo||k)}</span>
-            <button class="btn mini sec" onclick="mostrarSug('${esc(k).replace(/'/g,"\\'")}')">Mostrar</button>
+            <button class="btn mini sec" onclick="mostrarSug(${i})">Mostrar</button>
           </div>`).join('')}
           <button class="btn mini sec" style="margin-top:10px" onclick="mostrarTodasSug()">Mostrar todas de novo</button>
         </div>
