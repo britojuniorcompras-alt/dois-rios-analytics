@@ -953,6 +953,18 @@ function semanasDe(ym){
   for(let d=1;d<=n;d++){at[dsemDe(ym,d)]=d;if(dsemDe(ym,d)===6||d===n){out.push(at);at=Array(7).fill(null);}}
   return out;
 }
+/* Semanas que servem de molde ao copiar um mês para outro.
+   Eu casava a semana 0 da origem com a semana 0 do destino. Só que a semana 0
+   quase nunca é uma semana inteira: janeiro de 2027 começa numa sexta, então
+   a semana 0 dele é só sexta, sábado e domingo. Fevereiro começa numa segunda,
+   com a semana 0 cheia — e segunda a quinta não tinham de onde copiar, ficavam
+   em branco. Era o buraco no começo do mês. Usando só as semanas cheias como
+   molde, todo dia do destino encontra o mesmo dia da semana na origem. */
+function semanasFonte(ym){
+  const s=semanasDe(ym);
+  const cheias=s.filter(w=>w.every(d=>d));
+  return cheias.length?cheias:s;
+}
 function rotMesDe(ym){const[a,m]=ym.split('-').map(Number);return MESES[m-1]+' '+a;}
 function getEm(ym,c,d){return D.escalaMes?.[ym]?.[c]?.[d]??'F';}
 function mesSeguinte(ym){const[a,m]=ym.split('-').map(Number);const d=new Date(a,m,1);
@@ -2171,7 +2183,7 @@ function renderCopia(){
 
   ${outrosMeses.length
     ? linha(`<b>Trazer a escala de outro mês para ${esc(rotMes())}</b>
-        <div style="font-size:12px;color:var(--fraco)">Encaixa pelo dia da semana, não pelo número do dia. O que já estiver aqui é substituído.</div>`,
+        <div style="font-size:12px;color:var(--fraco)">Encaixa semana cheia com semana cheia, pelo dia da semana e não pelo número do dia — segunda cai em segunda. O que já estiver aqui é substituído.</div>`,
         'Trazer','acaoMes()',
         `<select id="cp-mes" style="max-width:260px">${outrosMeses.map(k=>
           `<option value="${k}">${esc(rotMesDe(k))}${k===mesAnterior(mesAtivo)?' — mês anterior':''}</option>`).join('')}</select>`)
@@ -2226,6 +2238,16 @@ function acaoSemana(){
   const sems=semanas(), wi=iSem(), so=sems[wi];
   const ds=so.filter(Boolean), alvos=escopoAtual();
   if(sems.length<2)return alert('O mês tem só uma semana.');
+  /* A primeira e a última semana do mês quase sempre são pedaços. Repetir um
+     pedaço deixa os dias que faltam nele sem modelo nenhum nas outras semanas
+     — e o buraco só aparece depois, na grade. Melhor dizer antes. */
+  const faltam=[0,1,2,3,4,5,6].filter(k=>!so[k]);
+  if(faltam.length){
+    const quais=faltam.map(k=>DIAS[k].toLowerCase()).join(', ');
+    if(!confirm(`A semana ${ds[0]}–${ds[ds.length-1]} está incompleta: ${quais} não cabem nela dentro do mês.\n\n`
+      +`Se eu repetir assim, ${quais} ficam sem modelo e continuam como estão nas outras semanas.\n\n`
+      +`Para preencher o mês inteiro, escolha uma semana cheia na grade e repita a partir dela.\n\nRepetir mesmo assim?`))return;
+  }
   if(!confirm(`Repetir a semana ${ds[0]}–${ds[ds.length-1]} nas outras ${sems.length-1} semana(s), em ${alvos.length} pessoa(s)?`))return;
   const pares=[];
   sems.forEach((sd,i)=>{if(i===wi)return;
@@ -2296,7 +2318,7 @@ function acaoProximoMes(){
   const temAlgo=Object.keys(D.escalaMes[prox]||{}).length;
   if(!confirm(`Levar a escala de ${rotMes()} para ${rotMesDe(prox)}, em ${alvos.length} pessoa(s)?`
     +(temAlgo?`\n\n${rotMesDe(prox)} já tem escala montada e será substituída.`:'')))return;
-  const sO=semanasDe(origem), sD=semanasDe(prox);
+  const sO=semanasFonte(origem), sD=semanasDe(prox);
   let n=0;
   sD.forEach((sd,i)=>{
     const so=sO[i%sO.length];
@@ -2314,7 +2336,7 @@ function acaoMes(){
   const ym=document.getElementById('cp-mes').value;
   const alvos=escopoAtual(), travar=travarAtual();
   if(!confirm(`Trazer a escala de ${rotMesDe(ym)} para ${rotMes()}, em ${alvos.length} pessoa(s)?\n\nO que já estiver preenchido aqui será substituído.`))return;
-  const sO=semanasDe(ym), sD=semanas();
+  const sO=semanasFonte(ym), sD=semanas();
   let n=0;
   sD.forEach((sd,i)=>{
     const so=sO[i%sO.length];
