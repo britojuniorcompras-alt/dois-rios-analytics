@@ -299,6 +299,7 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
     <button class="btn sec" onclick="renderTudo()">Reanalisar</button>
   </div>
   <div id="lista-sug"></div>
+  <div id="sug-ocultas"></div>
   <div class="card"><h3>Equilíbrio da equipe <span class="tag">quem está pegando o peso</span></h3>
     <div class="rolar"><div id="equilibrio"></div></div></div>
 </section>
@@ -530,7 +531,9 @@ const PADRAO={
     {id:'t3',nome:'Intermediário',inicio:'12:00',fim:'21:24',intervalo:1,horas:8.4,cor:'#2e7d5b',cod:'I'}
   ],
   colaboradores:[], demanda:{}, escalaMes:{}, manuais:{}, faltas:{},
-  afastamentos:[], feriados:[], modelos:[], historico:[], ajustesBanco:[]
+  afastamentos:[], feriados:[], modelos:[], historico:[], ajustesBanco:[],
+  /* sugestões que a pessoa mandou calar: o app insiste, ela já decidiu */
+  sugOcultas:{}
 };
 const TIPOS_AF={
   ferias:{nome:'Férias',cod:'FÉ',cor:'#c9961e'},
@@ -1517,22 +1520,33 @@ function analisar(){
   });
   furos.slice(0,40).forEach(f=>{
     const cand=candidatosCobrir(f.st.id,f.d,f.t.id);
+    /* Qual folga eu devolveria no lugar da que vou tomar. Calculo AGORA, e não
+       na hora de aplicar, porque é isso que decide se a correção é segura:
+       chamar alguém na folga sem ter outro dia para devolver não é correção
+       automática, é tirar o descanso de uma pessoa sem ninguém olhando. */
+    const semF=cand.length?(sems.find(w=>w.includes(f.d))||[]):[];
+    const folgaDevolvida=cand.length?semF.find(x=>x&&x!==f.d
+      && trabalha(cand[0].c.id,x) && !ehMan(cand[0].c.id,x)
+      && escalados(f.st.id,x,getE(cand[0].c.id,x))>getDem(f.st.id,dsem(x),getE(cand[0].c.id,x))):null;
     S.push({
       nivel:'c',
+      chave:`furo|${mesAtivo}|${f.st.id}|${f.t.id}|${f.d}`,
       titulo:`${f.st.nome} · ${f.t.nome} · dia ${f.d} (${DIAS[dsem(f.d)]}) com ${f.tem} de ${f.nec}`,
       detalhe: cand.length
         ? (cand[0].extra<=0.05
             ? `${cand[0].c.nome} está de folga nesse dia e tem ${h1(cand[0].sobra)}h livres na semana — assume sem passar da jornada.`
+              +(folgaDevolvida?` A folga dele volta no dia ${folgaDevolvida}.`
+                             :` Não achei outro dia para devolver a folga: ele ficaria com uma folga a menos na semana.`)
             : `Ninguém cobre dentro da jornada. ${cand[0].c.nome} é quem sai mais barato: ${h1(cand[0].extra)}h extras${cand[0].folgaOk?'':' e ficaria no mínimo de folgas'}.`)
         : `Ninguém do setor pode assumir sem estourar o limite de dias seguidos. Reduza a necessidade desse turno, empreste alguém de outro setor, ou aceite o furo neste dia.`,
       acao: cand.length?()=>{
         setE(cand[0].c.id,f.d,f.t.id,true);
-        const sem=sems.find(w=>w.includes(f.d))||[];
-        const folga=sem.find(x=>x&&x!==f.d&&trabalha(cand[0].c.id,x)&&!ehMan(cand[0].c.id,x)
-          && escalados(f.st.id,x,getE(cand[0].c.id,x))>getDem(f.st.id,dsem(x),getE(cand[0].c.id,x)));
-        if(folga)setE(cand[0].c.id,folga,'F',true);
+        if(folgaDevolvida)setE(cand[0].c.id,folgaDevolvida,'F',true);
       }:null,
-      rotulo: cand.length?`Escalar ${cand[0].c.nome.split(' ')[0]}`:null, seguro:true
+      rotulo: cand.length?`Escalar ${cand[0].c.nome.split(' ')[0]}`:null,
+      /* só entra no "aplicar todas" quando a folga tem para onde ir e o turno
+         não custa hora extra. O resto continua clicável um a um. */
+      seguro: !!(cand.length && folgaDevolvida && cand[0].extra<=0.05)
     });
   });
 
@@ -1875,8 +1889,8 @@ function otimizar(){
 }
 function aplicarSug(i){const s=SUG[i];if(s&&s.acao){s.acao();salvar();renderTudo();}}
 function aplicarTodas(){
-  const alvo=SUG.filter(s=>s.acao&&s.seguro);
-  if(!alvo.length)return alert('Não há correções automáticas pendentes.');
+  const alvo=SUG.filter(s=>s.acao&&s.seguro&&!sugOculta(s));
+  if(!alvo.length)return alert('Não há correções automáticas pendentes.\n\nAs que sobraram mexem em folga ou geram hora extra: essas eu deixo para você aplicar uma a uma, olhando quem é.');
   if(!confirm(`Aplicar ${alvo.length} correção(ões)? As células que você ajustou à mão não serão alteradas.`))return;
   alvo.forEach(s=>{try{s.acao();}catch(e){}});
   salvar();renderTudo();
@@ -2512,18 +2526,74 @@ function copiarWhats(){
 }
 
 /* ============ SUGESTÕES ============ */
+/* Identidade estável de uma sugestão, para o "ignorar" sobreviver a uma nova
+   análise. Onde a sugestão nasce de um dia específico ela traz a própria chave;
+   no resto eu uso o título com os números trocados por #, senão a sugestão
+   voltaria a aparecer só porque o contador mudou de 13 para 12. */
+function chaveSug(s){
+  return s.chave || (mesAtivo+'|'+String(s.titulo||'').replace(/\d+([.,]\d+)?/g,'#'));
+}
+const sugOculta=s=>!!(D.sugOcultas||{})[chaveSug(s)];
+function ocultarSug(i){
+  const s=SUG[i]; if(!s)return;
+  D.sugOcultas=D.sugOcultas||{};
+  D.sugOcultas[chaveSug(s)]={titulo:s.titulo,em:new Date().toISOString()};
+  salvar(); renderTudo();
+}
+function mostrarSug(chave){
+  if(!D.sugOcultas)return;
+  delete D.sugOcultas[chave];
+  salvar(); renderTudo();
+}
+function mostrarTodasSug(){
+  if(!confirm('Trazer de volta todas as sugestões que você mandou calar?'))return;
+  D.sugOcultas={}; salvar(); renderTudo();
+}
+function verOcultas(){
+  const c=document.getElementById('sug-ocultas');
+  if(c)c.classList.toggle('on');
+}
+
 function renderSug(){
   const el=document.getElementById('lista-sug');if(!el)return;
-  const S=analisar();
+  const TODAS=analisar();
+  const S=TODAS.filter(s=>!sugOculta(s));
+  const caladas=TODAS.filter(sugOculta);
   const nome={c:'Crítico',a:'Atenção',d:'Dica'};
   el.innerHTML = !EQ().length
     ? '<div class="card"><div class="vazio"><p>Cadastre a equipe e a cobertura para o app analisar.</p></div></div>'
     : (!S.length
-      ? '<div class="nota bo"><b>Nada a corrigir.</b> Cobertura, jornada, folgas, sequências e domingos estão dentro das regras configuradas.</div>'
-      : S.map((s,i)=>`<div class="sug ${s.nivel}"><div class="top">
+      ? `<div class="nota bo"><b>Nada a corrigir${caladas.length?' além do que você mandou calar':''}.</b> Cobertura, jornada, folgas, sequências e domingos estão dentro das regras configuradas.</div>`
+      : S.map(s=>{
+          const i=TODAS.indexOf(s);
+          return `<div class="sug ${s.nivel}"><div class="top">
           <div><h4><span class="niv ${s.nivel}">${nome[s.nivel]}</span>${esc(s.titulo)}</h4><p>${esc(s.detalhe)}</p></div>
-          ${s.acao?`<button class="btn mini ${s.nivel==='c'?'terr':'sec'}" onclick="aplicarSug(${i})">${esc(s.rotulo||'Aplicar')}</button>`:''}
-        </div></div>`).join(''));
+          <div style="display:flex;gap:6px;align-items:flex-start;flex-shrink:0">
+            ${s.acao?`<button class="btn mini ${s.nivel==='c'?'terr':'sec'}" onclick="aplicarSug(${i})">${esc(s.rotulo||'Aplicar')}</button>`:''}
+            <button class="btn mini sec" title="Some com esta sugestão. Ela volta se você mandar." onclick="ocultarSug(${i})">Ignorar</button>
+          </div>
+        </div></div>`;}).join(''));
+
+  /* As caladas não somem de vez: ficam num bloco recolhido, para ninguém
+     descobrir meses depois que o app estava escondendo coisa. */
+  const oc=document.getElementById('sug-ocultas');
+  if(oc){
+    const lista=Object.entries(D.sugOcultas||{});
+    oc.innerHTML = !lista.length ? '' : `
+      <div class="card" style="margin-top:12px">
+        <a href="#" onclick="event.preventDefault();verOcultas()" style="font-size:12px;color:var(--azul)">
+          ${lista.length} sugestão(ões) ignorada(s) — ver</a>
+        <div class="corpo-ocultas" style="display:none;margin-top:10px">
+          ${lista.map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--linha)">
+            <span style="font-size:12px;color:var(--fraco)">${esc(v.titulo||k)}</span>
+            <button class="btn mini sec" onclick="mostrarSug('${esc(k).replace(/'/g,"\\'")}')">Mostrar</button>
+          </div>`).join('')}
+          <button class="btn mini sec" style="margin-top:10px" onclick="mostrarTodasSug()">Mostrar todas de novo</button>
+        </div>
+      </div>`;
+    const corpo=oc.querySelector('.corpo-ocultas');
+    if(corpo)corpo.style.display=oc.classList.contains('on')?'block':'none';
+  }
 
   const eq=document.getElementById('equilibrio');
   if(!EQ().length){eq.innerHTML='';return;}
