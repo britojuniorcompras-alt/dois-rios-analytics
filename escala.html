@@ -74,6 +74,37 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:7px 9px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--fraco);border-bottom:2px solid var(--borda);white-space:nowrap}
 td{padding:6px 9px;border-bottom:1px solid var(--linha)}
 .rolar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* O corpo da página é limitado a 1500px, que é bom para ler texto e péssimo
+   para uma grade de 31 dias: num monitor largo sobrava tela de um lado e a
+   escala pedia barra de rolagem do outro. Estes dois blocos — a grade do mês
+   e a semana ativa — saem do limite e ocupam a janela inteira quando ela é
+   larga o bastante para isso valer a pena. */
+@media(min-width:1540px){
+  /* a aba inteira sai do limite, e não só a tabela: alargar só a grade deixava
+     os botões encolhidos lá no meio e a tabela gritando nas bordas */
+  #p-escala{
+    width:calc(100vw - 44px);
+    margin-left:calc(-50vw + 50% + 22px);
+  }
+  #p-escala h2,#p-escala .sub{max-width:760px}
+}
+/* Abaixo disso não há tela sobrando para pegar: a grade só cabe se ela mesma
+   encolher. Corto o que dá para cortar sem perder informação — o nome fica
+   menor (continua inteiro no "passe o mouse") e os rótulos das colunas de
+   resumo perdem o "no mês", que o cabeçalho do mês já diz. */
+@media(max-width:1539px){
+  #grade th:first-child,#grade td:first-child{min-width:176px!important}
+  #grade td:first-child b,#grade td:first-child span{max-width:164px!important}
+  #grade th{padding-left:3px;padding-right:3px}
+  .so-larga{display:none}
+}
+/* Último aperto, para o mês de 31 dias ainda caber num notebook comum. */
+@media(max-width:1459px){
+  #grade th:first-child,#grade td:first-child{min-width:150px!important}
+  #grade td:first-child b,#grade td:first-child span{max-width:138px!important}
+  #grade th,#grade td{padding-left:1px;padding-right:1px}
+  #grade td:first-child{padding-left:6px!important}
+}
 .vazio{text-align:center;padding:36px 18px;color:var(--fraco)}
 .vazio p{margin-bottom:12px}
 .ponto{display:inline-block;width:9px;height:9px;border-radius:50%;flex:0 0 auto}
@@ -153,6 +184,10 @@ th.hoje-col{border-bottom:3px solid var(--verde)!important;color:var(--verde)}
   #esc-avisos,.nota.at{display:none!important}
   .painel{display:none!important}.painel.on{display:block!important}
   main{padding:0;max-width:none}h2{display:none}
+  /* o alargamento é coisa de tela: no papel a largura é a da folha */
+  #p-escala{width:auto!important;margin-left:0!important}
+  #grade th:first-child,#grade td:first-child{min-width:0!important}
+  #grade td:first-child b,#grade td:first-child span{max-width:none!important;white-space:normal!important}
   #cabimp{display:block;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid #1b4965}
   #cabimp b{font-size:13px;color:#1b4965}
   #cabimp span{float:right;font-size:9px;color:#555}
@@ -2460,8 +2495,8 @@ function renderGrade(){
       style="text-align:center;padding:4px 2px" ${fr?`title="${esc(fr.nome)}"`:''}>${d}
       <br><span style="font-weight:400;font-size:9px">${DC[dsem(d)]}</span>
       ${fr?`<br><span style="font-size:8px;color:var(--terracota)">${fr.tipo==='facultativo'?'opc':'fer'}</span>`:''}</th>`;}
-  h+=`<th style="text-align:center">Horas<br><span style="font-weight:400;font-size:9px">no mês</span></th>
-      <th style="text-align:center">Folgas<br><span style="font-weight:400;font-size:9px">no mês</span></th>
+  h+=`<th style="text-align:center" title="Horas no mês">Horas<br><span class="so-larga" style="font-weight:400;font-size:9px">no mês</span></th>
+      <th style="text-align:center" title="Folgas no mês">Folgas<br><span class="so-larga" style="font-weight:400;font-size:9px">no mês</span></th>
       <th style="text-align:center">Seq.</th><th style="text-align:center">Dom.</th></tr></thead><tbody>`;
 
   setoresVis().forEach(st=>{
